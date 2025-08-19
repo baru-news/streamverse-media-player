@@ -4,7 +4,6 @@ import { Search, User, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import MakeAdminButton from "@/components/MakeAdminButton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +48,6 @@ const Header = () => {
             <nav className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <MakeAdminButton />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="relative">
