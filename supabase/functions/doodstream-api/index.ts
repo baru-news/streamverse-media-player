@@ -102,94 +102,109 @@ serve(async (req) => {
     // Process the response
     let result = data;
     
-    // Transform data for specific actions
-    if (action === 'getVideoInfo' && data.status === 200) {
-      const fileInfo = data.result[0];
-      const videoData = {
-        fileCode: fileInfo.filecode,
-        title: fileInfo.title,
-        length: fileInfo.length,
-        views: parseInt(fileInfo.views),
-        uploadDate: fileInfo.uploaded,
-        canPlay: fileInfo.canplay,
-        size: fileInfo.size,
-        thumbnail: `https://img.doodcdn.com/snaps/${fileInfo.filecode}.jpg`
-      };
+      // Transform data for specific actions
+      if (action === 'getVideoInfo' && data.status === 200) {
+        const fileInfo = data.result[0];
+        const videoData = {
+          fileCode: fileInfo.filecode,
+          title: fileInfo.title,
+          length: fileInfo.length,
+          views: parseInt(fileInfo.views) || 0,
+          uploadDate: fileInfo.uploaded,
+          canPlay: fileInfo.canplay,
+          size: fileInfo.size,
+          thumbnail: `https://img.doodcdn.com/snaps/${fileInfo.filecode}.jpg`
+        };
 
-      // Sync to database if requested
-      if (syncToDatabase) {
-        await supabase.from('videos').upsert({
-          file_code: videoData.fileCode,
-          title: videoData.title,
-          duration: videoData.length,
-          views: videoData.views,
-          upload_date: new Date(videoData.uploadDate).toISOString(),
-          file_size: videoData.size,
-          status: videoData.canPlay ? 'active' : 'processing',
-          thumbnail_url: videoData.thumbnail
-        });
-      }
+        // Sync to database if requested
+        if (syncToDatabase) {
+          const { error: upsertError } = await supabase.from('videos').upsert({
+            file_code: videoData.fileCode,
+            title: videoData.title,
+            duration: videoData.length ? Math.floor(parseFloat(videoData.length)) : null,
+            views: videoData.views,
+            upload_date: videoData.uploadDate ? new Date(videoData.uploadDate).toISOString() : new Date().toISOString(),
+            file_size: videoData.size ? parseInt(videoData.size) : null,
+            status: videoData.canPlay ? 'active' : 'processing',
+            thumbnail_url: videoData.thumbnail
+          }, { onConflict: 'file_code' });
 
-      result = {
-        success: true,
-        result: videoData
-      };
-    } else if ((action === 'getVideoList' || action === 'syncVideos') && data.status === 200) {
-      const videos = data.result?.files?.map((file: any) => ({
-        fileCode: file.filecode,
-        title: file.title,
-        length: file.length,
-        views: parseInt(file.views),
-        uploadDate: file.uploaded,
-        canPlay: file.canplay,
-        size: file.size,
-        thumbnail: `https://img.doodcdn.com/snaps/${file.filecode}.jpg`
-      })) || [];
+          if (upsertError) {
+            console.error('Database upsert error for video info:', upsertError);
+          } else {
+            console.log('Successfully synced video info to database:', videoData.title);
+          }
+        }
 
-      // Sync to database if it's syncVideos action
-      if (action === 'syncVideos' && videos.length > 0) {
-        console.log(`Attempting to sync ${videos.length} videos to database`);
+        result = {
+          success: true,
+          result: videoData
+        };
+      } else if ((action === 'getVideoList' || action === 'syncVideos') && data.status === 200) {
+        console.log('Raw Doodstream API response:', JSON.stringify(data, null, 2));
         
-        const videoRecords = videos.map((video: any) => {
-          console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
-          console.log(`Video data:`, JSON.stringify(video, null, 2));
+        const videos = data.result?.files?.map((file: any) => {
+          console.log('Processing file:', JSON.stringify(file, null, 2));
           
           return {
-            file_code: video.fileCode,
-            title: video.title,
-            duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-            views: video.views || 0,
-            upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-            file_size: video.size ? parseInt(video.size) : null,
-            status: video.canPlay ? 'active' : 'processing',
-            thumbnail_url: video.thumbnail
+            fileCode: file.filecode || file.file_code, // Handle both possible field names
+            title: file.title || 'Untitled Video',
+            length: file.length || file.duration || '0',
+            views: parseInt(file.views) || 0,
+            uploadDate: file.uploaded || file.upload_date,
+            canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
+            size: file.size || file.file_size,
+            thumbnail: file.filecode ? `https://img.doodcdn.com/snaps/${file.filecode}.jpg` : 
+                      file.file_code ? `https://img.doodcdn.com/snaps/${file.file_code}.jpg` : 
+                      '/placeholder.svg'
           };
-        });
+        }) || [];
 
-        console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
+        console.log('Processed videos:', JSON.stringify(videos, null, 2));
 
-        const { data: upsertData, error: upsertError } = await supabase
-          .from('videos')
-          .upsert(videoRecords, { onConflict: 'file_code' });
+        // Sync to database if it's syncVideos action
+        if (action === 'syncVideos' && videos.length > 0) {
+          console.log(`Attempting to sync ${videos.length} videos to database`);
+          
+          const videoRecords = videos.map((video: any) => {
+            console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
+            
+            return {
+              file_code: video.fileCode,
+              title: video.title,
+              duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+              views: video.views || 0,
+              upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+              file_size: video.size ? parseInt(video.size) : null,
+              status: video.canPlay ? 'active' : 'processing',
+              thumbnail_url: video.thumbnail
+            };
+          });
 
-        if (upsertError) {
-          console.error('Database upsert error:', upsertError);
-          return new Response(
-            JSON.stringify({ 
-              success: false, 
-              error: 'Failed to sync videos to database', 
-              details: upsertError 
-            }), 
-            { 
-              status: 500, 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-            }
-          );
-        } else {
-          console.log(`Successfully synced ${videos.length} videos to database`);
-          console.log(`Upsert result:`, upsertData);
+          console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
+
+          const { data: upsertData, error: upsertError } = await supabase
+            .from('videos')
+            .upsert(videoRecords, { onConflict: 'file_code' });
+
+          if (upsertError) {
+            console.error('Database upsert error:', upsertError);
+            return new Response(
+              JSON.stringify({ 
+                success: false, 
+                error: 'Failed to sync videos to database', 
+                details: upsertError 
+              }), 
+              { 
+                status: 500, 
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+              }
+            );
+          } else {
+            console.log(`Successfully synced ${videos.length} videos to database`);
+            console.log(`Upsert result:`, upsertData);
+          }
         }
-      }
 
       result = {
         success: true,
