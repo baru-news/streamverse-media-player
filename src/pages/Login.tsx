@@ -39,10 +39,10 @@ const Login = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">S</span>
+              <span className="text-white font-bold text-xl">D</span>
             </div>
             <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Streamverse
+              DINO18
             </span>
           </Link>
         </div>
@@ -51,7 +51,7 @@ const Login = () => {
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-white">Masuk ke Akun Anda</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Masukkan email dan kata sandi untuk mengakses akun Streamverse Anda
+              Masukkan email dan kata sandi untuk mengakses akun DINO18 Anda
             </CardDescription>
           </CardHeader>
 

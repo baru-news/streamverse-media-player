@@ -59,17 +59,17 @@ const Register = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">S</span>
+              <span className="text-white font-bold text-xl">D</span>
             </div>
             <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Streamverse
+              DINO18
             </span>
           </Link>
         </div>
 
         <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-white">Bergabung dengan Streamverse</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">Bergabung dengan DINO18</CardTitle>
             <CardDescription className="text-muted-foreground">
               Buat akun baru dan mulai menikmati ribuan video berkualitas tinggi
             </CardDescription>
