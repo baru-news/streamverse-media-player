@@ -16,8 +16,8 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Sitemap
-Sitemap: https://11cc05e7-b7b1-4d35-9388-063b8de4e12a.sandbox.lovable.dev/sitemap.xml
+# Sitemap (Update with your actual domain)
+Sitemap: https://yourdomain.com/sitemap.xml
 
 # Disallow admin and auth pages
 User-agent: *
