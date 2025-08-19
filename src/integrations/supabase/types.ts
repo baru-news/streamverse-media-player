@@ -185,13 +185,17 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          description_edited: boolean | null
           duration: number | null
           file_code: string
           file_size: number | null
           id: string
+          original_title: string | null
+          slug: string | null
           status: string | null
           thumbnail_url: string | null
           title: string
+          title_edited: boolean | null
           updated_at: string
           upload_date: string | null
           views: number | null
@@ -199,13 +203,17 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          description_edited?: boolean | null
           duration?: number | null
           file_code: string
           file_size?: number | null
           id?: string
+          original_title?: string | null
+          slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
           title: string
+          title_edited?: boolean | null
           updated_at?: string
           upload_date?: string | null
           views?: number | null
@@ -213,13 +221,17 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          description_edited?: boolean | null
           duration?: number | null
           file_code?: string
           file_size?: number | null
           id?: string
+          original_title?: string | null
+          slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
           title?: string
+          title_edited?: boolean | null
           updated_at?: string
           upload_date?: string | null
           views?: number | null
