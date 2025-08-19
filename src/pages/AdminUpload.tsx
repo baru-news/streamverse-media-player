@@ -27,8 +27,6 @@ interface VideoData {
   file_size?: number;
   status?: string;
   thumbnail_url?: string;
-  title_edited?: boolean;
-  description_edited?: boolean;
 }
 
 const AdminUpload = () => {
@@ -37,7 +35,6 @@ const AdminUpload = () => {
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [editingVideo, setEditingVideo] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{ title: string; description: string }>({ title: "", description: "" });
-  const [isTestingConnection, setIsTestingConnection] = useState(false);
   const { toast } = useToast();
 
   const handleUploadComplete = async (fileCode: string, videoData: any) => {
@@ -49,33 +46,20 @@ const AdminUpload = () => {
   const loadVideos = async () => {
     setIsLoading(true);
     try {
-      console.log('Starting video load process...');
-      
       // Sync videos from Doodstream first to ensure database is up to date
-      console.log('Syncing videos from Doodstream...');
-      const syncResult = await SecureDoodstreamAPI.syncVideos();
-      console.log('Sync result:', syncResult);
+      await SecureDoodstreamAPI.syncVideos();
       
       // Get videos from database
-      console.log('Loading videos from database...');
       const videoList = await SecureDoodstreamAPI.getVideosFromDatabase(50);
       const account = await SecureDoodstreamAPI.getAccountInfo();
       
-      console.log(`Loaded ${videoList?.length || 0} videos from database`);
-      setVideos(videoList || []);
+      setVideos(videoList);
       setAccountInfo(account);
-      
-      if (!videoList || videoList.length === 0) {
-        toast({
-          title: "Info",
-          description: "Belum ada video dalam database. Pastikan API key Doodstream sudah dikonfigurasi dengan benar.",
-        });
-      }
     } catch (error) {
       console.error("Failed to load videos:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Gagal memuat daftar video. Silakan coba lagi.",
+        description: "Gagal memuat daftar video. Silakan coba lagi.",
         variant: "destructive",
       });
     } finally {
@@ -93,26 +77,12 @@ const AdminUpload = () => {
 
   const handleSaveEdit = async (videoId: string) => {
     try {
-      const currentVideo = videos.find(v => v.id === videoId);
-      const titleChanged = currentVideo?.title !== editForm.title;
-      const descriptionChanged = currentVideo?.description !== editForm.description;
-
-      const updateData: any = {
-        title: editForm.title,
-        description: editForm.description
-      };
-
-      // Set flags if content has been manually edited
-      if (titleChanged) {
-        updateData.title_edited = true;
-      }
-      if (descriptionChanged) {
-        updateData.description_edited = true;
-      }
-
       const { error } = await supabase
         .from('videos')
-        .update(updateData)
+        .update({
+          title: editForm.title,
+          description: editForm.description
+        })
         .eq('id', videoId);
 
       if (error) throw error;
@@ -127,9 +97,7 @@ const AdminUpload = () => {
       setEditingVideo(null);
       toast({
         title: "Berhasil",
-        description: titleChanged || descriptionChanged 
-          ? "Video berhasil diperbarui. Judul/deskripsi yang Anda edit tidak akan tertimpa saat sinkronisasi dari Doodstream."
-          : "Video berhasil diperbarui.",
+        description: "Video berhasil diperbarui.",
       });
     } catch (error) {
       console.error("Failed to update video:", error);
@@ -144,37 +112,6 @@ const AdminUpload = () => {
   const handleCancelEdit = () => {
     setEditingVideo(null);
     setEditForm({ title: "", description: "" });
-  };
-
-  const testDoodstreamConnection = async () => {
-    setIsTestingConnection(true);
-    try {
-      console.log('Testing Doodstream API connection...');
-      const account = await SecureDoodstreamAPI.getAccountInfo();
-      
-      if (account) {
-        toast({
-          title: "✅ Koneksi Berhasil",
-          description: `Terhubung dengan akun Doodstream: ${account.email || 'Unknown'}`,
-        });
-      } else {
-        toast({
-          title: "❌ Koneksi Gagal", 
-          description: "Tidak dapat mendapatkan informasi akun dari Doodstream",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Connection test failed:", error);
-      const errorMessage = error instanceof Error ? error.message : "Koneksi ke Doodstream API gagal";
-      toast({
-        title: "❌ Test Koneksi Gagal",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsTestingConnection(false);
-    }
   };
 
   useEffect(() => {
@@ -337,16 +274,9 @@ const AdminUpload = () => {
                           ) : (
                             <>
                               <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1 mr-2">
-                                  <h3 className="font-medium text-white line-clamp-2 flex items-center gap-2">
-                                    {video.title}
-                                    {video.title_edited && (
-                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                                        Edited
-                                      </span>
-                                    )}
-                                  </h3>
-                                </div>
+                                <h3 className="font-medium text-white line-clamp-2 flex-1 mr-2">
+                                  {video.title}
+                                </h3>
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -358,16 +288,9 @@ const AdminUpload = () => {
                               </div>
                               
                               {video.description && (
-                                <div className="mb-3">
-                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
-                                    {video.description}
-                                  </p>
-                                  {video.description_edited && (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-300 border border-green-500/30">
-                                      Deskripsi diedit
-                                    </span>
-                                  )}
-                                </div>
+                                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                  {video.description}
+                                </p>
                               )}
                               
                               <div className="text-sm text-muted-foreground space-y-1">
@@ -479,21 +402,15 @@ const AdminUpload = () => {
                     <CardTitle className="text-white">Konfigurasi API</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
-                        <h4 className="font-medium text-yellow-300 mb-2">⚙️ API Key Doodstream</h4>
-                        <p className="text-muted-foreground mb-3">
-                          API key sudah dikonfigurasi menggunakan Supabase Secrets. 
-                          Gunakan tombol di bawah untuk menguji koneksi.
-                        </p>
-                        <Button 
-                          onClick={testDoodstreamConnection}
-                          disabled={isTestingConnection}
-                          variant="outline"
-                          className="gap-2"
-                        >
-                          {isTestingConnection ? "Menguji..." : "Test Koneksi API"}
-                        </Button>
+                    <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
+                      <h4 className="font-medium text-yellow-300 mb-2">⚠️ Konfigurasi Diperlukan</h4>
+                      <p className="text-yellow-200 text-sm mb-4">
+                        Untuk menggunakan fitur upload dan streaming Doodstream, Anda perlu mengkonfigurasi API key di Supabase secrets.
+                      </p>
+                      <div className="space-y-2 text-sm text-yellow-200">
+                        <p>1. Dapatkan API key dari dashboard Doodstream</p>
+                        <p>2. Simpan API key di Supabase secrets dengan nama "DOODSTREAM_API_KEY"</p>
+                        <p>3. Restart aplikasi untuk memuat konfigurasi baru</p>
                       </div>
                     </div>
                   </CardContent>
