@@ -81,7 +81,41 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 4. Get upload server securely
+  // 4. Upload video securely
+  static async uploadVideo(file: File, title?: string): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', title || file.name.replace(/\.[^/.]+$/, ""));
+
+      const { data, error } = await supabase.functions.invoke('doodstream-api', {
+        body: formData
+      });
+
+      if (error) throw error;
+      
+      if (data?.success) {
+        return {
+          success: true,
+          file_code: data.result?.file_code,
+          message: data.result?.message
+        };
+      } else {
+        return {
+          success: false,
+          error: data?.error || 'Upload failed'
+        };
+      }
+    } catch (error) {
+      console.error('Upload video error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Upload failed'
+      };
+    }
+  }
+
+  // 5. Get upload server securely
   static async getUploadServer(): Promise<any> {
     try {
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
@@ -103,7 +137,7 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 5. Generate direct link securely (Premium feature)
+  // 6. Generate direct link securely (Premium feature)
   static async generateDirectLink(fileCode: string): Promise<string | null> {
     try {
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
@@ -126,7 +160,7 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 6. Sync videos from Doodstream to database
+  // 7. Sync videos from Doodstream to database
   static async syncVideos(): Promise<any> {
     try {
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
@@ -148,7 +182,7 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 7. Get videos from database
+  // 8. Get videos from database
   static async getVideosFromDatabase(limit: number = 12): Promise<any[]> {
     try {
       const { data, error } = await supabase
@@ -165,12 +199,12 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 7. Generate embed HTML
+  // 9. Generate embed HTML
   static generateEmbedHTML(fileCode: string, width: number = 640, height: number = 360): string {
     return `<iframe src="https://dood.re/e/${fileCode}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
   }
 
-  // 8. Generate embed URL
+  // 10. Generate embed URL
   static generateEmbedURL(fileCode: string, autoplay: boolean = false): string {
     return `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
   }

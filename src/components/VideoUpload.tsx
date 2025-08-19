@@ -6,7 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { DoodstreamAPI, type UploadResponse } from "@/lib/doodstream";
+import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+
+interface UploadResponse {
+  success: boolean;
+  file_code?: string;
+  message?: string;
+  error?: string;
+}
 
 interface VideoUploadProps {
   onUploadComplete?: (fileCode: string, videoData: any) => void;
@@ -60,17 +67,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
     setUploadResult(null);
 
     try {
-      // PENTING: API key harus diambil dari Supabase secrets
-      // Untuk demo, gunakan placeholder - ganti dengan implementasi Supabase
-      const apiKey = "YOUR_DOODSTREAM_API_KEY"; // Akan diambil dari Supabase
-      
-      if (!apiKey || apiKey === "YOUR_DOODSTREAM_API_KEY") {
-        throw new Error("API key Doodstream belum dikonfigurasi. Silakan hubungi administrator.");
-      }
-
-      const doodstream = new DoodstreamAPI(apiKey);
-      
-      // Simulasi progress (karena Doodstream API tidak memberikan real-time progress)
+      // Simulasi progress (karena upload berjalan di background)
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
@@ -81,7 +78,8 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         });
       }, 500);
 
-      const result = await doodstream.uploadVideo(file, title);
+      // Upload menggunakan SecureDoodstreamAPI (melalui edge function)
+      const result = await SecureDoodstreamAPI.uploadVideo(file, title);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -94,9 +92,13 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         });
         
         // Dapatkan info video yang baru diunggah
-        const videoInfo = await doodstream.getVideoInfo(result.file_code);
-        
-        onUploadComplete?.(result.file_code, videoInfo);
+        try {
+          const videoInfo = await SecureDoodstreamAPI.getVideoInfo(result.file_code, true);
+          onUploadComplete?.(result.file_code, videoInfo);
+        } catch (error) {
+          console.error("Error getting video info:", error);
+          onUploadComplete?.(result.file_code, null);
+        }
       } else {
         throw new Error(result.error || "Upload gagal");
       }

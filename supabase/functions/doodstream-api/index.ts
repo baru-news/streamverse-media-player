@@ -36,7 +36,71 @@ serve(async (req) => {
       );
     }
 
-    // Parse request body
+    // Handle file upload action separately (multipart form data)
+    if (req.headers.get('content-type')?.includes('multipart/form-data')) {
+      console.log('Processing file upload action');
+      
+      const formData = await req.formData();
+      const file = formData.get('file') as File;
+      const title = formData.get('title') as string || 'Untitled Video';
+      
+      if (!file) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'No file provided' }), 
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Step 1: Get upload server
+      const uploadServerResponse = await fetch(`https://doodapi.co/api/upload/server?key=${apiKey}`);
+      const uploadServerData = await uploadServerResponse.json();
+      
+      if (uploadServerData.status !== 200) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to get upload server' }), 
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Step 2: Upload file to Doodstream
+      const uploadUrl = uploadServerData.result;
+      const uploadFormData = new FormData();
+      uploadFormData.append('api_key', apiKey);
+      uploadFormData.append('file', file);
+      uploadFormData.append('title', title);
+
+      console.log('Uploading file to Doodstream:', uploadUrl);
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: uploadFormData
+      });
+
+      const uploadResult = await uploadResponse.json();
+      console.log('Doodstream upload response:', uploadResult);
+
+      if (uploadResult.status === 200) {
+        return new Response(JSON.stringify({
+          success: true,
+          result: {
+            file_code: uploadResult.result?.[0]?.filecode,
+            message: uploadResult.msg
+          }
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } else {
+        return new Response(JSON.stringify({
+          success: false,
+          error: uploadResult.msg || 'Upload failed'
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // Parse request body for other actions
     const { action, fileCode, page = 1, perPage = 12, syncToDatabase = false } = await req.json();
     console.log('Processing action:', action, 'with params:', { fileCode, page, perPage, syncToDatabase });
 
