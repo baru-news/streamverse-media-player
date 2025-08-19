@@ -163,46 +163,78 @@ serve(async (req) => {
         console.log('Processed videos:', JSON.stringify(videos, null, 2));
 
         // Sync to database if it's syncVideos action
-        if (action === 'syncVideos' && videos.length > 0) {
+        if (action === 'syncVideos') {
           console.log(`Attempting to sync ${videos.length} videos to database`);
           
-          const videoRecords = videos.map((video: any) => {
-            console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
-            
-            return {
-              file_code: video.fileCode,
-              title: video.title,
-              duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-              views: video.views || 0,
-              upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-              file_size: video.size ? parseInt(video.size) : null,
-              status: video.canPlay ? 'active' : 'processing',
-              thumbnail_url: video.thumbnail
-            };
-          });
+          // Get current file codes from Doodstream
+          const doodstreamFileCodes = videos.map((video: any) => video.fileCode).filter(Boolean);
+          console.log('Current Doodstream file codes:', doodstreamFileCodes);
+          
+          // If there are videos from Doodstream, sync them
+          if (videos.length > 0) {
+            const videoRecords = videos.map((video: any) => {
+              console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
+              
+              return {
+                file_code: video.fileCode,
+                title: video.title,
+                duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+                views: video.views || 0,
+                upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+                file_size: video.size ? parseInt(video.size) : null,
+                status: video.canPlay ? 'active' : 'processing',
+                thumbnail_url: video.thumbnail
+              };
+            });
 
-          console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
+            console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
 
-          const { data: upsertData, error: upsertError } = await supabase
-            .from('videos')
-            .upsert(videoRecords, { onConflict: 'file_code' });
+            const { data: upsertData, error: upsertError } = await supabase
+              .from('videos')
+              .upsert(videoRecords, { onConflict: 'file_code' });
 
-          if (upsertError) {
-            console.error('Database upsert error:', upsertError);
-            return new Response(
-              JSON.stringify({ 
-                success: false, 
-                error: 'Failed to sync videos to database', 
-                details: upsertError 
-              }), 
-              { 
-                status: 500, 
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-              }
-            );
+            if (upsertError) {
+              console.error('Database upsert error:', upsertError);
+              return new Response(
+                JSON.stringify({ 
+                  success: false, 
+                  error: 'Failed to sync videos to database', 
+                  details: upsertError 
+                }), 
+                { 
+                  status: 500, 
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+                }
+              );
+            } else {
+              console.log(`Successfully synced ${videos.length} videos to database`);
+            }
+          }
+          
+          // Remove videos from database that no longer exist in Doodstream
+          if (doodstreamFileCodes.length > 0) {
+            const { data: deletedVideos, error: deleteError } = await supabase
+              .from('videos')
+              .delete()
+              .not('file_code', 'in', `(${doodstreamFileCodes.map(code => `"${code}"`).join(',')})`);
+
+            if (deleteError) {
+              console.error('Error deleting removed videos:', deleteError);
+            } else {
+              console.log('Successfully removed deleted videos from database');
+            }
           } else {
-            console.log(`Successfully synced ${videos.length} videos to database`);
-            console.log(`Upsert result:`, upsertData);
+            // If no videos from Doodstream, delete all videos from database
+            const { error: deleteAllError } = await supabase
+              .from('videos')
+              .delete()
+              .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+
+            if (deleteAllError) {
+              console.error('Error deleting all videos:', deleteAllError);
+            } else {
+              console.log('No videos in Doodstream - removed all videos from database');
+            }
           }
         }
 
