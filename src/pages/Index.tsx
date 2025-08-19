@@ -18,39 +18,6 @@ const Index = () => {
         <div className="space-y-8">
           {!user && (
             <div className="container mx-auto px-4 py-16">
-              {/* Features Section */}
-              <div className="grid md:grid-cols-3 gap-8 mb-16">
-                <div className="text-center p-6 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50">
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Play className="w-8 h-8 text-white" fill="currentColor" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Streaming HD</h3>
-                  <p className="text-muted-foreground">
-                    Nikmati video berkualitas tinggi dengan streaming yang lancar dan stabil.
-                  </p>
-                </div>
-                
-                <div className="text-center p-6 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50">
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-white">∞</span>
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Koleksi Lengkap</h3>
-                  <p className="text-muted-foreground">
-                    Akses ribuan video dari berbagai kategori yang terus diperbarui.
-                  </p>
-                </div>
-                
-                <div className="text-center p-6 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50">
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-white">🔒</span>
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Aman & Privat</h3>
-                  <p className="text-muted-foreground">
-                    Platform yang aman dengan sistem keamanan terdepan untuk privasi Anda.
-                  </p>
-                </div>
-              </div>
-              
               {/* Call to Action */}
               <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-16">
                 <h2 className="text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
