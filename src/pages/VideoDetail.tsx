@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Play, Pause, Volume2, Maximize, ThumbsUp, Share2, Download, Eye, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,16 +7,34 @@ import VideoCard from "@/components/VideoCard";
 import Header from "@/components/Header";
 import DoodstreamPlayer from "@/components/DoodstreamPlayer";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const VideoDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [video, setVideo] = useState<any>(null);
   const [relatedVideos, setRelatedVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [likesCount, setLikesCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isSubscribeLoading, setIsSubscribeLoading] = useState(false);
 
   useEffect(() => {
     loadVideoData();
   }, [id]);
+
+  useEffect(() => {
+    if (video && user) {
+      checkLikeStatus();
+      checkSubscriptionStatus();
+    }
+  }, [video, user]);
 
   const loadVideoData = async () => {
     try {
@@ -46,6 +64,9 @@ const VideoDetail = () => {
           };
           setVideo(videoData);
           
+          // Load likes count
+          await loadLikesCount(currentVideo.id);
+          
           // Get related videos (exclude current video)
           const related = allVideos
             .filter(v => v.file_code !== id && v.id !== id)
@@ -67,6 +88,248 @@ const VideoDetail = () => {
       console.error('Error loading video data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadLikesCount = async (videoId: string) => {
+    try {
+      const { count } = await supabase
+        .from('video_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('video_id', videoId);
+      
+      setLikesCount(count || 0);
+    } catch (error) {
+      console.error('Error loading likes count:', error);
+    }
+  };
+
+  const checkLikeStatus = async () => {
+    if (!user || !video) return;
+    
+    try {
+      const { data } = await supabase
+        .from('video_likes')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('video_id', video.id)
+        .maybeSingle();
+      
+      setIsLiked(!!data);
+    } catch (error) {
+      console.error('Error checking like status:', error);
+    }
+  };
+
+  const checkSubscriptionStatus = async () => {
+    if (!user || !video) return;
+    
+    try {
+      const { data } = await supabase
+        .from('user_subscriptions')
+        .select('id')
+        .eq('subscriber_id', user.id)
+        .eq('creator_name', video.creator)
+        .maybeSingle();
+      
+      setIsSubscribed(!!data);
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+      toast({
+        title: "Login Diperlukan",
+        description: "Silakan login untuk menyukai video ini",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (!video) return;
+
+    setIsLikeLoading(true);
+    try {
+      if (isLiked) {
+        // Unlike
+        await supabase
+          .from('video_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('video_id', video.id);
+        
+        setIsLiked(false);
+        setLikesCount(prev => Math.max(0, prev - 1));
+        toast({
+          title: "Like Dihapus",
+          description: "Anda telah menghapus like dari video ini",
+        });
+      } else {
+        // Like
+        await supabase
+          .from('video_likes')
+          .insert({
+            user_id: user.id,
+            video_id: video.id
+          });
+        
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
+        toast({
+          title: "Video Disukai!",
+          description: "Terima kasih telah menyukai video ini",
+        });
+      }
+    } catch (error) {
+      console.error('Error handling like:', error);
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLikeLoading(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    if (!user) {
+      toast({
+        title: "Login Diperlukan",
+        description: "Silakan login untuk subscribe creator ini",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (!video) return;
+
+    setIsSubscribeLoading(true);
+    try {
+      if (isSubscribed) {
+        // Unsubscribe
+        await supabase
+          .from('user_subscriptions')
+          .delete()
+          .eq('subscriber_id', user.id)
+          .eq('creator_name', video.creator);
+        
+        setIsSubscribed(false);
+        toast({
+          title: "Unsubscribe Berhasil",
+          description: `Anda telah unsubscribe dari ${video.creator}`,
+        });
+      } else {
+        // Subscribe
+        await supabase
+          .from('user_subscriptions')
+          .insert({
+            subscriber_id: user.id,
+            creator_name: video.creator
+          });
+        
+        setIsSubscribed(true);
+        toast({
+          title: "Subscribe Berhasil!",
+          description: `Anda sekarang mengikuti ${video.creator}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error handling subscription:', error);
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubscribeLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: video?.title || 'Video DINO18',
+          text: `Tonton video menarik ini: ${video?.title}`,
+          url: shareUrl,
+        });
+        toast({
+          title: "Dibagikan!",
+          description: "Video berhasil dibagikan",
+        });
+      } catch (error) {
+        // User cancelled share or error occurred
+        handleCopyLink(shareUrl);
+      }
+    } else {
+      handleCopyLink(shareUrl);
+    }
+  };
+
+  const handleCopyLink = (url: string) => {
+    navigator.clipboard.writeText(url).then(() => {
+      toast({
+        title: "Link Disalin!",
+        description: "Link video telah disalin ke clipboard",
+      });
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "Gagal menyalin link",
+        variant: "destructive",
+      });
+    });
+  };
+
+  const handleDownload = async () => {
+    if (!user) {
+      toast({
+        title: "Login Diperlukan",
+        description: "Silakan login untuk mengunduh video ini",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (video?.fileCode) {
+      try {
+        // Use the SecureDoodstreamAPI to generate direct link
+        const downloadLink = await SecureDoodstreamAPI.generateDirectLink(video.fileCode);
+        if (downloadLink) {
+          window.open(downloadLink, '_blank');
+          toast({
+            title: "Download Dimulai",
+            description: "Video akan segera diunduh",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Link download tidak tersedia saat ini",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Error getting download link:', error);
+        toast({
+          title: "Error",
+          description: "Terjadi kesalahan saat mendapatkan link download",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Error",
+        description: "File code tidak tersedia",
+        variant: "destructive",
+      });
     }
   };
 
@@ -176,15 +439,20 @@ const VideoDetail = () => {
                   </div>
 
                   <div className="flex items-center gap-4 mb-6">
-                    <Button variant="hero" className="gap-2">
-                      <ThumbsUp className="w-4 h-4" />
-                      Suka
+                    <Button 
+                      variant={isLiked ? "default" : "hero"} 
+                      className="gap-2" 
+                      onClick={handleLike}
+                      disabled={isLikeLoading}
+                    >
+                      <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                      {isLiked ? 'Disukai' : 'Suka'} ({likesCount})
                     </Button>
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2" onClick={handleShare}>
                       <Share2 className="w-4 h-4" />
                       Bagikan
                     </Button>
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2" onClick={handleDownload}>
                       <Download className="w-4 h-4" />
                       Unduh
                     </Button>
@@ -202,8 +470,13 @@ const VideoDetail = () => {
                         <h3 className="font-semibold text-white">{video.creator}</h3>
                         <p className="text-muted-foreground text-sm">Creator verified</p>
                       </div>
-                      <Button variant="hero" size="sm">
-                        Subscribe
+                      <Button 
+                        variant="hero" 
+                        size="sm"
+                        onClick={handleSubscribe}
+                        disabled={isSubscribeLoading}
+                      >
+                        {isSubscribed ? 'Subscribed' : 'Subscribe'}
                       </Button>
                     </div>
                   </CardContent>
