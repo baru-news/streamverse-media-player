@@ -6,30 +6,36 @@ interface VideoGridProps {
   title: string;
   limit?: number;
   selectedHashtagId?: string | null;
+  searchQuery?: string;
 }
 
-const VideoGrid = ({ title, limit = 12, selectedHashtagId }: VideoGridProps) => {
+const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashtagId, searchQuery }) => {
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadVideos();
-  }, [limit, selectedHashtagId]);
+  }, [limit, selectedHashtagId, searchQuery]);
 
   const loadVideos = async () => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      setIsLoading(true);
-      setError(null);
+      let fetchedVideos: any[];
       
-      // Get videos from database (now public access)
-      const dbVideos = selectedHashtagId
-        ? await SecureDoodstreamAPI.getVideosFromDatabaseByHashtag(selectedHashtagId, limit)
-        : await SecureDoodstreamAPI.getVideosFromDatabase(limit);
+      if (searchQuery?.trim()) {
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, selectedHashtagId || undefined, limit);
+      } else if (selectedHashtagId) {
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseByHashtag(selectedHashtagId, limit);
+      } else {
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabase(limit);
+      }
       
-      if (dbVideos && dbVideos.length > 0) {
+      if (fetchedVideos && fetchedVideos.length > 0) {
         // Transform database videos to match VideoCard props
-        const transformedVideos = dbVideos.map(video => ({
+        const transformedVideos = fetchedVideos.map(video => ({
           id: video.file_code || video.id, // Use file_code as id for proper routing
           title: video.title,
           thumbnail: video.thumbnail_url || `https://img.doodcdn.io/snaps/${video.file_code}.jpg`,

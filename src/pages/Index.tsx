@@ -1,21 +1,28 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
-import { useState } from "react";
 
 const Index = () => {
   const { user } = useAuth();
   const { settings } = useWebsiteSettings();
   const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const getVideoGridTitle = () => {
-    return selectedHashtagId ? "Video Berdasarkan Kategori" : "Video Terbaru";
+    if (searchQuery.trim()) {
+      return `Hasil pencarian: "${searchQuery}"`;
+    }
+    if (selectedHashtagId) {
+      return "Video Berdasarkan Kategori";
+    }
+    return "Video Terbaru";
   };
   
   return (
@@ -26,7 +33,7 @@ const Index = () => {
         keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia"
         type="website"
       />
-      <Header />
+      <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
         <HeroSection />
@@ -65,6 +72,7 @@ const Index = () => {
             title={getVideoGridTitle()} 
             limit={20} 
             selectedHashtagId={selectedHashtagId}
+            searchQuery={searchQuery}
           />
         </div>
       </main>

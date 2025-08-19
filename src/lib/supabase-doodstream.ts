@@ -222,12 +222,51 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 10. Generate embed HTML
+  // 10. Get videos from database filtered by search query
+  static async getVideosFromDatabaseBySearch(searchQuery: string, hashtagId?: string, limit: number = 12): Promise<any[]> {
+    try {
+      let query = supabase
+        .from('videos')
+        .select(`
+          *,
+          video_hashtags (
+            hashtag_id,
+            hashtags (
+              id,
+              name,
+              color
+            )
+          )
+        `);
+
+      // Add search filter
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      // Add hashtag filter if provided
+      if (hashtagId) {
+        query = query.eq('video_hashtags.hashtag_id', hashtagId);
+      }
+
+      const { data, error } = await query
+        .order('upload_date', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Get videos by search from database error:', error);
+      return [];
+    }
+  }
+
+  // 11. Generate embed HTML
   static generateEmbedHTML(fileCode: string, width: number = 640, height: number = 360): string {
     return `<iframe src="https://dood.re/e/${fileCode}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
   }
 
-  // 11. Generate embed URL
+  // 12. Generate embed URL
   static generateEmbedURL(fileCode: string, autoplay: boolean = false): string {
     return `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
   }

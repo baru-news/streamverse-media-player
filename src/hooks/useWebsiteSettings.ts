@@ -41,6 +41,17 @@ export const useWebsiteSettings = () => {
         link.href = settingsMap.favicon_url;
       }
 
+      // Update Google verification meta tag if available
+      if (settingsMap.google_verification_code) {
+        let meta = document.querySelector('meta[name="google-site-verification"]') as HTMLMetaElement;
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'google-site-verification');
+          document.getElementsByTagName('head')[0].appendChild(meta);
+        }
+        meta.setAttribute('content', settingsMap.google_verification_code);
+      }
+
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
@@ -76,6 +87,16 @@ export const useWebsiteSettings = () => {
           document.getElementsByTagName('head')[0].appendChild(link);
         }
         link.href = value;
+      }
+
+      if (key === 'google_verification_code' && value) {
+        let meta = document.querySelector('meta[name="google-site-verification"]') as HTMLMetaElement;
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'google-site-verification');
+          document.getElementsByTagName('head')[0].appendChild(meta);
+        }
+        meta.setAttribute('content', value);
       }
 
     } catch (error) {

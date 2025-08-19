@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, Image, FileText, Save, Loader2 } from "lucide-react";
+import { Globe, Image, FileText, Save, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,8 @@ const WebsiteSettings = () => {
         updateSetting('hero_description', currentSettings.hero_description || ''),
         updateSetting('site_logo_url', currentSettings.site_logo_url || ''),
         updateSetting('favicon_url', currentSettings.favicon_url || ''),
+        updateSetting('google_verification_code', currentSettings.google_verification_code || ''),
+        updateSetting('meta_keywords', currentSettings.meta_keywords || ''),
       ]);
 
       toast({
@@ -135,6 +137,46 @@ const WebsiteSettings = () => {
               className="bg-background/50"
               rows={3}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* SEO & Analytics */}
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Search className="w-5 h-5" />
+            SEO & Analytics
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="google_verification_code" className="text-white">Google Search Console Verification Code</Label>
+            <Input
+              id="google_verification_code"
+              value={currentSettings.google_verification_code || ''}
+              onChange={(e) => handleInputChange('google_verification_code', e.target.value)}
+              placeholder="google-site-verification=xxxxxxxxx"
+              className="bg-background/50"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Masukkan kode verifikasi dari Google Search Console (tanpa tag meta)
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="meta_keywords" className="text-white">Meta Keywords</Label>
+            <Textarea
+              id="meta_keywords"
+              value={currentSettings.meta_keywords || ''}
+              onChange={(e) => handleInputChange('meta_keywords', e.target.value)}
+              placeholder="video streaming, film online, entertainment"
+              className="bg-background/50"
+              rows={2}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Keywords umum untuk SEO (pisahkan dengan koma)
+            </p>
           </div>
         </CardContent>
       </Card>

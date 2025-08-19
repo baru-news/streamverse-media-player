@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, User, LogOut, Shield } from "lucide-react";
+import { Search, User, LogOut, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,9 +12,40 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const Header = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+interface HeaderProps {
+  onSearchChange?: (query: string) => void;
+  searchQuery?: string;
+}
+
+const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProps) => {
+  const [internalSearchQuery, setInternalSearchQuery] = useState("");
   const { user, signOut, isAdmin } = useAuth();
+
+  const searchQuery = externalSearchQuery ?? internalSearchQuery;
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      onSearchChange?.(searchQuery);
+    }, 300); // Debounce search
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, onSearchChange]);
+
+  const handleSearchChange = (value: string) => {
+    if (externalSearchQuery !== undefined) {
+      onSearchChange?.(value);
+    } else {
+      setInternalSearchQuery(value);
+    }
+  };
+
+  const clearSearch = () => {
+    if (externalSearchQuery !== undefined) {
+      onSearchChange?.("");
+    } else {
+      setInternalSearchQuery("");
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-nav-bg backdrop-blur-md border-b border-border/50">
@@ -38,9 +69,19 @@ const Header = () => {
                 type="text"
                 placeholder="Cari video..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-muted/50 border-muted hover:bg-muted/70 focus:bg-muted transition-all duration-200"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 pr-10 bg-muted/50 border-muted hover:bg-muted/70 focus:bg-muted transition-all duration-200"
               />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearSearch}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted-foreground/20"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              )}
             </div>
           </div>
 
