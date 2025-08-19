@@ -1,9 +1,7 @@
 // Secure Doodstream API integration using Supabase Edge Functions
 // This approach keeps API keys secure on the server side
-// NOTE: This requires Supabase integration to be enabled first
 
-// Uncomment this import after Supabase integration is complete:
-// import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DoodstreamAPIResponse {
   success: boolean;
@@ -14,14 +12,13 @@ interface DoodstreamAPIResponse {
 export class SecureDoodstreamAPI {
   
   // 1. Get video information securely
-  static async getVideoInfo(fileCode: string): Promise<any> {
+  static async getVideoInfo(fileCode: string, syncToDatabase: boolean = false): Promise<any> {
     try {
-      // TODO: Uncomment after Supabase integration
-      /*
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
         body: { 
           action: 'getVideoInfo', 
-          fileCode 
+          fileCode,
+          syncToDatabase
         }
       });
 
@@ -32,10 +29,6 @@ export class SecureDoodstreamAPI {
       } else {
         throw new Error(data?.error || 'Failed to get video info');
       }
-      */
-      
-      // Temporary placeholder until Supabase is integrated
-      throw new Error('Supabase integration required. Please integrate Supabase first.');
     } catch (error) {
       console.error('Get video info error:', error);
       throw error;
@@ -45,8 +38,6 @@ export class SecureDoodstreamAPI {
   // 2. Get video list securely
   static async getVideoList(page: number = 1, perPage: number = 10): Promise<any[]> {
     try {
-      // TODO: Uncomment after Supabase integration
-      /*
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
         body: { 
           action: 'getVideoList', 
@@ -62,11 +53,6 @@ export class SecureDoodstreamAPI {
       } else {
         throw new Error(data?.error || 'Failed to get video list');
       }
-      */
-      
-      // Temporary placeholder until Supabase is integrated
-      console.warn('Supabase integration required for video list');
-      return [];
     } catch (error) {
       console.error('Get video list error:', error);
       return [];
@@ -76,8 +62,6 @@ export class SecureDoodstreamAPI {
   // 3. Get account information securely
   static async getAccountInfo(): Promise<any> {
     try {
-      // TODO: Uncomment after Supabase integration
-      /*
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
         body: { 
           action: 'getAccountInfo' 
@@ -91,10 +75,6 @@ export class SecureDoodstreamAPI {
       } else {
         throw new Error(data?.error || 'Failed to get account info');
       }
-      */
-      
-      // Temporary placeholder until Supabase is integrated
-      return null;
     } catch (error) {
       console.error('Get account info error:', error);
       throw error;
@@ -104,8 +84,6 @@ export class SecureDoodstreamAPI {
   // 4. Get upload server securely
   static async getUploadServer(): Promise<any> {
     try {
-      // TODO: Uncomment after Supabase integration
-      /*
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
         body: { 
           action: 'getUploadServer' 
@@ -115,14 +93,10 @@ export class SecureDoodstreamAPI {
       if (error) throw error;
       
       if (data?.success) {
-        return data;
+        return data.result;
       } else {
         throw new Error(data?.error || 'Failed to get upload server');
       }
-      */
-      
-      // Temporary placeholder until Supabase is integrated
-      throw new Error('Supabase integration required');
     } catch (error) {
       console.error('Get upload server error:', error);
       throw error;
@@ -132,8 +106,6 @@ export class SecureDoodstreamAPI {
   // 5. Generate direct link securely (Premium feature)
   static async generateDirectLink(fileCode: string): Promise<string | null> {
     try {
-      // TODO: Uncomment after Supabase integration
-      /*
       const { data, error } = await supabase.functions.invoke('doodstream-api', {
         body: { 
           action: 'generateDirectLink',
@@ -146,7 +118,6 @@ export class SecureDoodstreamAPI {
       if (data?.success && data.result?.length > 0) {
         return data.result[0].direct_link;
       }
-      */
       
       return null;
     } catch (error) {
@@ -155,31 +126,42 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 6. Upload video with secure API handling
-  static async uploadVideo(file: File, title?: string, folder?: string): Promise<any> {
+  // 6. Sync videos from Doodstream to database
+  static async syncVideos(): Promise<any> {
     try {
-      // Step 1: Get upload server
-      const serverData = await this.getUploadServer();
+      const { data, error } = await supabase.functions.invoke('doodstream-api', {
+        body: { 
+          action: 'syncVideos'
+        }
+      });
+
+      if (error) throw error;
       
-      if (!serverData.upload_url) {
-        throw new Error('Failed to get upload server');
+      if (data?.success) {
+        return data.result;
+      } else {
+        throw new Error(data?.error || 'Failed to sync videos');
       }
-
-      // Step 2: Upload file directly to Doodstream
-      // Note: This still requires the API key to be sent with the file
-      // For maximum security, consider implementing a proxy upload through edge functions
-      const formData = new FormData();
-      formData.append('file', file);
-      if (title) formData.append('title', title);
-      if (folder) formData.append('fld_id', folder);
-
-      // This would need to be handled through the edge function for complete security
-      // For now, we'll throw an error to indicate this needs backend implementation
-      throw new Error('Direct upload needs to be implemented through edge functions for security');
-
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Sync videos error:', error);
       throw error;
+    }
+  }
+
+  // 7. Get videos from database
+  static async getVideosFromDatabase(limit: number = 12): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .order('upload_date', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Get videos from database error:', error);
+      return [];
     }
   }
 

@@ -1,131 +1,193 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Doodstream API Proxy Edge Function with Database Integration
+// This securely handles Doodstream API calls and syncs with database
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 serve(async (req) => {
+  console.log('Doodstream API request received:', req.method, req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get Doodstream API key from Supabase secrets
-    const DOODSTREAM_API_KEY = Deno.env.get('DOODSTREAM_API_KEY')
-    
-    if (!DOODSTREAM_API_KEY) {
-      throw new Error('DOODSTREAM_API_KEY not configured in Supabase secrets')
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Get the API key from environment variables
+    const apiKey = Deno.env.get('DOODSTREAM_API_KEY');
+    if (!apiKey) {
+      console.error('DOODSTREAM_API_KEY not found in environment');
+      return new Response(
+        JSON.stringify({ success: false, error: 'API key not configured' }), 
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    const { action, fileCode, page = 1, perPage = 10 } = await req.json()
+    // Parse request body
+    const { action, fileCode, page = 1, perPage = 12, syncToDatabase = false } = await req.json();
+    console.log('Processing action:', action, 'with params:', { fileCode, page, perPage, syncToDatabase });
 
-    const baseUrl = 'https://doodapi.com/api'
-    let url = ''
-    let responseData = null
+    let apiUrl: string;
+    let params = new URLSearchParams({ key: apiKey });
 
+    // Build API URL based on action
     switch (action) {
       case 'getVideoInfo':
         if (!fileCode) {
-          throw new Error('fileCode is required for getVideoInfo')
+          return new Response(
+            JSON.stringify({ success: false, error: 'File code required' }), 
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
-        url = `${baseUrl}/file/info?key=${DOODSTREAM_API_KEY}&file_code=${fileCode}`
-        break
-
+        apiUrl = `https://doodapi.com/api/file/info?${params}&file_code=${fileCode}`;
+        break;
+      
       case 'getVideoList':
-        url = `${baseUrl}/file/list?key=${DOODSTREAM_API_KEY}&page=${page}&per_page=${perPage}`
-        break
-
+        params.append('page', page.toString());
+        params.append('per_page', perPage.toString());
+        apiUrl = `https://doodapi.com/api/file/list?${params}`;
+        break;
+      
       case 'getAccountInfo':
-        url = `${baseUrl}/account/info?key=${DOODSTREAM_API_KEY}`
-        break
-
+        apiUrl = `https://doodapi.com/api/account/info?${params}`;
+        break;
+      
       case 'getUploadServer':
-        url = `${baseUrl}/upload/server?key=${DOODSTREAM_API_KEY}`
-        break
-
+        apiUrl = `https://doodapi.com/api/upload/server?${params}`;
+        break;
+      
       case 'generateDirectLink':
         if (!fileCode) {
-          throw new Error('fileCode is required for generateDirectLink')
+          return new Response(
+            JSON.stringify({ success: false, error: 'File code required' }), 
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
-        url = `${baseUrl}/file/direct_link?key=${DOODSTREAM_API_KEY}&file_code=${fileCode}`
-        break
+        apiUrl = `https://doodapi.com/api/file/direct_link?${params}&file_code=${fileCode}`;
+        break;
 
+      case 'syncVideos':
+        // Special action to sync all videos from Doodstream to database
+        apiUrl = `https://doodapi.com/api/file/list?${params}&per_page=100`;
+        break;
+      
       default:
-        throw new Error(`Unknown action: ${action}`)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Unknown action' }), 
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
     }
+
+    console.log('Making request to Doodstream API:', apiUrl);
 
     // Make request to Doodstream API
-    const response = await fetch(url)
-    responseData = await response.json()
+    const doodstreamResponse = await fetch(apiUrl);
+    const data = await doodstreamResponse.json();
 
-    // Process the response based on action
-    let processedData = responseData
+    console.log('Doodstream API response status:', data.status, 'message:', data.msg);
 
-    if (action === 'getVideoInfo' && responseData.success && responseData.result?.length > 0) {
-      const video = responseData.result[0]
-      processedData = {
-        success: true,
-        result: {
-          id: video.file_code,
-          title: video.title,
-          status: video.status,
-          embed_url: `https://dood.re/e/${video.file_code}`,
-          download_url: video.download_url,
-          splash_img: video.splash_img,
-          duration: video.length,
-          size: video.size,
-          views: parseInt(video.views) || 0,
-          uploaded: video.uploaded
-        }
+    // Process the response
+    let result = data;
+    
+    // Transform data for specific actions
+    if (action === 'getVideoInfo' && data.status === 200) {
+      const fileInfo = data.result[0];
+      const videoData = {
+        fileCode: fileInfo.filecode,
+        title: fileInfo.title,
+        length: fileInfo.length,
+        views: parseInt(fileInfo.views),
+        uploadDate: fileInfo.uploaded,
+        canPlay: fileInfo.canplay,
+        size: fileInfo.size,
+        thumbnail: `https://img.doodcdn.com/snaps/${fileInfo.filecode}.jpg`
+      };
+
+      // Sync to database if requested
+      if (syncToDatabase) {
+        await supabase.from('videos').upsert({
+          file_code: videoData.fileCode,
+          title: videoData.title,
+          duration: videoData.length,
+          views: videoData.views,
+          upload_date: new Date(videoData.uploadDate).toISOString(),
+          file_size: videoData.size,
+          status: videoData.canPlay ? 'active' : 'processing',
+          thumbnail_url: videoData.thumbnail
+        });
       }
+
+      result = {
+        success: true,
+        result: videoData
+      };
+    } else if ((action === 'getVideoList' || action === 'syncVideos') && data.status === 200) {
+      const videos = data.result?.files?.map((file: any) => ({
+        fileCode: file.filecode,
+        title: file.title,
+        length: file.length,
+        views: parseInt(file.views),
+        uploadDate: file.uploaded,
+        canPlay: file.canplay,
+        size: file.size,
+        thumbnail: `https://img.doodcdn.com/snaps/${file.filecode}.jpg`
+      })) || [];
+
+      // Sync to database if it's syncVideos action
+      if (action === 'syncVideos' && videos.length > 0) {
+        const videoRecords = videos.map((video: any) => ({
+          file_code: video.fileCode,
+          title: video.title,
+          duration: video.length,
+          views: video.views,
+          upload_date: new Date(video.uploadDate).toISOString(),
+          file_size: video.size,
+          status: video.canPlay ? 'active' : 'processing',
+          thumbnail_url: video.thumbnail
+        }));
+
+        await supabase.from('videos').upsert(videoRecords);
+        console.log(`Synced ${videos.length} videos to database`);
+      }
+
+      result = {
+        success: true,
+        result: videos
+      };
+    } else if (data.status === 200) {
+      result = { success: true, result: data.result };
+    } else {
+      result = { success: false, error: data.msg || 'API request failed' };
     }
 
-    if (action === 'getVideoList' && responseData.success && responseData.result?.files) {
-      processedData = {
-        success: true,
-        result: responseData.result.files.map((video: any) => ({
-          id: video.file_code,
-          title: video.title,
-          status: video.status,
-          embed_url: `https://dood.re/e/${video.file_code}`,
-          download_url: video.download_url,
-          splash_img: video.splash_img,
-          duration: video.length,
-          size: video.size,
-          views: parseInt(video.views) || 0,
-          uploaded: video.uploaded
-        }))
-      }
-    }
-
-    return new Response(
-      JSON.stringify(processedData),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    )
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
-    console.error('Doodstream API Error:', error)
-    
+    console.error('Error in doodstream-api function:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
         error: error.message || 'Internal server error' 
-      }),
+      }), 
       { 
-        status: 500,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
-    )
+    );
   }
-})
+});
