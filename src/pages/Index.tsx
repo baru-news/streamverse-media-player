@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import FeaturedSection from "@/components/FeaturedSection";
+import HeroSection from "@/components/HeroSection";
 import VideoGrid from "@/components/VideoGrid";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ const Index = () => {
       <Header />
       
       <main>
-        <FeaturedSection />
+        <HeroSection />
         
         <div className="space-y-8">
           {!user && (
