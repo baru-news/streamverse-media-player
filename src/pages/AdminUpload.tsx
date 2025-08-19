@@ -1,48 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Video, Upload, List, Settings, Edit, Save, X, Globe, Hash } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import VideoUpload from "@/components/VideoUpload";
 import WebsiteSettings from "@/components/admin/WebsiteSettings";
 import HashtagManagement from "@/components/admin/HashtagManagement";
-import VideoHashtagSelector from "@/components/VideoHashtagSelector";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
-import { supabase } from "@/integrations/supabase/client";
 import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
 
-interface VideoData {
-  id: string;
-  file_code: string;
-  title: string;
-  description?: string;
-  duration?: number;
-  views?: number;
-  upload_date?: string;
-  file_size?: number;
-  status?: string;
-  thumbnail_url?: string;
-}
-
 const AdminUpload = () => {
-  const [videos, setVideos] = useState<VideoData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [accountInfo, setAccountInfo] = useState<any>(null);
-  const [editingVideo, setEditingVideo] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<{ title: string; description: string }>({ title: "", description: "" });
   const { toast } = useToast();
-
-  const handleUploadComplete = async (fileCode: string, videoData: any) => {
-    console.log("Upload completed:", { fileCode, videoData });
-    // Refresh video list after upload
-    await loadVideos();
-  };
 
   const loadVideos = async () => {
     setIsLoading(true);
@@ -50,69 +22,19 @@ const AdminUpload = () => {
       // Sync videos from Doodstream first to ensure database is up to date
       await SecureDoodstreamAPI.syncVideos();
       
-      // Get videos from database
-      const videoList = await SecureDoodstreamAPI.getVideosFromDatabase(50);
+      // Get account info
       const account = await SecureDoodstreamAPI.getAccountInfo();
-      
-      setVideos(videoList);
       setAccountInfo(account);
     } catch (error) {
-      console.error("Failed to load videos:", error);
+      console.error("Failed to load data:", error);
       toast({
         title: "Error",
-        description: "Gagal memuat daftar video. Silakan coba lagi.",
+        description: "Gagal memuat data. Silakan coba lagi.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleEditVideo = (video: VideoData) => {
-    setEditingVideo(video.id);
-    setEditForm({
-      title: video.title,
-      description: video.description || ""
-    });
-  };
-
-  const handleSaveEdit = async (videoId: string) => {
-    try {
-      const { error } = await supabase
-        .from('videos')
-        .update({
-          title: editForm.title,
-          description: editForm.description
-        })
-        .eq('id', videoId);
-
-      if (error) throw error;
-
-      // Update local state
-      setVideos(videos.map(video => 
-        video.id === videoId 
-          ? { ...video, title: editForm.title, description: editForm.description }
-          : video
-      ));
-
-      setEditingVideo(null);
-      toast({
-        title: "Berhasil",
-        description: "Video berhasil diperbarui.",
-      });
-    } catch (error) {
-      console.error("Failed to update video:", error);
-      toast({
-        title: "Error", 
-        description: "Gagal memperbarui video. Silakan coba lagi.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingVideo(null);
-    setEditForm({ title: "", description: "" });
   };
 
   useEffect(() => {
@@ -146,10 +68,6 @@ const AdminUpload = () => {
                 <Hash className="w-4 h-4" />
                 Hashtag
               </TabsTrigger>
-              <TabsTrigger value="upload" className="gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Video
-              </TabsTrigger>
               <TabsTrigger value="videos" className="gap-2">
                 <List className="w-4 h-4" />
                 Kelola Video
@@ -168,20 +86,6 @@ const AdminUpload = () => {
             {/* Hashtag Management Tab */}
             <TabsContent value="hashtags">
               <HashtagManagement />
-            </TabsContent>
-
-            {/* Upload Tab */}
-            <TabsContent value="upload">
-              <div className="space-y-6">
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                  <CardHeader>
-                    <CardTitle className="text-white">Upload Video Baru</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <VideoUpload onUploadComplete={handleUploadComplete} />
-                  </CardContent>
-                </Card>
-              </div>
             </TabsContent>
 
             {/* Videos Tab */}
@@ -240,7 +144,7 @@ const AdminUpload = () => {
                     <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
                       <h4 className="font-medium text-yellow-300 mb-2">⚠️ Konfigurasi Diperlukan</h4>
                       <p className="text-yellow-200 text-sm mb-4">
-                        Untuk menggunakan fitur upload dan streaming Doodstream, Anda perlu mengkonfigurasi API key di Supabase secrets.
+                        Untuk menggunakan fitur streaming Doodstream, Anda perlu mengkonfigurasi API key di Supabase secrets.
                       </p>
                       <div className="space-y-2 text-sm text-yellow-200">
                         <p>1. Dapatkan API key dari dashboard Doodstream</p>
