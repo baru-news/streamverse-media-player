@@ -37,6 +37,7 @@ const AdminUpload = () => {
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [editingVideo, setEditingVideo] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{ title: string; description: string }>({ title: "", description: "" });
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
   const { toast } = useToast();
 
   const handleUploadComplete = async (fileCode: string, videoData: any) => {
@@ -143,6 +144,37 @@ const AdminUpload = () => {
   const handleCancelEdit = () => {
     setEditingVideo(null);
     setEditForm({ title: "", description: "" });
+  };
+
+  const testDoodstreamConnection = async () => {
+    setIsTestingConnection(true);
+    try {
+      console.log('Testing Doodstream API connection...');
+      const account = await SecureDoodstreamAPI.getAccountInfo();
+      
+      if (account) {
+        toast({
+          title: "✅ Koneksi Berhasil",
+          description: `Terhubung dengan akun Doodstream: ${account.email || 'Unknown'}`,
+        });
+      } else {
+        toast({
+          title: "❌ Koneksi Gagal", 
+          description: "Tidak dapat mendapatkan informasi akun dari Doodstream",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Connection test failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "Koneksi ke Doodstream API gagal";
+      toast({
+        title: "❌ Test Koneksi Gagal",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsTestingConnection(false);
+    }
   };
 
   useEffect(() => {
@@ -447,15 +479,21 @@ const AdminUpload = () => {
                     <CardTitle className="text-white">Konfigurasi API</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
-                      <h4 className="font-medium text-yellow-300 mb-2">⚠️ Konfigurasi Diperlukan</h4>
-                      <p className="text-yellow-200 text-sm mb-4">
-                        Untuk menggunakan fitur upload dan streaming Doodstream, Anda perlu mengkonfigurasi API key di Supabase secrets.
-                      </p>
-                      <div className="space-y-2 text-sm text-yellow-200">
-                        <p>1. Dapatkan API key dari dashboard Doodstream</p>
-                        <p>2. Simpan API key di Supabase secrets dengan nama "DOODSTREAM_API_KEY"</p>
-                        <p>3. Restart aplikasi untuk memuat konfigurasi baru</p>
+                    <div className="space-y-4">
+                      <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
+                        <h4 className="font-medium text-yellow-300 mb-2">⚙️ API Key Doodstream</h4>
+                        <p className="text-muted-foreground mb-3">
+                          API key sudah dikonfigurasi menggunakan Supabase Secrets. 
+                          Gunakan tombol di bawah untuk menguji koneksi.
+                        </p>
+                        <Button 
+                          onClick={testDoodstreamConnection}
+                          disabled={isTestingConnection}
+                          variant="outline"
+                          className="gap-2"
+                        >
+                          {isTestingConnection ? "Menguji..." : "Test Koneksi API"}
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

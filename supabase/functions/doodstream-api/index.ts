@@ -28,13 +28,18 @@ serve(async (req) => {
     if (!apiKey) {
       console.error('DOODSTREAM_API_KEY not found in environment');
       return new Response(
-        JSON.stringify({ success: false, error: 'API key not configured' }), 
+        JSON.stringify({ 
+          success: false, 
+          error: 'Doodstream API key belum dikonfigurasi. Silakan tambahkan API key di pengaturan.' 
+        }), 
         { 
-          status: 500, 
+          status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
+
+    console.log('Using API key:', apiKey.substring(0, 8) + '...');
 
     // Parse request body
     const { action, fileCode, page = 1, perPage = 12, syncToDatabase = false } = await req.json();
@@ -95,9 +100,39 @@ serve(async (req) => {
 
     // Make request to Doodstream API
     const doodstreamResponse = await fetch(apiUrl);
+    
+    if (!doodstreamResponse.ok) {
+      console.error('Doodstream API request failed:', doodstreamResponse.status, doodstreamResponse.statusText);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Doodstream API error: ${doodstreamResponse.status} ${doodstreamResponse.statusText}` 
+        }), 
+        { 
+          status: doodstreamResponse.status, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     const data = await doodstreamResponse.json();
 
     console.log('Doodstream API response status:', data.status, 'message:', data.msg);
+    
+    if (data.status !== 200) {
+      console.error('Doodstream API returned error:', data);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: data.msg || 'Doodstream API request failed',
+          details: data
+        }), 
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
 
     // Process the response
     let result = data;
