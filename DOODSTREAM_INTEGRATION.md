@@ -14,7 +14,7 @@
 **Akun dan Kredensial:**
 - Akun Doodstream aktif (berbayar untuk fitur upload)
 - API Key dari dashboard Doodstream
-- Access ke https://doodapi.com/api/
+- Access ke https://doodapi.co/api/
 
 **Informasi Tambahan:**
 - Account ID atau User ID
@@ -147,27 +147,27 @@ const embedHTML = `<iframe src="https://dood.re/e/${fileCode}"
 
 ### 1. Account Info
 ```
-GET https://doodapi.com/api/account/info?key={API_KEY}
+GET https://doodapi.co/api/account/info?key={API_KEY}
 ```
 
 ### 2. Upload Server
 ```
-GET https://doodapi.com/api/upload/server?key={API_KEY}
+GET https://doodapi.co/api/upload/server?key={API_KEY}
 ```
 
 ### 3. File List
 ```
-GET https://doodapi.com/api/file/list?key={API_KEY}&page=1&per_page=10
+GET https://doodapi.co/api/file/list?key={API_KEY}&page=1&per_page=10
 ```
 
 ### 4. File Info
 ```
-GET https://doodapi.com/api/file/info?key={API_KEY}&file_code={FILE_CODE}
+GET https://doodapi.co/api/file/info?key={API_KEY}&file_code={FILE_CODE}
 ```
 
 ### 5. Direct Link (Premium)
 ```
-GET https://doodapi.com/api/file/direct_link?key={API_KEY}&file_code={FILE_CODE}
+GET https://doodapi.co/api/file/direct_link?key={API_KEY}&file_code={FILE_CODE}
 ```
 
 ## Sample Authentication Code

@@ -52,21 +52,21 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        apiUrl = `https://doodapi.com/api/file/info?${params}&file_code=${fileCode}`;
+        apiUrl = `https://doodapi.co/api/file/info?${params}&file_code=${fileCode}`;
         break;
       
       case 'getVideoList':
         params.append('page', page.toString());
         params.append('per_page', perPage.toString());
-        apiUrl = `https://doodapi.com/api/file/list?${params}`;
+        apiUrl = `https://doodapi.co/api/file/list?${params}`;
         break;
       
       case 'getAccountInfo':
-        apiUrl = `https://doodapi.com/api/account/info?${params}`;
+        apiUrl = `https://doodapi.co/api/account/info?${params}`;
         break;
       
       case 'getUploadServer':
-        apiUrl = `https://doodapi.com/api/upload/server?${params}`;
+        apiUrl = `https://doodapi.co/api/upload/server?${params}`;
         break;
       
       case 'generateDirectLink':
@@ -76,12 +76,12 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        apiUrl = `https://doodapi.com/api/file/direct_link?${params}&file_code=${fileCode}`;
+        apiUrl = `https://doodapi.co/api/file/direct_link?${params}&file_code=${fileCode}`;
         break;
 
       case 'syncVideos':
         // Special action to sync all videos from Doodstream to database
-        apiUrl = `https://doodapi.com/api/file/list?${params}&per_page=100`;
+        apiUrl = `https://doodapi.co/api/file/list?${params}&per_page=100`;
         break;
       
       default:
@@ -106,14 +106,15 @@ serve(async (req) => {
       if (action === 'getVideoInfo' && data.status === 200) {
         const fileInfo = data.result[0];
         const videoData = {
-          fileCode: fileInfo.filecode,
+          fileCode: fileInfo.filecode, // file/info uses 'filecode'
           title: fileInfo.title,
           length: fileInfo.length,
           views: parseInt(fileInfo.views) || 0,
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: `https://img.doodcdn.com/snaps/${fileInfo.filecode}.jpg`
+          thumbnail: fileInfo.single_img || `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
+          splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
         // Sync to database if requested
@@ -147,16 +148,17 @@ serve(async (req) => {
           console.log('Processing file:', JSON.stringify(file, null, 2));
           
           return {
-            fileCode: file.filecode || file.file_code, // Handle both possible field names
+            fileCode: file.file_code, // file/list uses 'file_code'
             title: file.title || 'Untitled Video',
-            length: file.length || file.duration || '0',
+            length: file.length || '0',
             views: parseInt(file.views) || 0,
-            uploadDate: file.uploaded || file.upload_date,
+            uploadDate: file.uploaded,
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
-            size: file.size || file.file_size,
-            thumbnail: file.filecode ? `https://img.doodcdn.com/snaps/${file.filecode}.jpg` : 
-                      file.file_code ? `https://img.doodcdn.com/snaps/${file.file_code}.jpg` : 
-                      '/placeholder.svg'
+            size: file.size,
+            downloadUrl: file.download_url,
+            thumbnail: file.single_img || `https://img.doodcdn.io/snaps/${file.file_code}.jpg`,
+            publicStatus: file.public,
+            folderId: file.fld_id
           };
         }) || [];
 

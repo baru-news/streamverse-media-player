@@ -32,7 +32,7 @@ export class DoodstreamAPI {
   constructor(apiKey: string) {
     this.config = {
       apiKey,
-      baseUrl: 'https://doodapi.com/api'
+      baseUrl: 'https://doodapi.co/api'
     };
   }
 
