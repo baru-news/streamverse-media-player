@@ -174,42 +174,58 @@ serve(async (req) => {
           
           // If there are videos from Doodstream, sync them
           if (videos.length > 0) {
-            const videoRecords = videos.map((video: any) => {
-              console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
-              
-              return {
-                file_code: video.fileCode,
-                title: video.title,
-                duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-                views: video.views || 0,
-                upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-                file_size: video.size ? parseInt(video.size) : null,
-                status: video.canPlay ? 'active' : 'processing',
-                thumbnail_url: video.thumbnail
-              };
-            });
+        // Transform video data and prepare for database sync
+        const videoRecords = await Promise.all(videos.map(async (video: any) => {
+          console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
+          
+          // Check if video exists and has edited title/description
+          const { data: existingVideo } = await supabase
+            .from('videos')
+            .select('title, description, title_edited, description_edited')
+            .eq('file_code', video.fileCode)
+            .single();
+
+          // Prepare record for database - preserve edited content
+          const record = {
+            file_code: video.fileCode,
+            title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
+            description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
+            original_title: video.title, // Always store original from Doodstream
+            duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+            views: video.views || 0,
+            upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+            file_size: video.size ? parseInt(video.size) : null,
+            status: video.canPlay ? 'active' : 'processing',
+            thumbnail_url: video.thumbnail,
+            // Preserve edit flags
+            title_edited: existingVideo?.title_edited || false,
+            description_edited: existingVideo?.description_edited || false
+          };
+          
+          console.log('Prepared record:', record);
+          return record;
+        }));
 
             console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
 
-            const { data: upsertData, error: upsertError } = await supabase
-              .from('videos')
-              .upsert(videoRecords, { onConflict: 'file_code' });
+            // Use upsert with individual error handling
+            for (const record of videoRecords) {
+              try {
+                const { error } = await supabase
+                  .from('videos')
+                  .upsert(record, { 
+                    onConflict: 'file_code',
+                    ignoreDuplicates: false 
+                  });
 
-            if (upsertError) {
-              console.error('Database upsert error:', upsertError);
-              return new Response(
-                JSON.stringify({ 
-                  success: false, 
-                  error: 'Failed to sync videos to database', 
-                  details: upsertError 
-                }), 
-                { 
-                  status: 500, 
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+                if (error) {
+                  console.error(`Database upsert error for ${record.file_code}:`, error);
+                } else {
+                  console.log(`Successfully synced video: ${record.title}`);
                 }
-              );
-            } else {
-              console.log(`Successfully synced ${videos.length} videos to database`);
+              } catch (err) {
+                console.error(`Failed to sync video ${record.file_code}:`, err);
+              }
             }
           }
           
