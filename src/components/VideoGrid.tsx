@@ -29,7 +29,7 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
         const transformedVideos = dbVideos.map(video => ({
           id: video.file_code || video.id, // Use file_code as id for proper routing
           title: video.title,
-          thumbnail: '', // Use generated placeholder since Doodstream thumbnails are down
+          thumbnail: video.thumbnail_url || `https://img.doodcdn.com/snaps/${video.file_code}.jpg`,
           duration: formatDuration(video.duration || 0),
           views: formatViews(video.views || 0),
           creator: 'DINO18',
