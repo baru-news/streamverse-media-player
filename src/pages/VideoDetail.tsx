@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Play, Pause, Volume2, Maximize, ThumbsUp, Share2, Download, Eye, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,54 +6,134 @@ import { Card, CardContent } from "@/components/ui/card";
 import VideoCard from "@/components/VideoCard";
 import Header from "@/components/Header";
 import DoodstreamPlayer from "@/components/DoodstreamPlayer";
+import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 
 const VideoDetail = () => {
   const { id } = useParams();
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [video, setVideo] = useState<any>(null);
+  const [relatedVideos, setRelatedVideos] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock video data - in real app this would come from API
-  const video = {
-    id: id || "1",
-    title: "Perjalanan Menakjubkan ke Alam Semesta",
-    description: "Jelajahi keajaiban kosmos dalam dokumenter spektakuler ini. Dari galaksi terjauh hingga planet-planet di tata surya kita, nikmati visual yang memukau dan narasi yang menginspirasi tentang pencarian manusia untuk memahami alam semesta. Dokumenter ini menampilkan penelitian terbaru dari NASA dan berbagai observatorium dunia.",
-    creator: "National Geographic",
-    views: "2.5M",
-    uploadDate: "15 Des 2024",
-    duration: "2j 15m",
-    category: "Dokumenter",
-    rating: "9.2",
-    tags: ["Sains", "Alam Semesta", "Dokumenter", "NASA", "Astronomi"]
+  useEffect(() => {
+    loadVideoData();
+  }, [id]);
+
+  const loadVideoData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get all videos from database
+      const allVideos = await SecureDoodstreamAPI.getVideosFromDatabase(20);
+      
+      if (allVideos && allVideos.length > 0) {
+        // Find current video
+        const currentVideo = allVideos.find(v => v.id === id);
+        
+        if (currentVideo) {
+          // Format current video data
+          const videoData = {
+            id: currentVideo.id,
+            title: currentVideo.title,
+            description: currentVideo.description || "Video menarik dari koleksi Doodstream kami. Nikmati konten berkualitas tinggi dengan streaming yang lancar.",
+            creator: "DINO18",
+            views: formatViews(currentVideo.views || 0),
+            uploadDate: formatDate(currentVideo.upload_date),
+            duration: formatDuration(currentVideo.duration || 0),
+            category: "Video",
+            rating: "9.2",
+            tags: ["Streaming", "Video", "Entertainment", "DINO18"],
+            fileCode: currentVideo.file_code
+          };
+          setVideo(videoData);
+          
+          // Get related videos (exclude current video)
+          const related = allVideos
+            .filter(v => v.id !== id)
+            .slice(0, 6)
+            .map(v => ({
+              id: v.id,
+              title: v.title,
+              thumbnail: v.thumbnail_url || (v.file_code ? `https://img.doodcdn.com/snaps/${v.file_code}.jpg` : '/placeholder.svg'),
+              duration: formatDuration(v.duration || 0),
+              views: formatViews(v.views || 0),
+              creator: "DINO18",
+              category: "Video",
+              fileCode: v.file_code
+            }));
+          setRelatedVideos(related);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading video data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const relatedVideos = [
-    {
-      id: "2",
-      title: "Misteri Lubang Hitam",
-      thumbnail: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=225&fit=crop",
-      duration: "1j 45m",
-      views: "1.8M",
-      creator: "Science Channel",
-      category: "Dokumenter"
-    },
-    {
-      id: "3", 
-      title: "Kehidupan di Mars",
-      thumbnail: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=225&fit=crop",
-      duration: "58m",
-      views: "3.2M",
-      creator: "NASA Official",
-      category: "Dokumenter"
-    },
-    {
-      id: "4",
-      title: "Eksplorasi Galaksi Bima Sakti",
-      thumbnail: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=225&fit=crop",
-      duration: "2j 30m",
-      views: "950k",
-      creator: "Cosmos Explorer",
-      category: "Dokumenter"
+  const formatDuration = (seconds: number): string => {
+    if (!seconds) return '0:00';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}j ${minutes}m`;
     }
-  ];
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const formatViews = (views: number): string => {
+    if (views >= 1000000) {
+      return `${(views / 1000000).toFixed(1)}M`;
+    } else if (views >= 1000) {
+      return `${(views / 1000).toFixed(1)}K`;
+    }
+    return views.toString();
+  };
+
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return 'Tidak diketahui';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20">
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Memuat video...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!video) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20">
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center py-12">
+              <p className="text-white text-lg mb-4">Video tidak ditemukan</p>
+              <Link to="/">
+                <Button variant="hero">Kembali ke Beranda</Button>
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,7 +146,7 @@ const VideoDetail = () => {
             <div className="lg:col-span-2">
               {/* Video Player - Doodstream Integration */}
               <DoodstreamPlayer 
-                fileCode="sample-file-code" 
+                fileCode={video.fileCode || "sample-file-code"} 
                 title={video.title}
                 width={800}
                 height={450}
@@ -152,18 +232,24 @@ const VideoDetail = () => {
               </div>
             </div>
 
-            {/* Sidebar - Related Videos */}
+            {/* Sidebar - Recommended Videos */}
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-white flex items-center gap-3">
                 <div className="w-1 h-6 bg-gradient-primary rounded-full" />
-                Video Terkait
+                Rekomendasi Untuk Anda
               </h2>
               
-              <div className="space-y-4">
-                {relatedVideos.map((relatedVideo) => (
-                  <VideoCard key={relatedVideo.id} {...relatedVideo} />
-                ))}
-              </div>
+              {relatedVideos.length > 0 ? (
+                <div className="space-y-4">
+                  {relatedVideos.map((relatedVideo) => (
+                    <VideoCard key={relatedVideo.id} {...relatedVideo} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Belum ada video lain yang tersedia</p>
+                </div>
+              )}
 
               <div className="text-center">
                 <Link to="/">
