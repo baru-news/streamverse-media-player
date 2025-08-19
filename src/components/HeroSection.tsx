@@ -5,15 +5,33 @@ import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+import { useAuth } from "@/hooks/useAuth";
 
 const HeroSection = () => {
+  const { user } = useAuth();
   const [featuredVideo, setFeaturedVideo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadFeaturedVideo();
-  }, []);
+    if (user) {
+      // Only try to load videos if user is authenticated
+      loadFeaturedVideo();
+    } else {
+      // Show default content for non-authenticated users
+      setFeaturedVideo({
+        id: "default",
+        title: "Selamat Datang di Streamverse",
+        description: "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Masuk atau daftar untuk mengakses koleksi video eksklusif kami dan nikmati pengalaman streaming yang luar biasa.",
+        duration: "∞",
+        views: "1M+",
+        uploadDate: "2024",
+        thumbnail: heroBg,
+        fileCode: null
+      });
+      setIsLoading(false);
+    }
+  }, [user]);
 
   const loadFeaturedVideo = async () => {
     try {
@@ -206,13 +224,32 @@ const HeroSection = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            {featuredVideo?.fileCode ? (
+            {user && featuredVideo?.fileCode ? (
               <Link to={`/video/${featuredVideo.fileCode}`}>
                 <Button variant="play" size="lg" className="gap-3">
                   <Play className="w-5 h-5" fill="currentColor" />
                   Tonton Sekarang
                 </Button>
               </Link>
+            ) : !user ? (
+              <div className="flex gap-4">
+                <Link to="/login">
+                  <Button variant="play" size="lg" className="gap-3">
+                    <Play className="w-5 h-5" fill="currentColor" />
+                    Masuk untuk Menonton
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
+                  >
+                    <Info className="w-5 h-5" />
+                    Daftar Gratis
+                  </Button>
+                </Link>
+              </div>
             ) : (
               <Button 
                 variant="play" 
@@ -225,15 +262,17 @@ const HeroSection = () => {
               </Button>
             )}
             
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
-              onClick={loadFeaturedVideo}
-            >
-              <Info className="w-5 h-5" />
-              Refresh
-            </Button>
+            {user && (
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
+                onClick={loadFeaturedVideo}
+              >
+                <Info className="w-5 h-5" />
+                Refresh
+              </Button>
+            )}
           </div>
         </div>
       </div>
