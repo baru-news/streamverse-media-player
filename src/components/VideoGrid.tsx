@@ -27,12 +27,12 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
       if (dbVideos && dbVideos.length > 0) {
         // Transform database videos to match VideoCard props
         const transformedVideos = dbVideos.map(video => ({
-          id: video.id,
+          id: video.file_code || video.id, // Use file_code as id for proper routing
           title: video.title,
-          thumbnail: video.thumbnail_url || (video.file_code ? `https://img.doodcdn.com/snaps/${video.file_code}.jpg` : '/placeholder.svg'),
+          thumbnail: video.thumbnail_url || `https://img.doodcdn.com/snaps/${video.file_code}.jpg`,
           duration: formatDuration(video.duration || 0),
           views: formatViews(video.views || 0),
-          creator: 'Doodstream',
+          creator: 'DINO18',
           category: 'Video',
           fileCode: video.file_code
         }));

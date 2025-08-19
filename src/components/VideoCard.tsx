@@ -18,11 +18,17 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator }: VideoCard
         {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden">
           <img
-            src={thumbnail}
+            src={thumbnail || `https://img.doodcdn.com/snaps/${id}.jpg`}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             onError={(e) => {
-              e.currentTarget.src = '/placeholder.svg';
+              // Try doodstream thumbnail format first, then fallback to placeholder
+              const currentSrc = e.currentTarget.src;
+              if (currentSrc.includes('doodcdn.com')) {
+                e.currentTarget.src = '/placeholder.svg';
+              } else if (!currentSrc.includes('placeholder.svg')) {
+                e.currentTarget.src = `https://img.doodcdn.com/snaps/${id}.jpg`;
+              }
             }}
           />
           

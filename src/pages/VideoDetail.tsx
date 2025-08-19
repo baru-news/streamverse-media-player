@@ -26,8 +26,8 @@ const VideoDetail = () => {
       const allVideos = await SecureDoodstreamAPI.getVideosFromDatabase(20);
       
       if (allVideos && allVideos.length > 0) {
-        // Find current video
-        const currentVideo = allVideos.find(v => v.id === id);
+        // Find current video by file_code or id
+        const currentVideo = allVideos.find(v => v.file_code === id || v.id === id);
         
         if (currentVideo) {
           // Format current video data
@@ -48,12 +48,12 @@ const VideoDetail = () => {
           
           // Get related videos (exclude current video)
           const related = allVideos
-            .filter(v => v.id !== id)
+            .filter(v => v.file_code !== id && v.id !== id)
             .slice(0, 6)
             .map(v => ({
-              id: v.id,
+              id: v.file_code, // Use file_code as id for proper routing
               title: v.title,
-              thumbnail: v.thumbnail_url || (v.file_code ? `https://img.doodcdn.com/snaps/${v.file_code}.jpg` : '/placeholder.svg'),
+              thumbnail: v.thumbnail_url || `https://img.doodcdn.com/snaps/${v.file_code}.jpg`,
               duration: formatDuration(v.duration || 0),
               views: formatViews(v.views || 0),
               creator: "DINO18",
