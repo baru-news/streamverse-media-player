@@ -15,58 +15,50 @@ interface VideoCardProps {
 }
 
 const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }: VideoCardProps) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [currentImageSrc, setCurrentImageSrc] = useState(
-    thumbnail || (fileCode ? `https://img.doodcdn.com/snaps/${fileCode}.jpg` : '/placeholder.svg')
-  );
+  const [useCustomThumbnail, setUseCustomThumbnail] = useState(false);
+  
+  // Generate smart placeholder with video info
+  const generatePlaceholder = () => {
+    const words = title.split(' ');
+    const initials = words.slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('');
+    const colors = [
+      'from-blue-500 to-purple-600',
+      'from-green-500 to-teal-600', 
+      'from-red-500 to-pink-600',
+      'from-yellow-500 to-orange-600',
+      'from-indigo-500 to-blue-600'
+    ];
+    const colorIndex = title.length % colors.length;
+    
+    return (
+      <div className={`w-full h-full bg-gradient-to-br ${colors[colorIndex]} flex flex-col items-center justify-center text-white relative`}>
+        <div className="text-2xl font-bold mb-2">{initials}</div>
+        <div className="text-xs text-center px-2 opacity-90 line-clamp-2">{title}</div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 border-2 border-white/30 rounded-full flex items-center justify-center">
+            <Play className="h-8 w-8 ml-1" fill="currentColor" />
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <Link to={`/video/${id}`}>
       <div className="group relative bg-gradient-card rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-video cursor-pointer">
         {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden bg-muted">
-          {!imageLoaded && !imageError && (
-            <Skeleton className="w-full h-full absolute inset-0" />
-          )}
-          
-          <img
-            src={currentImageSrc}
-            alt={title}
-            className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            onLoad={() => {
-              setImageLoaded(true);
-              console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);
-            }}
-            onError={(e) => {
-              console.error(`Failed to load thumbnail: ${currentImageSrc}`);
-              const currentSrc = e.currentTarget.src;
-              
-              if (currentSrc.includes('doodcdn.com') && fileCode) {
-                // Try alternative Doodstream formats
-                const newSrc = `https://img.doodcdn.co/splash/${fileCode}.jpg`;
-                console.log(`Trying alternative format: ${newSrc}`);
-                setCurrentImageSrc(newSrc);
-                e.currentTarget.src = newSrc;
-              } else if (!currentSrc.includes('placeholder.svg')) {
-                // Final fallback to placeholder
-                console.log('Using placeholder fallback');
-                setCurrentImageSrc('/placeholder.svg');
-                e.currentTarget.src = '/placeholder.svg';
-                setImageError(true);
-                setImageLoaded(true);
-              }
-            }}
-          />
-          
-          {imageError && (
-            <div className="absolute inset-0 bg-muted flex items-center justify-center">
-              <div className="text-muted-foreground text-xs text-center p-4">
-                <Play className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No Preview</p>
-              </div>
-            </div>
+          {thumbnail && !useCustomThumbnail ? (
+            <img
+              src={thumbnail}
+              alt={title}
+              className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+              onError={() => {
+                console.log(`Custom thumbnail failed, using generated placeholder for: ${title}`);
+                setUseCustomThumbnail(true);
+              }}
+            />
+          ) : (
+            generatePlaceholder()
           )}
           
           {/* Play Overlay */}
