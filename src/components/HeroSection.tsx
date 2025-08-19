@@ -191,32 +191,13 @@ const HeroSection = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            {user && featuredVideo?.fileCode ? (
+            {featuredVideo?.fileCode ? (
               <Link to={`/video/${featuredVideo.fileCode}`}>
                 <Button variant="play" size="lg" className="gap-3">
                   <Play className="w-5 h-5" fill="currentColor" />
                   Tonton Sekarang
                 </Button>
               </Link>
-            ) : !user ? (
-              <div className="flex gap-4">
-                <Link to="/login">
-                  <Button variant="play" size="lg" className="gap-3">
-                    <Play className="w-5 h-5" fill="currentColor" />
-                    Masuk untuk Menonton
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
-                  >
-                    <Info className="w-5 h-5" />
-                    Daftar Gratis
-                  </Button>
-                </Link>
-              </div>
             ) : (
               <Button 
                 variant="play" 
@@ -229,17 +210,15 @@ const HeroSection = () => {
               </Button>
             )}
             
-            {user && (
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
-                onClick={loadFeaturedVideo}
-              >
-                <Info className="w-5 h-5" />
-                Refresh
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
+              onClick={loadFeaturedVideo}
+            >
+              <Info className="w-5 h-5" />
+              Refresh
+            </Button>
           </div>
         </div>
       </div>
