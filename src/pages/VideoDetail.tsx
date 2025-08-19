@@ -76,7 +76,7 @@ const VideoDetail = () => {
             .map(v => ({
               id: v.file_code, // Use file_code as id for proper routing
               title: v.title,
-              thumbnail: v.thumbnail_url || `https://img.doodcdn.com/snaps/${v.file_code}.jpg`,
+              thumbnail: v.thumbnail_url || `https://img.doodcdn.io/snaps/${v.file_code}.jpg`,
               duration: formatDuration(v.duration || 0),
               views: formatViews(v.views || 0),
               creator: "DINO18",

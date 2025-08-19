@@ -46,7 +46,7 @@ const HeroSection = () => {
           duration: formatDuration(popularVideo.duration || 0),
           views: formatViews(popularVideo.views || 0),
           uploadDate: new Date(popularVideo.upload_date).getFullYear().toString(),
-          thumbnail: popularVideo.thumbnail_url || `https://img.doodcdn.com/snaps/${popularVideo.file_code}.jpg`,
+          thumbnail: popularVideo.thumbnail_url || `https://img.doodcdn.io/snaps/${popularVideo.file_code}.jpg`,
           fileCode: popularVideo.file_code
         });
       } else {

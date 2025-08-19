@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     console.log(`Fetching thumbnail for file code: ${fileCode}`);
     
     // Try primary thumbnail URL
-    const primaryUrl = `https://img.doodcdn.com/snaps/${fileCode}.jpg`;
+    const primaryUrl = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
     console.log(`Trying primary URL: ${primaryUrl}`);
     
     let response = await fetch(primaryUrl);

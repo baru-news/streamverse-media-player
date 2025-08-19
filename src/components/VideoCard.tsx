@@ -18,7 +18,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [currentImageSrc, setCurrentImageSrc] = useState(
-    thumbnail || (fileCode ? `https://img.doodcdn.com/snaps/${fileCode}.jpg` : '/placeholder.svg')
+    thumbnail || (fileCode ? `https://img.doodcdn.io/snaps/${fileCode}.jpg` : '/placeholder.svg')
   );
   return (
     <Link to={`/video/${id}`}>
