@@ -153,7 +153,7 @@ export class SecureDoodstreamAPI {
     try {
       const { data, error } = await supabase
         .from('videos')
-        .select('*')
+        .select('*, title_edited, description_edited')
         .order('upload_date', { ascending: false })
         .limit(limit);
 

@@ -119,16 +119,36 @@ serve(async (req) => {
 
         // Sync to database if requested
         if (syncToDatabase) {
-          const { error: upsertError } = await supabase.from('videos').upsert({
+          // Check if video already exists and has been manually edited
+          const { data: existingVideo } = await supabase
+            .from('videos')
+            .select('title_edited, description_edited, title, description')
+            .eq('file_code', videoData.fileCode)
+            .single();
+
+          const updateData: any = {
             file_code: videoData.fileCode,
-            title: videoData.title,
             duration: videoData.length ? Math.floor(parseFloat(videoData.length)) : null,
             views: videoData.views,
             upload_date: videoData.uploadDate ? new Date(videoData.uploadDate).toISOString() : new Date().toISOString(),
             file_size: videoData.size ? parseInt(videoData.size) : null,
             status: videoData.canPlay ? 'active' : 'processing',
             thumbnail_url: videoData.thumbnail
-          }, { onConflict: 'file_code' });
+          };
+
+          // Only update title if it hasn't been manually edited
+          if (!existingVideo?.title_edited) {
+            updateData.title = videoData.title;
+          }
+
+          // Only update description if it hasn't been manually edited (keeping existing or setting from Doodstream if empty)
+          if (!existingVideo?.description_edited && !existingVideo?.description) {
+            updateData.description = videoData.title; // Use title as fallback description
+          }
+
+          const { error: upsertError } = await supabase
+            .from('videos')
+            .upsert(updateData, { onConflict: 'file_code' });
 
           if (upsertError) {
             console.error('Database upsert error for video info:', upsertError);
@@ -174,12 +194,23 @@ serve(async (req) => {
           
           // If there are videos from Doodstream, sync them
           if (videos.length > 0) {
+            // Get existing videos to check for manual edits
+            const { data: existingVideos } = await supabase
+              .from('videos')
+              .select('file_code, title_edited, description_edited, title, description')
+              .in('file_code', videos.map((v: any) => v.fileCode));
+
+            const existingVideoMap = new Map();
+            existingVideos?.forEach(video => {
+              existingVideoMap.set(video.file_code, video);
+            });
+
             const videoRecords = videos.map((video: any) => {
               console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
               
-              return {
+              const existing = existingVideoMap.get(video.fileCode);
+              const record: any = {
                 file_code: video.fileCode,
-                title: video.title,
                 duration: video.length ? Math.floor(parseFloat(video.length)) : null,
                 views: video.views || 0,
                 upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
@@ -187,6 +218,18 @@ serve(async (req) => {
                 status: video.canPlay ? 'active' : 'processing',
                 thumbnail_url: video.thumbnail
               };
+
+              // Only update title if it hasn't been manually edited
+              if (!existing?.title_edited) {
+                record.title = video.title;
+              }
+
+              // Only update description if it hasn't been manually edited and current description is empty
+              if (!existing?.description_edited && !existing?.description) {
+                record.description = video.title; // Use title as fallback description
+              }
+
+              return record;
             });
 
             console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));

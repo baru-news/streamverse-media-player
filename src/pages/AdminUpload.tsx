@@ -27,6 +27,8 @@ interface VideoData {
   file_size?: number;
   status?: string;
   thumbnail_url?: string;
+  title_edited?: boolean;
+  description_edited?: boolean;
 }
 
 const AdminUpload = () => {
@@ -77,12 +79,26 @@ const AdminUpload = () => {
 
   const handleSaveEdit = async (videoId: string) => {
     try {
+      const currentVideo = videos.find(v => v.id === videoId);
+      const titleChanged = currentVideo?.title !== editForm.title;
+      const descriptionChanged = currentVideo?.description !== editForm.description;
+
+      const updateData: any = {
+        title: editForm.title,
+        description: editForm.description
+      };
+
+      // Set flags if content has been manually edited
+      if (titleChanged) {
+        updateData.title_edited = true;
+      }
+      if (descriptionChanged) {
+        updateData.description_edited = true;
+      }
+
       const { error } = await supabase
         .from('videos')
-        .update({
-          title: editForm.title,
-          description: editForm.description
-        })
+        .update(updateData)
         .eq('id', videoId);
 
       if (error) throw error;
@@ -97,7 +113,9 @@ const AdminUpload = () => {
       setEditingVideo(null);
       toast({
         title: "Berhasil",
-        description: "Video berhasil diperbarui.",
+        description: titleChanged || descriptionChanged 
+          ? "Video berhasil diperbarui. Judul/deskripsi yang Anda edit tidak akan tertimpa saat sinkronisasi dari Doodstream."
+          : "Video berhasil diperbarui.",
       });
     } catch (error) {
       console.error("Failed to update video:", error);
@@ -274,9 +292,16 @@ const AdminUpload = () => {
                           ) : (
                             <>
                               <div className="flex items-start justify-between mb-2">
-                                <h3 className="font-medium text-white line-clamp-2 flex-1 mr-2">
-                                  {video.title}
-                                </h3>
+                                <div className="flex-1 mr-2">
+                                  <h3 className="font-medium text-white line-clamp-2 flex items-center gap-2">
+                                    {video.title}
+                                    {video.title_edited && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                        Edited
+                                      </span>
+                                    )}
+                                  </h3>
+                                </div>
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -288,9 +313,16 @@ const AdminUpload = () => {
                               </div>
                               
                               {video.description && (
-                                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                                  {video.description}
-                                </p>
+                                <div className="mb-3">
+                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
+                                    {video.description}
+                                  </p>
+                                  {video.description_edited && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-300 border border-green-500/30">
+                                      Deskripsi diedit
+                                    </span>
+                                  )}
+                                </div>
                               )}
                               
                               <div className="text-sm text-muted-foreground space-y-1">
