@@ -90,9 +90,9 @@ const Index = () => {
               </span>
             </div>
             <p className="text-muted-foreground mb-4">
-              Platform streaming video terdepan dengan koleksi konten dari Doodstream
+              Update Video Viral Terbaru Setiap Hari
             </p>
-            <div className="flex justify-center gap-6 mb-4 text-sm">
+            <div className="hidden justify-center gap-6 mb-4 text-sm">
               <Link to="/sitemap" className="text-muted-foreground hover:text-primary transition-colors">
                 Peta Situs
               </Link>
