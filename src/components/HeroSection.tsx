@@ -6,9 +6,11 @@ import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 
 const HeroSection = () => {
   const { user } = useAuth();
+  const { settings } = useWebsiteSettings();
   const [featuredVideo, setFeaturedVideo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +23,8 @@ const HeroSection = () => {
       // Show default content for non-authenticated users
       setFeaturedVideo({
         id: "default",
-        title: "Selamat Datang di DINO18",
-        description: "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Masuk atau daftar untuk mengakses koleksi video eksklusif kami dan nikmati pengalaman streaming yang luar biasa.",
+        title: settings.hero_title || "Selamat Datang di DINO18",
+        description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Masuk atau daftar untuk mengakses koleksi video eksklusif kami dan nikmati pengalaman streaming yang luar biasa.",
         duration: "∞",
         views: "1M+",
         uploadDate: "2024",
@@ -91,8 +93,8 @@ const HeroSection = () => {
             // Fallback to default content if no videos available
             setFeaturedVideo({
               id: "default",
-              title: "Selamat Datang di DINO18",
-              description: "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Upload video Anda di Doodstream untuk mulai menikmati layanan streaming yang luar biasa.",
+              title: settings.hero_title || "Selamat Datang di DINO18",
+              description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Upload video Anda di Doodstream untuk mulai menikmati layanan streaming yang luar biasa.",
               duration: "∞",
               views: "0",
               uploadDate: "2024",

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Video, Upload, List, Settings, Edit, Save, X } from "lucide-react";
+import { ArrowLeft, Video, Upload, List, Settings, Edit, Save, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import VideoUpload from "@/components/VideoUpload";
+import WebsiteSettings from "@/components/admin/WebsiteSettings";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -132,8 +133,12 @@ const AdminUpload = () => {
             <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
           </div>
 
-          <Tabs defaultValue="upload" className="space-y-6">
+          <Tabs defaultValue="website" className="space-y-6">
             <TabsList className="bg-card/50 backdrop-blur-sm">
+              <TabsTrigger value="website" className="gap-2">
+                <Globe className="w-4 h-4" />
+                Website
+              </TabsTrigger>
               <TabsTrigger value="upload" className="gap-2">
                 <Upload className="w-4 h-4" />
                 Upload Video
@@ -144,9 +149,14 @@ const AdminUpload = () => {
               </TabsTrigger>
               <TabsTrigger value="settings" className="gap-2">
                 <Settings className="w-4 h-4" />
-                Pengaturan
+                Pengaturan Doodstream
               </TabsTrigger>
             </TabsList>
+
+            {/* Website Settings Tab */}
+            <TabsContent value="website">
+              <WebsiteSettings />
+            </TabsContent>
 
             {/* Upload Tab */}
             <TabsContent value="upload">
