@@ -24,6 +24,7 @@ const VideoDetail = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isSubscribeLoading, setIsSubscribeLoading] = useState(false);
+  const [videoHashtags, setVideoHashtags] = useState<any[]>([]);
 
   useEffect(() => {
     loadVideoData();
@@ -64,8 +65,9 @@ const VideoDetail = () => {
           };
           setVideo(videoData);
           
-          // Load likes count
+          // Load likes count and hashtags
           await loadLikesCount(currentVideo.id);
+          await loadVideoHashtags(currentVideo.id);
           
           // Get related videos (exclude current video)
           const related = allVideos
@@ -101,6 +103,19 @@ const VideoDetail = () => {
       setLikesCount(count || 0);
     } catch (error) {
       console.error('Error loading likes count:', error);
+    }
+  };
+
+  const loadVideoHashtags = async (videoId: string) => {
+    try {
+      const { data } = await supabase
+        .from('video_hashtags')
+        .select('hashtags!inner(id, name, color)')
+        .eq('video_id', videoId);
+      
+      setVideoHashtags(data?.map(vh => vh.hashtags) || []);
+    } catch (error) {
+      console.error('Error loading video hashtags:', error);
     }
   };
 
@@ -491,14 +506,24 @@ const VideoDetail = () => {
                     </p>
                     
                     <div className="flex flex-wrap gap-2">
-                      {video.tags.map((tag, index) => (
+                      {videoHashtags.map((hashtag, index) => (
                         <span
-                          key={index}
-                          className="bg-muted/50 hover:bg-primary/20 px-3 py-1 rounded-full text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                          key={hashtag.id}
+                          className="px-3 py-1 rounded-full text-sm transition-colors cursor-pointer"
+                          style={{ 
+                            backgroundColor: hashtag.color + '20', 
+                            color: hashtag.color,
+                            border: `1px solid ${hashtag.color}40`
+                          }}
                         >
-                          #{tag}
+                          #{hashtag.name}
                         </span>
                       ))}
+                      {videoHashtags.length === 0 && (
+                        <span className="text-muted-foreground text-sm italic">
+                          Belum ada hashtag untuk video ini
+                        </span>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

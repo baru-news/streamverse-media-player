@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Video, Upload, List, Settings, Edit, Save, X, Globe } from "lucide-react";
+import { ArrowLeft, Video, Upload, List, Settings, Edit, Save, X, Globe, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import VideoUpload from "@/components/VideoUpload";
 import WebsiteSettings from "@/components/admin/WebsiteSettings";
+import HashtagManagement from "@/components/admin/HashtagManagement";
+import VideoHashtagSelector from "@/components/VideoHashtagSelector";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -139,6 +141,10 @@ const AdminUpload = () => {
                 <Globe className="w-4 h-4" />
                 Website
               </TabsTrigger>
+              <TabsTrigger value="hashtags" className="gap-2">
+                <Hash className="w-4 h-4" />
+                Hashtag
+              </TabsTrigger>
               <TabsTrigger value="upload" className="gap-2">
                 <Upload className="w-4 h-4" />
                 Upload Video
@@ -156,6 +162,11 @@ const AdminUpload = () => {
             {/* Website Settings Tab */}
             <TabsContent value="website">
               <WebsiteSettings />
+            </TabsContent>
+
+            {/* Hashtag Management Tab */}
+            <TabsContent value="hashtags">
+              <HashtagManagement />
             </TabsContent>
 
             {/* Upload Tab */}
@@ -232,6 +243,13 @@ const AdminUpload = () => {
                                   rows={3}
                                 />
                               </div>
+                              
+                              {/* Hashtag Selector */}
+                              <VideoHashtagSelector
+                                videoId={video.id}
+                                className="mt-4"
+                              />
+                              
                               <div className="flex gap-2">
                                 <Button
                                   variant="outline"

@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      hashtags: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_verified: boolean | null
@@ -85,6 +115,42 @@ export type Database = {
           subscriber_id?: string
         }
         Relationships: []
+      }
+      video_hashtags: {
+        Row: {
+          created_at: string
+          hashtag_id: string
+          id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          hashtag_id: string
+          id?: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          hashtag_id?: string
+          id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_video_hashtags_hashtag"
+            columns: ["hashtag_id"]
+            isOneToOne: false
+            referencedRelation: "hashtags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_video_hashtags_video"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_likes: {
         Row: {
