@@ -148,19 +148,47 @@ serve(async (req) => {
 
       // Sync to database if it's syncVideos action
       if (action === 'syncVideos' && videos.length > 0) {
-        const videoRecords = videos.map((video: any) => ({
-          file_code: video.fileCode,
-          title: video.title,
-          duration: video.length,
-          views: video.views,
-          upload_date: new Date(video.uploadDate).toISOString(),
-          file_size: video.size,
-          status: video.canPlay ? 'active' : 'processing',
-          thumbnail_url: video.thumbnail
-        }));
+        console.log(`Attempting to sync ${videos.length} videos to database`);
+        
+        const videoRecords = videos.map((video: any) => {
+          console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
+          console.log(`Video data:`, JSON.stringify(video, null, 2));
+          
+          return {
+            file_code: video.fileCode,
+            title: video.title,
+            duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+            views: video.views || 0,
+            upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+            file_size: video.size ? parseInt(video.size) : null,
+            status: video.canPlay ? 'active' : 'processing',
+            thumbnail_url: video.thumbnail
+          };
+        });
 
-        await supabase.from('videos').upsert(videoRecords);
-        console.log(`Synced ${videos.length} videos to database`);
+        console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
+
+        const { data: upsertData, error: upsertError } = await supabase
+          .from('videos')
+          .upsert(videoRecords, { onConflict: 'file_code' });
+
+        if (upsertError) {
+          console.error('Database upsert error:', upsertError);
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: 'Failed to sync videos to database', 
+              details: upsertError 
+            }), 
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          );
+        } else {
+          console.log(`Successfully synced ${videos.length} videos to database`);
+          console.log(`Upsert result:`, upsertData);
+        }
       }
 
       result = {
