@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './VideoCard';
 import { SecureDoodstreamAPI } from '@/lib/supabase-doodstream';
 
@@ -14,11 +14,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadVideos();
-  }, [limit, selectedHashtagId, searchQuery]);
-
-  const loadVideos = async () => {
+  const loadVideos = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -56,7 +52,11 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, selectedHashtagId, limit]);
+
+  useEffect(() => {
+    loadVideos();
+  }, [loadVideos]);
 
   const formatDuration = (seconds: number): string => {
     if (!seconds) return '0:00';
