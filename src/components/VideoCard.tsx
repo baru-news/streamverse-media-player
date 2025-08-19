@@ -31,10 +31,11 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
           
           <img
             src={currentImageSrc}
-            alt={title}
+            alt={`${title} - Video streaming di DINO18 oleh ${creator}`}
             className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
+            loading="lazy"
             onLoad={() => {
               setImageLoaded(true);
               console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);

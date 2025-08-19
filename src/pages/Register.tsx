@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import SEO from "@/components/SEO";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -54,6 +55,11 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+      <SEO 
+        title="Daftar Akun DINO18"
+        description="Bergabung dengan DINO18 dan nikmati ribuan video streaming berkualitas tinggi secara gratis. Daftar sekarang untuk akses penuh ke platform streaming video terbaik."
+        keywords="daftar, registrasi, akun baru, streaming video, doodstream, gratis, DINO18"
+      />
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">

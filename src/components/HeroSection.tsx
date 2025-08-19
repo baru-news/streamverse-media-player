@@ -152,8 +152,9 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <img
           src={featuredVideo?.thumbnail || heroBg}
-          alt="Featured Video Background"
+          alt={`${featuredVideo?.title || 'Featured Video'} - Platform Streaming Video DINO18`}
           className="w-full h-full object-cover"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-hero" />
       </div>

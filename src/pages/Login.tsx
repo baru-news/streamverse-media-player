@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import SEO from "@/components/SEO";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +35,11 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <SEO 
+        title="Masuk ke Akun DINO18"
+        description="Masuk ke akun DINO18 Anda untuk mengakses ribuan video streaming berkualitas tinggi. Platform streaming video terbaik dengan konten dari Doodstream."
+        keywords="login, masuk, akun dino18, streaming video, doodstream"
+      />
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">

@@ -5,11 +5,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Play } from "lucide-react";
+import SEO from "@/components/SEO";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 
 const Index = () => {
   const { user } = useAuth();
+  const { settings } = useWebsiteSettings();
+  
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title={settings.site_title || "Platform Streaming Video Terdepan"}
+        description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."}
+        keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia"
+        type="website"
+      />
       <Header />
       
       <main>
@@ -55,9 +65,17 @@ const Index = () => {
                 DINO18
               </span>
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-4">
               Platform streaming video terdepan dengan koleksi konten dari Doodstream
             </p>
+            <div className="flex justify-center gap-6 mb-4 text-sm">
+              <Link to="/sitemap" className="text-muted-foreground hover:text-primary transition-colors">
+                Peta Situs
+              </Link>
+              <a href="/sitemap.xml" className="text-muted-foreground hover:text-primary transition-colors">
+                XML Sitemap
+              </a>
+            </div>
             <div className="mt-4 text-sm text-muted-foreground">
               © 2024 DINO18. Semua hak dilindungi.
             </div>

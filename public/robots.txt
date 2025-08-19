@@ -1,8 +1,14 @@
+User-agent: *
+Allow: /
+
+# Specific bots
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +16,11 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# Sitemap
+Sitemap: https://11cc05e7-b7b1-4d35-9388-063b8de4e12a.sandbox.lovable.dev/sitemap.xml
+
+# Disallow admin and auth pages
 User-agent: *
-Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /register

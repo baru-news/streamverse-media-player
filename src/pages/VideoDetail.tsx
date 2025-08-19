@@ -10,6 +10,7 @@ import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -415,6 +416,21 @@ const VideoDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title={video?.title}
+        description={video?.description}
+        keywords={`${video?.title}, streaming video, doodstream, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`}
+        image={`https://img.doodcdn.io/snaps/${video?.fileCode}.jpg`}
+        type="video.other"
+        video={{
+          title: video?.title || '',
+          description: video?.description || '',
+          thumbnail: `https://img.doodcdn.io/snaps/${video?.fileCode}.jpg`,
+          duration: video?.duration ? parseInt(video.duration.split(':')[0]) * 60 + parseInt(video.duration.split(':')[1]) : undefined,
+          uploadDate: new Date().toISOString(),
+          embedUrl: `https://doodstream.com/e/${video?.fileCode}`
+        }}
+      />
       <Header />
       
       <main className="pt-20">
