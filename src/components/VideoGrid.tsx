@@ -176,11 +176,9 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, searchQ
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 items-stretch">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {videos.map((video) => (
-                <div key={video.id} className="flex">
-                  <VideoCard {...video} />
-                </div>
+                <VideoCard key={video.id} {...video} />
               ))}
             </div>
             
