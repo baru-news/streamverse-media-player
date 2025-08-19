@@ -1,41 +1,13 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import VideoGrid from "@/components/VideoGrid";
-import AgeVerificationModal from "@/components/AgeVerificationModal";
 import { useAuth } from "@/hooks/useAuth";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Play } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
-  const [showAgeVerification, setShowAgeVerification] = useState(false);
-  const [ageVerified, setAgeVerified] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      // Check if user has verified their age
-      supabase
-        .from('profiles')
-        .select('age_verified')
-        .eq('id', user.id)
-        .single()
-        .then(({ data }) => {
-          if (data?.age_verified) {
-            setAgeVerified(true);
-          } else {
-            setShowAgeVerification(true);
-          }
-        });
-    }
-  }, [user]);
-
-  const handleAgeVerified = () => {
-    setAgeVerified(true);
-    setShowAgeVerification(false);
-  };
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -44,7 +16,7 @@ const Index = () => {
         <HeroSection />
         
         <div className="space-y-8">
-          {!user ? (
+          {!user && (
             <div className="container mx-auto px-4 py-16">
               {/* Features Section */}
               <div className="grid md:grid-cols-3 gap-8 mb-16">
@@ -80,7 +52,7 @@ const Index = () => {
               </div>
               
               {/* Call to Action */}
-              <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl p-8">
+              <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-16">
                 <h2 className="text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
                   Bergabung dengan Streamverse
                 </h2>
@@ -97,23 +69,11 @@ const Index = () => {
                 </div>
               </div>
             </div>
-          ) : user && !ageVerified ? (
-            <div className="container mx-auto px-4 py-16 text-center">
-              <h2 className="text-2xl font-bold mb-4">Verifikasi Usia Diperlukan</h2>
-              <p className="text-muted-foreground">
-                Silakan verifikasi usia Anda untuk melihat konten video.
-              </p>
-            </div>
-          ) : (
-            <VideoGrid title="Video Terbaru dari Doodstream" limit={20} />
           )}
+          
+          {/* Video Grid - Always shown for everyone */}
+          <VideoGrid title="Video Terbaru dari Doodstream" limit={20} />
         </div>
-        
-        {/* Age Verification Modal */}
-        <AgeVerificationModal 
-          open={showAgeVerification} 
-          onVerified={handleAgeVerified} 
-        />
       </main>
       
       {/* Footer */}
