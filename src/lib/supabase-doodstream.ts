@@ -264,7 +264,24 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 11. Get total count of videos
+  // 11. Get single video by file_code from database
+  static async getVideoByFileCode(fileCode: string): Promise<any | null> {
+    try {
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('file_code', fileCode)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get video by file code error:', error);
+      return null;
+    }
+  }
+
+  // 12. Get total count of videos
   static async getTotalVideosCount(searchQuery?: string, hashtagId?: string): Promise<number> {
     try {
       let query = supabase
@@ -291,12 +308,12 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 12. Generate embed HTML
+  // 13. Generate embed HTML
   static generateEmbedHTML(fileCode: string, width: number = 640, height: number = 360): string {
     return `<iframe src="https://dood.re/e/${fileCode}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
   }
 
-  // 13. Generate embed URL
+  // 14. Generate embed URL
   static generateEmbedURL(fileCode: string, autoplay: boolean = false): string {
     return `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
   }

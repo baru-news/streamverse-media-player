@@ -41,17 +41,15 @@ const VideoDetail = () => {
   const loadVideoData = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading video with ID:', id);
       
-      // Get all videos from database
-      const allVideos = await SecureDoodstreamAPI.getVideosFromDatabase(20);
+      // Get specific video by file_code first
+      const currentVideo = await SecureDoodstreamAPI.getVideoByFileCode(id || '');
+      console.log('Found video:', currentVideo);
       
-      if (allVideos && allVideos.length > 0) {
-        // Find current video by file_code or id
-        const currentVideo = allVideos.find(v => v.file_code === id || v.id === id);
-        
-        if (currentVideo) {
-          // Format current video data
-          const videoData = {
+      if (currentVideo) {
+        // Format current video data
+        const videoData = {
             id: currentVideo.id,
             title: currentVideo.title,
             description: currentVideo.description || "Video menarik dari koleksi Doodstream kami. Nikmati konten berkualitas tinggi dengan streaming yang lancar.",
@@ -66,15 +64,16 @@ const VideoDetail = () => {
           };
           setVideo(videoData);
           
-          // Load likes count and hashtags
-          await loadLikesCount(currentVideo.id);
-          await loadVideoHashtags(currentVideo.id);
-          
-          // Get related videos (exclude current video)
-          const related = allVideos
-            .filter(v => v.file_code !== id && v.id !== id)
-            .slice(0, 6)
-            .map(v => ({
+        // Load likes count and hashtags
+        await loadLikesCount(currentVideo.id);
+        await loadVideoHashtags(currentVideo.id);
+        
+        // Get related videos (exclude current video)
+        const allVideos = await SecureDoodstreamAPI.getVideosFromDatabase(1, 50);
+        const related = allVideos
+          .filter(v => v.file_code !== id && v.id !== id)
+          .slice(0, 6)
+          .map(v => ({
               id: v.file_code, // Use file_code as id for proper routing
               title: v.title,
               thumbnail: v.thumbnail_url || `https://img.doodcdn.io/snaps/${v.file_code}.jpg`,
@@ -83,9 +82,10 @@ const VideoDetail = () => {
               creator: "DINO18",
               category: "Video",
               fileCode: v.file_code
-            }));
-          setRelatedVideos(related);
-        }
+          }));
+        setRelatedVideos(related);
+      } else {
+        console.log('Video not found with file_code:', id);
       }
     } catch (error) {
       console.error('Error loading video data:', error);
