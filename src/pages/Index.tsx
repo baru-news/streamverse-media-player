@@ -39,7 +39,7 @@ const Index = () => {
           )}
           
           {/* Video Grid - Always shown for everyone */}
-          <VideoGrid title="Video Terbaru dari Doodstream" limit={20} />
+          <VideoGrid title="Video Terbaru" limit={20} />
         </div>
       </main>
       
