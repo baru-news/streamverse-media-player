@@ -16,31 +16,16 @@ const HeroSection = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
-      // Only try to load videos if user is authenticated
-      loadFeaturedVideo();
-    } else {
-      // Show default content for non-authenticated users
-      setFeaturedVideo({
-        id: "default",
-        title: settings.hero_title || "Selamat Datang di DINO18",
-        description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Masuk atau daftar untuk mengakses koleksi video eksklusif kami dan nikmati pengalaman streaming yang luar biasa.",
-        duration: "∞",
-        views: "1M+",
-        uploadDate: "2024",
-        thumbnail: heroBg,
-        fileCode: null
-      });
-      setIsLoading(false);
-    }
-  }, [user]);
+    // Load featured video for everyone (authenticated or not)
+    loadFeaturedVideo();
+  }, [settings]);
 
   const loadFeaturedVideo = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Get the most popular video from database (highest view count)
+      // Get the most popular video from database (now public access)
       const { data: popularVideo, error } = await supabase
         .from('videos')
         .select('*')
@@ -65,51 +50,31 @@ const HeroSection = () => {
           fileCode: popularVideo.file_code
         });
       } else {
-        // If no videos in database, try to sync and get most popular
-        try {
-          await SecureDoodstreamAPI.syncVideos();
-          
-          // Try to get popular video again after sync
-          const { data: syncedVideo } = await supabase
-            .from('videos')
-            .select('*')
-            .eq('status', 'active')
-            .order('views', { ascending: false })
-            .limit(1)
-            .single();
-
-          if (syncedVideo) {
-            setFeaturedVideo({
-              id: syncedVideo.file_code,
-              title: syncedVideo.title,
-              description: syncedVideo.description || "Video populer dari Doodstream dengan jutaan penonton di seluruh dunia. Nikmati konten berkualitas tinggi yang telah menjadi favorit banyak orang.",
-              duration: formatDuration(syncedVideo.duration || 0),
-              views: formatViews(syncedVideo.views || 0),
-              uploadDate: new Date(syncedVideo.upload_date).getFullYear().toString(),
-              thumbnail: syncedVideo.thumbnail_url || `https://img.doodcdn.com/snaps/${syncedVideo.file_code}.jpg`,
-              fileCode: syncedVideo.file_code
-            });
-          } else {
-            // Fallback to default content if no videos available
-            setFeaturedVideo({
-              id: "default",
-              title: settings.hero_title || "Selamat Datang di DINO18",
-              description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Upload video Anda di Doodstream untuk mulai menikmati layanan streaming yang luar biasa.",
-              duration: "∞",
-              views: "0",
-              uploadDate: "2024",
-              thumbnail: heroBg,
-              fileCode: null
-            });
-          }
-        } catch (syncError) {
-          console.error('Sync error:', syncError);
-          setError('Gagal memuat video unggulan');
-        }
+        // Fallback to default content if no videos available
+        setFeaturedVideo({
+          id: "default",
+          title: settings.hero_title || "Selamat Datang di DINO18",
+          description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Bergabunglah dengan kami untuk pengalaman streaming yang luar biasa.",
+          duration: "∞",
+          views: "0",
+          uploadDate: "2024",
+          thumbnail: heroBg,
+          fileCode: null
+        });
       }
     } catch (err) {
       console.error('Error loading featured video:', err);
-      setError('Gagal memuat video unggulan');
+      // Use default content on error
+      setFeaturedVideo({
+        id: "default",
+        title: settings.hero_title || "Selamat Datang di DINO18",
+        description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream.",
+        duration: "∞",
+        views: "0",
+        uploadDate: "2024",
+        thumbnail: heroBg,
+        fileCode: null
+      });
     } finally {
       setIsLoading(false);
     }

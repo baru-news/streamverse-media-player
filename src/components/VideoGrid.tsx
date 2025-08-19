@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import VideoCard from './VideoCard';
 import { SecureDoodstreamAPI } from '@/lib/supabase-doodstream';
-import { useAuth } from '@/hooks/useAuth';
-import { Link } from 'react-router-dom';
-import { Button } from './ui/button';
 
 interface VideoGridProps {
   title: string;
@@ -11,26 +8,20 @@ interface VideoGridProps {
 }
 
 const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
-  const { user } = useAuth();
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
-      // Only load videos if user is authenticated
-      loadVideos();
-    } else {
-      setIsLoading(false);
-    }
-  }, [limit, user]);
+    loadVideos();
+  }, [limit]);
 
   const loadVideos = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Try to get videos from database first
+      // Get videos from database (now public access)
       const dbVideos = await SecureDoodstreamAPI.getVideosFromDatabase(limit);
       
       if (dbVideos && dbVideos.length > 0) {
@@ -47,31 +38,12 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
         }));
         setVideos(transformedVideos);
       } else {
-        // If no videos in database, try to sync from Doodstream (only if admin)
-        try {
-          await SecureDoodstreamAPI.syncVideos();
-          // After sync, get videos from database again
-          const syncedVideos = await SecureDoodstreamAPI.getVideosFromDatabase(limit);
-          
-          const transformedVideos = syncedVideos.map(video => ({
-            id: video.id,
-            title: video.title,
-            thumbnail: video.thumbnail_url || `https://img.doodcdn.com/snaps/${video.file_code}.jpg`,
-            duration: formatDuration(video.duration || 0),
-            views: formatViews(video.views || 0),
-            creator: 'Doodstream',
-            category: 'Video',
-            fileCode: video.file_code
-          }));
-          setVideos(transformedVideos);
-        } catch (syncError) {
-          console.error('Failed to sync videos:', syncError);
-          setError('Tidak ada video tersedia saat ini.');
-        }
+        // If no videos in database, show message (sync is admin only)
+        setError('Belum ada video tersedia saat ini.');
       }
     } catch (error) {
       console.error('Error loading videos:', error);
-      setError('Gagal memuat video. Silakan masuk untuk melihat konten.');
+      setError('Gagal memuat video. Silakan coba lagi.');
     } finally {
       setIsLoading(false);
     }
@@ -140,38 +112,21 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
             <div className="w-1 h-8 bg-gradient-primary rounded-full" />
             {title}
           </h2>
-          {user && (
-            <button 
-              onClick={loadVideos}
-              className="px-4 py-2 bg-secondary/20 text-white rounded-md hover:bg-secondary/30 transition-colors text-sm"
-            >
-              Refresh
-            </button>
-          )}
+          <button 
+            onClick={loadVideos}
+            className="px-4 py-2 bg-secondary/20 text-white rounded-md hover:bg-secondary/30 transition-colors text-sm"
+          >
+            Refresh
+          </button>
         </div>
         
-        {!user ? (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-4">Masuk untuk Melihat Video</h3>
-            <p className="text-muted-foreground mb-6">
-              Silakan masuk ke akun Anda untuk mengakses koleksi video eksklusif kami.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button asChild variant="hero">
-                <Link to="/login">Masuk</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/register">Daftar</Link>
-              </Button>
-            </div>
-          </div>
-        ) : videos.length === 0 ? (
+        {videos.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-white/70 text-lg">
               Belum ada video yang tersedia.
             </p>
             <p className="text-sm text-white/50 mt-2">
-              Upload video di Doodstream untuk menampilkannya di sini.
+              Video akan muncul setelah admin menambahkan konten.
             </p>
           </div>
         ) : (
