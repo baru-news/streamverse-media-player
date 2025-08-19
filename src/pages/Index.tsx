@@ -1,15 +1,22 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import VideoGrid from "@/components/VideoGrid";
+import HashtagFilter from "@/components/HashtagFilter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { useState } from "react";
 
 const Index = () => {
   const { user } = useAuth();
   const { settings } = useWebsiteSettings();
+  const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
+
+  const getVideoGridTitle = () => {
+    return selectedHashtagId ? "Video Berdasarkan Kategori" : "Video Terbaru";
+  };
   
   return (
     <div className="min-h-screen bg-background">
@@ -47,8 +54,18 @@ const Index = () => {
             </div>
           )}
           
+          {/* Hashtag Filter */}
+          <HashtagFilter
+            selectedHashtagId={selectedHashtagId}
+            onHashtagChange={setSelectedHashtagId}
+          />
+          
           {/* Video Grid - Always shown for everyone */}
-          <VideoGrid title="Video Terbaru" limit={20} />
+          <VideoGrid 
+            title={getVideoGridTitle()} 
+            limit={20} 
+            selectedHashtagId={selectedHashtagId}
+          />
         </div>
       </main>
       

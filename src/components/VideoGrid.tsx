@@ -5,16 +5,17 @@ import { SecureDoodstreamAPI } from '@/lib/supabase-doodstream';
 interface VideoGridProps {
   title: string;
   limit?: number;
+  selectedHashtagId?: string | null;
 }
 
-const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
+const VideoGrid = ({ title, limit = 12, selectedHashtagId }: VideoGridProps) => {
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadVideos();
-  }, [limit]);
+  }, [limit, selectedHashtagId]);
 
   const loadVideos = async () => {
     try {
@@ -22,7 +23,9 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
       setError(null);
       
       // Get videos from database (now public access)
-      const dbVideos = await SecureDoodstreamAPI.getVideosFromDatabase(limit);
+      const dbVideos = selectedHashtagId
+        ? await SecureDoodstreamAPI.getVideosFromDatabaseByHashtag(selectedHashtagId, limit)
+        : await SecureDoodstreamAPI.getVideosFromDatabase(limit);
       
       if (dbVideos && dbVideos.length > 0) {
         // Transform database videos to match VideoCard props
