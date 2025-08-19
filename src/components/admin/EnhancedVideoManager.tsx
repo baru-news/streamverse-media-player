@@ -58,7 +58,7 @@ const EnhancedVideoManager = () => {
   const loadVideos = async () => {
     setIsLoading(true);
     try {
-      const videoList = await SecureDoodstreamAPI.getVideosFromDatabase(100);
+      const videoList = await SecureDoodstreamAPI.getVideosFromDatabase(1, 100);
       setVideos(videoList);
     } catch (error) {
       console.error("Failed to load videos:", error);
