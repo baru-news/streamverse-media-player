@@ -1,20 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
+  const { signUp, user } = useAuth();
+
+  // Redirect if already logged in
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -23,10 +32,24 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log("Register:", formData);
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Kata sandi tidak cocok");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Kata sandi minimal 6 karakter");
+      return;
+    }
+
+    setLoading(true);
+    
+    const { error } = await signUp(formData.email, formData.password, formData.fullName);
+    
+    setLoading(false);
   };
 
   return (
@@ -54,17 +77,17 @@ const Register = () => {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Username */}
+              {/* Full Name */}
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-white">Nama Pengguna</Label>
+                <Label htmlFor="fullName" className="text-white">Nama Lengkap</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
-                    id="username"
-                    name="username"
+                    id="fullName"
+                    name="fullName"
                     type="text"
-                    placeholder="Pilih nama pengguna"
-                    value={formData.username}
+                    placeholder="Masukkan nama lengkap"
+                    value={formData.fullName}
                     onChange={handleChange}
                     className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
                     required
@@ -141,8 +164,8 @@ const Register = () => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" variant="hero" className="w-full" size="lg">
-                Daftar Sekarang
+              <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
+                {loading ? "Mendaftar..." : "Daftar Sekarang"}
               </Button>
             </form>
 

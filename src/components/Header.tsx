@@ -1,11 +1,21 @@
 import { useState } from "react";
-import { Search, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, User, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import MakeAdminButton from "@/components/MakeAdminButton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, signOut, isAdmin } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-nav-bg backdrop-blur-md border-b border-border/50">
@@ -37,24 +47,54 @@ const Header = () => {
 
             {/* Navigation */}
             <nav className="flex items-center space-x-4">
-              <Link to="/admin/upload">
-                <Button variant="nav" size="sm">
-                  Admin
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="nav" size="sm">
-                  Masuk
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="hero" size="sm">
-                  Daftar
-                </Button>
-              </Link>
-              <Button variant="ghost" size="icon">
-                <User className="w-4 h-4" />
-              </Button>
+              {user ? (
+                <>
+                  <MakeAdminButton />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="relative">
+                        <User className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild>
+                        <div className="flex flex-col items-start px-2 py-1">
+                          <span className="text-sm font-medium">{user.email}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {isAdmin ? "Administrator" : "User"}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {isAdmin && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/upload" className="flex items-center">
+                            <Shield className="mr-2 h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={signOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Keluar</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="nav" size="sm">
+                      Masuk
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button variant="hero" size="sm">
+                      Daftar
+                    </Button>
+                  </Link>
+                </>
+              )}
             </nav>
         </div>
       </div>

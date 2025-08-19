@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import VideoDetail from "./pages/VideoDetail";
 import AdminUpload from "./pages/AdminUpload";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -22,8 +23,16 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/video/:id" element={<VideoDetail />} />
-          <Route path="/admin/upload" element={<AdminUpload />} />
+          <Route path="/video/:id" element={
+            <ProtectedRoute>
+              <VideoDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/upload" element={
+            <ProtectedRoute requireAdmin>
+              <AdminUpload />
+            </ProtectedRoute>
+          } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
