@@ -52,7 +52,11 @@ export const useWebsiteSettings = () => {
     try {
       const { error } = await supabase
         .from('website_settings')
-        .upsert({ setting_key: key, setting_value: value });
+        .upsert({ 
+          setting_key: key, 
+          setting_value: value,
+          setting_type: 'text' // Add missing setting_type
+        });
 
       if (error) throw error;
 

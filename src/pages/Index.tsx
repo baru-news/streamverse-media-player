@@ -1,10 +1,9 @@
 import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
+import FeaturedSection from "@/components/FeaturedSection";
 import VideoGrid from "@/components/VideoGrid";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Play } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 
@@ -23,7 +22,7 @@ const Index = () => {
       <Header />
       
       <main>
-        <HeroSection />
+        <FeaturedSection />
         
         <div className="space-y-8">
           {!user && (
