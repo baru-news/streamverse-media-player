@@ -54,7 +54,7 @@ const Index = () => {
               {/* Call to Action */}
               <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-16">
                 <h2 className="text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-                  Bergabung dengan Streamverse
+                  Bergabung dengan DINO18
                 </h2>
                 <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
                   Dapatkan akses penuh ke koleksi video eksklusif kami. Daftar sekarang dan mulai menikmati pengalaman streaming yang tak terlupakan.
@@ -82,17 +82,17 @@ const Index = () => {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+                <span className="text-white font-bold text-lg">D</span>
               </div>
               <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Streamverse
+                DINO18
               </span>
             </div>
             <p className="text-muted-foreground">
               Platform streaming video terdepan dengan koleksi konten dari Doodstream
             </p>
             <div className="mt-4 text-sm text-muted-foreground">
-              © 2024 Streamverse. Semua hak dilindungi.
+              © 2024 DINO18. Semua hak dilindungi.
             </div>
           </div>
         </div>

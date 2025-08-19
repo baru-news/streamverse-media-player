@@ -21,7 +21,7 @@ const HeroSection = () => {
       // Show default content for non-authenticated users
       setFeaturedVideo({
         id: "default",
-        title: "Selamat Datang di Streamverse",
+        title: "Selamat Datang di DINO18",
         description: "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Masuk atau daftar untuk mengakses koleksi video eksklusif kami dan nikmati pengalaman streaming yang luar biasa.",
         duration: "∞",
         views: "1M+",
@@ -91,7 +91,7 @@ const HeroSection = () => {
             // Fallback to default content if no videos available
             setFeaturedVideo({
               id: "default",
-              title: "Selamat Datang di Streamverse",
+              title: "Selamat Datang di DINO18",
               description: "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Upload video Anda di Doodstream untuk mulai menikmati layanan streaming yang luar biasa.",
               duration: "∞",
               views: "0",
