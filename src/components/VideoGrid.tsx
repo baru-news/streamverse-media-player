@@ -38,8 +38,8 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
         }));
         setVideos(transformedVideos);
       } else {
-        // If no videos in database, show message (sync is admin only)
-        setError('Belum ada video tersedia saat ini.');
+        // If no videos in database, show message
+        setError('Belum ada video yang tersedia. Admin perlu menambahkan video ke akun Doodstream terlebih dahulu.');
       }
     } catch (error) {
       console.error('Error loading videos:', error);

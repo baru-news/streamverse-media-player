@@ -109,13 +109,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    
-    if (error) {
-      toast.error('Gagal keluar');
-    } else {
-      toast.success('Berhasil keluar');
+    try {
+      // Clear local state first to ensure immediate UI update
+      setUser(null);
+      setSession(null);
       setIsAdmin(false);
+      
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        // Still show success message as local state is cleared
+        toast.success('Berhasil keluar');
+      } else {
+        toast.success('Berhasil keluar');
+      }
+    } catch (error) {
+      console.error('Unexpected logout error:', error);
+      toast.success('Berhasil keluar');
     }
   };
 
