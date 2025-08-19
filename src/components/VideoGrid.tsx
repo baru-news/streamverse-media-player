@@ -29,7 +29,7 @@ const VideoGrid = ({ title, limit = 12 }: VideoGridProps) => {
         const transformedVideos = dbVideos.map(video => ({
           id: video.id,
           title: video.title,
-          thumbnail: video.thumbnail_url || `https://img.doodcdn.com/snaps/${video.file_code}.jpg`,
+          thumbnail: video.thumbnail_url || (video.file_code ? `https://img.doodcdn.com/snaps/${video.file_code}.jpg` : '/placeholder.svg'),
           duration: formatDuration(video.duration || 0),
           views: formatViews(video.views || 0),
           creator: 'Doodstream',

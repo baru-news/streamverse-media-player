@@ -25,11 +25,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/video/:id" element={
-            <ProtectedRoute>
-              <VideoDetail />
-            </ProtectedRoute>
-          } />
+          <Route path="/video/:id" element={<VideoDetail />} />
           <Route path="/admin/upload" element={
             <ProtectedRoute requireAdmin>
               <AdminUpload />
