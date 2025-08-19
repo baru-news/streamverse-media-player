@@ -102,12 +102,17 @@ serve(async (req) => {
     // Process the response
     let result = data;
     
-      // Transform data for specific actions
-      if (action === 'getVideoInfo' && data.status === 200) {
+    // Transform data for specific actions
+    if (action === 'getVideoInfo' && data.status === 200) {
         const fileInfo = data.result[0];
+        
+        // Ensure we always have a valid title
+        const fallbackTitle = `Video ${fileInfo.filecode || 'Unknown'}`;
+        const videoTitle = fileInfo.title || fallbackTitle;
+        
         const videoData = {
           fileCode: fileInfo.filecode, // file/info uses 'filecode'
-          title: fileInfo.title,
+          title: videoTitle,
           length: fileInfo.length,
           views: parseInt(fileInfo.views) || 0,
           uploadDate: fileInfo.uploaded,
@@ -136,15 +141,24 @@ serve(async (req) => {
             thumbnail_url: videoData.thumbnail
           };
 
+          // Always ensure we have a valid title - use fallback if Doodstream title is empty
+          const fallbackTitle = `Video ${videoData.fileCode}`;
+          const doodstreamTitle = videoData.title || fallbackTitle;
+
           // Only update title if it hasn't been manually edited
           if (!existingVideo?.title_edited) {
-            updateData.title = videoData.title;
+            updateData.title = doodstreamTitle;
+          } else if (!existingVideo?.title) {
+            // If somehow the existing video has no title, set fallback
+            updateData.title = fallbackTitle;
           }
 
           // Only update description if it hasn't been manually edited (keeping existing or setting from Doodstream if empty)
           if (!existingVideo?.description_edited && !existingVideo?.description) {
-            updateData.description = videoData.title; // Use title as fallback description
+            updateData.description = doodstreamTitle; // Use title as fallback description
           }
+
+          console.log('Syncing video to database:', JSON.stringify(updateData, null, 2));
 
           const { error: upsertError } = await supabase
             .from('videos')
@@ -153,7 +167,7 @@ serve(async (req) => {
           if (upsertError) {
             console.error('Database upsert error for video info:', upsertError);
           } else {
-            console.log('Successfully synced video info to database:', videoData.title);
+            console.log('Successfully synced video info to database:', updateData.title);
           }
         }
 
@@ -167,9 +181,13 @@ serve(async (req) => {
         const videos = data.result?.files?.map((file: any) => {
           console.log('Processing file:', JSON.stringify(file, null, 2));
           
+          // Ensure we always have a valid title
+          const fallbackTitle = `Video ${file.file_code || 'Unknown'}`;
+          const videoTitle = file.title || fallbackTitle;
+          
           return {
             fileCode: file.file_code, // file/list uses 'file_code'
-            title: file.title || 'Untitled Video',
+            title: videoTitle,
             length: file.length || '0',
             views: parseInt(file.views) || 0,
             uploadDate: file.uploaded,
@@ -209,6 +227,11 @@ serve(async (req) => {
               console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
               
               const existing = existingVideoMap.get(video.fileCode);
+              
+              // Always ensure we have a valid title - use fallback if Doodstream title is empty
+              const fallbackTitle = `Video ${video.fileCode}`;
+              const doodstreamTitle = video.title || fallbackTitle;
+              
               const record: any = {
                 file_code: video.fileCode,
                 duration: video.length ? Math.floor(parseFloat(video.length)) : null,
@@ -221,14 +244,18 @@ serve(async (req) => {
 
               // Only update title if it hasn't been manually edited
               if (!existing?.title_edited) {
-                record.title = video.title;
+                record.title = doodstreamTitle;
+              } else if (!existing?.title) {
+                // If somehow the existing video has no title, set fallback
+                record.title = fallbackTitle;
               }
 
               // Only update description if it hasn't been manually edited and current description is empty
               if (!existing?.description_edited && !existing?.description) {
-                record.description = video.title; // Use title as fallback description
+                record.description = doodstreamTitle; // Use title as fallback description
               }
 
+              console.log('Prepared record:', JSON.stringify(record, null, 2));
               return record;
             });
 

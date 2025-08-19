@@ -48,20 +48,33 @@ const AdminUpload = () => {
   const loadVideos = async () => {
     setIsLoading(true);
     try {
+      console.log('Starting video load process...');
+      
       // Sync videos from Doodstream first to ensure database is up to date
-      await SecureDoodstreamAPI.syncVideos();
+      console.log('Syncing videos from Doodstream...');
+      const syncResult = await SecureDoodstreamAPI.syncVideos();
+      console.log('Sync result:', syncResult);
       
       // Get videos from database
+      console.log('Loading videos from database...');
       const videoList = await SecureDoodstreamAPI.getVideosFromDatabase(50);
       const account = await SecureDoodstreamAPI.getAccountInfo();
       
-      setVideos(videoList);
+      console.log(`Loaded ${videoList?.length || 0} videos from database`);
+      setVideos(videoList || []);
       setAccountInfo(account);
+      
+      if (!videoList || videoList.length === 0) {
+        toast({
+          title: "Info",
+          description: "Belum ada video dalam database. Pastikan API key Doodstream sudah dikonfigurasi dengan benar.",
+        });
+      }
     } catch (error) {
       console.error("Failed to load videos:", error);
       toast({
         title: "Error",
-        description: "Gagal memuat daftar video. Silakan coba lagi.",
+        description: error instanceof Error ? error.message : "Gagal memuat daftar video. Silakan coba lagi.",
         variant: "destructive",
       });
     } finally {
