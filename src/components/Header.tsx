@@ -35,22 +35,27 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex items-center space-x-4">
-            <Link to="/login">
-              <Button variant="nav" size="sm">
-                Masuk
+            {/* Navigation */}
+            <nav className="flex items-center space-x-4">
+              <Link to="/admin/upload">
+                <Button variant="nav" size="sm">
+                  Admin
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="nav" size="sm">
+                  Masuk
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="hero" size="sm">
+                  Daftar
+                </Button>
+              </Link>
+              <Button variant="ghost" size="icon">
+                <User className="w-4 h-4" />
               </Button>
-            </Link>
-            <Link to="/register">
-              <Button variant="hero" size="sm">
-                Daftar
-              </Button>
-            </Link>
-            <Button variant="ghost" size="icon">
-              <User className="w-4 h-4" />
-            </Button>
-          </nav>
+            </nav>
         </div>
       </div>
     </header>

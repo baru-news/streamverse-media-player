@@ -1,0 +1,245 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Video, Upload, List, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Header from "@/components/Header";
+import VideoUpload from "@/components/VideoUpload";
+import { DoodstreamAPI, type DoodstreamVideo } from "@/lib/doodstream";
+
+const AdminUpload = () => {
+  const [videos, setVideos] = useState<DoodstreamVideo[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [accountInfo, setAccountInfo] = useState<any>(null);
+
+  const handleUploadComplete = async (fileCode: string, videoData: any) => {
+    console.log("Upload completed:", { fileCode, videoData });
+    // Refresh video list after upload
+    await loadVideos();
+  };
+
+  const loadVideos = async () => {
+    setIsLoading(true);
+    try {
+      // PENTING: API key harus diambil dari Supabase secrets
+      const apiKey = "YOUR_DOODSTREAM_API_KEY"; // Akan diambil dari Supabase
+      
+      if (!apiKey || apiKey === "YOUR_DOODSTREAM_API_KEY") {
+        console.error("API key Doodstream belum dikonfigurasi");
+        return;
+      }
+
+      const doodstream = new DoodstreamAPI(apiKey);
+      const videoList = await doodstream.getVideoList(1, 20);
+      const account = await doodstream.getAccountInfo();
+      
+      setVideos(videoList);
+      setAccountInfo(account);
+    } catch (error) {
+      console.error("Failed to load videos:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadVideos();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="pt-20">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <Link to="/">
+              <Button variant="ghost" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Kembali
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+          </div>
+
+          <Tabs defaultValue="upload" className="space-y-6">
+            <TabsList className="bg-card/50 backdrop-blur-sm">
+              <TabsTrigger value="upload" className="gap-2">
+                <Upload className="w-4 h-4" />
+                Upload Video
+              </TabsTrigger>
+              <TabsTrigger value="videos" className="gap-2">
+                <List className="w-4 h-4" />
+                Kelola Video
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="gap-2">
+                <Settings className="w-4 h-4" />
+                Pengaturan
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Upload Tab */}
+            <TabsContent value="upload">
+              <div className="space-y-6">
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Upload Video Baru</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <VideoUpload onUploadComplete={handleUploadComplete} />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Videos Tab */}
+            <TabsContent value="videos">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-white">Daftar Video</h2>
+                  <Button onClick={loadVideos} variant="outline" disabled={isLoading}>
+                    {isLoading ? "Loading..." : "Refresh"}
+                  </Button>
+                </div>
+
+                {videos.length === 0 ? (
+                  <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                    <CardContent className="py-12 text-center">
+                      <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-white font-medium mb-2">Belum ada video</p>
+                      <p className="text-muted-foreground">
+                        Upload video pertama Anda untuk mulai streaming
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {videos.map((video) => (
+                      <Card key={video.id} className="bg-card/50 backdrop-blur-sm border-border/50">
+                        <CardContent className="p-4">
+                          <div className="aspect-video bg-muted/30 rounded-lg mb-4 flex items-center justify-center">
+                            <Video className="w-8 h-8 text-muted-foreground" />
+                          </div>
+                          <h3 className="font-medium text-white mb-2 line-clamp-2">
+                            {video.title}
+                          </h3>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <div className="flex justify-between">
+                              <span>Status:</span>
+                              <span className={`${
+                                video.status === 'active' ? 'text-green-400' : 'text-yellow-400'
+                              }`}>
+                                {video.status}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Durasi:</span>
+                              <span>{video.duration}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Views:</span>
+                              <span>{video.views.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Size:</span>
+                              <span>{video.size}</span>
+                            </div>
+                          </div>
+                          <div className="mt-4 pt-4 border-t border-border/50">
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1"
+                                onClick={() => navigator.clipboard.writeText(video.embed_url)}
+                              >
+                                Copy Link
+                              </Button>
+                              <Link to={`/video/${video.id}`}>
+                                <Button variant="hero" size="sm">
+                                  Lihat
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* Settings Tab */}
+            <TabsContent value="settings">
+              <div className="space-y-6">
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Informasi Akun Doodstream</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {accountInfo ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-muted/20 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Email</h4>
+                            <p className="text-muted-foreground">{accountInfo.email}</p>
+                          </div>
+                          <div className="bg-muted/20 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Balance</h4>
+                            <p className="text-primary font-semibold">${accountInfo.balance}</p>
+                          </div>
+                          <div className="bg-muted/20 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Storage Used</h4>
+                            <p className="text-muted-foreground">{accountInfo.storage_used}</p>
+                          </div>
+                          <div className="bg-muted/20 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Storage Left</h4>
+                            <p className="text-green-400">{accountInfo.storage_left}</p>
+                          </div>
+                        </div>
+                        <div className="bg-muted/20 p-4 rounded-lg">
+                          <h4 className="font-medium text-white mb-2">Premium Expire</h4>
+                          <p className="text-muted-foreground">{accountInfo.premium_expire}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          Informasi akun tidak tersedia. Pastikan API key sudah dikonfigurasi.
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Konfigurasi API</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
+                      <h4 className="font-medium text-yellow-300 mb-2">⚠️ Konfigurasi Diperlukan</h4>
+                      <p className="text-yellow-200 text-sm mb-4">
+                        Untuk menggunakan fitur upload dan streaming Doodstream, Anda perlu mengkonfigurasi API key di Supabase secrets.
+                      </p>
+                      <div className="space-y-2 text-sm text-yellow-200">
+                        <p>1. Dapatkan API key dari dashboard Doodstream</p>
+                        <p>2. Simpan API key di Supabase secrets dengan nama "DOODSTREAM_API_KEY"</p>
+                        <p>3. Restart aplikasi untuk memuat konfigurasi baru</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AdminUpload;

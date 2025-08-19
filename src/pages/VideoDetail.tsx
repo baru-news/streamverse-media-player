@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import VideoCard from "@/components/VideoCard";
 import Header from "@/components/Header";
+import DoodstreamPlayer from "@/components/DoodstreamPlayer";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -63,50 +64,14 @@ const VideoDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              {/* Video Player */}
-              <div className="relative aspect-video bg-black rounded-xl overflow-hidden mb-6 group">
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
-                
-                {/* Play/Pause Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-20 h-20 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-all duration-300"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-8 h-8 text-white" />
-                    ) : (
-                      <Play className="w-8 h-8 text-white ml-1" fill="white" />
-                    )}
-                  </Button>
-                </div>
-
-                {/* Video Controls */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                        <Volume2 className="w-5 h-5" />
-                      </Button>
-                      <span className="text-white text-sm">0:00 / {video.duration}</span>
-                    </div>
-                    
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                      <Maximize className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Placeholder Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center -z-10">
-                  <div className="text-center text-white/50">
-                    <Play className="w-16 h-16 mx-auto mb-4" />
-                    <p>Video Player</p>
-                  </div>
-                </div>
-              </div>
+              {/* Video Player - Doodstream Integration */}
+              <DoodstreamPlayer 
+                fileCode="sample-file-code" 
+                title={video.title}
+                width={800}
+                height={450}
+                className="mb-6"
+              />
 
               {/* Video Info */}
               <div className="space-y-6">
