@@ -22,9 +22,9 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
   );
   return (
     <Link to={`/video/${id}`}>
-      <div className="group relative bg-gradient-card rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-video cursor-pointer">
+      <div className="group relative bg-gradient-card rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-video cursor-pointer h-full flex flex-col">
         {/* Thumbnail */}
-        <div className="relative aspect-video overflow-hidden bg-muted">
+        <div className="relative aspect-video overflow-hidden bg-muted flex-shrink-0">
           {!imageLoaded && !imageError && (
             <Skeleton className="w-full h-full absolute inset-0" />
           )}
@@ -85,18 +85,18 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          <h3 className="text-white font-semibold text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200">
+        <div className="p-3 flex-1 flex flex-col justify-between min-h-[80px]">
+          <h3 className="text-white font-medium text-sm leading-tight line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200 overflow-hidden">
             {title}
           </h3>
           
-          <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="hover:text-primary transition-colors cursor-pointer">
+          <div className="flex items-center justify-between text-muted-foreground text-xs mt-auto">
+            <span className="hover:text-primary transition-colors cursor-pointer truncate max-w-[70%]">
               {creator}
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Eye className="w-3 h-3" />
-              {views}
+              <span className="text-xs">{views}</span>
             </div>
           </div>
         </div>
