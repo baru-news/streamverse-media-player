@@ -1,33 +1,52 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './VideoCard';
 import { SecureDoodstreamAPI } from '@/lib/supabase-doodstream';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface VideoGridProps {
   title: string;
-  limit?: number;
   selectedHashtagId?: string | null;
   searchQuery?: string;
 }
 
-const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashtagId, searchQuery }) => {
+const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, searchQuery }) => {
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalVideos, setTotalVideos] = useState(0);
+  const videosPerPage = 12;
 
-  const loadVideos = useCallback(async () => {
+  const loadVideos = useCallback(async (page: number = currentPage) => {
     setIsLoading(true);
     setError(null);
     
     try {
       let fetchedVideos: any[];
+      let totalCount: number;
       
       if (searchQuery?.trim()) {
-        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, selectedHashtagId || undefined, limit);
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, selectedHashtagId || undefined, page, videosPerPage);
+        totalCount = await SecureDoodstreamAPI.getTotalVideosCount(searchQuery, selectedHashtagId || undefined);
       } else if (selectedHashtagId) {
-        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseByHashtag(selectedHashtagId, limit);
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseByHashtag(selectedHashtagId, page, videosPerPage);
+        totalCount = await SecureDoodstreamAPI.getTotalVideosCount(undefined, selectedHashtagId);
       } else {
-        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabase(limit);
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabase(page, videosPerPage);
+        totalCount = await SecureDoodstreamAPI.getTotalVideosCount();
       }
+      
+      setTotalVideos(totalCount);
+      setTotalPages(Math.ceil(totalCount / videosPerPage));
       
       if (fetchedVideos && fetchedVideos.length > 0) {
         // Transform database videos to match VideoCard props
@@ -44,7 +63,10 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
         setVideos(transformedVideos);
       } else {
         // If no videos in database, show message
-        setError('Belum ada video yang tersedia. Admin perlu menambahkan video ke akun Doodstream terlebih dahulu.');
+        setVideos([]);
+        if (totalCount === 0) {
+          setError('Belum ada video yang tersedia. Admin perlu menambahkan video ke akun Doodstream terlebih dahulu.');
+        }
       }
     } catch (error) {
       console.error('Error loading videos:', error);
@@ -52,11 +74,20 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedHashtagId, limit]);
+  }, [searchQuery, selectedHashtagId, currentPage, videosPerPage]);
 
   useEffect(() => {
-    loadVideos();
-  }, [loadVideos]);
+    setCurrentPage(1); // Reset to first page when search/hashtag changes
+  }, [searchQuery, selectedHashtagId]);
+
+  useEffect(() => {
+    loadVideos(currentPage);
+  }, [currentPage, searchQuery, selectedHashtagId]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const formatDuration = (seconds: number): string => {
     if (!seconds) return '0:00';
@@ -102,7 +133,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
           <div className="text-center py-8">
             <p className="text-destructive mb-4">{error}</p>
             <button 
-              onClick={loadVideos}
+              onClick={() => loadVideos(currentPage)}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
             >
               Try Again
@@ -121,12 +152,17 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
             <div className="w-1 h-8 bg-gradient-primary rounded-full" />
             {title}
           </h2>
-          <button 
-            onClick={loadVideos}
-            className="px-4 py-2 bg-secondary/20 text-white rounded-md hover:bg-secondary/30 transition-colors text-sm"
-          >
-            Refresh
-          </button>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-white/70">
+              {totalVideos > 0 && `${totalVideos} video${totalVideos > 1 ? 's' : ''}`}
+            </span>
+            <button 
+              onClick={() => loadVideos(currentPage)}
+              className="px-4 py-2 bg-secondary/20 text-white rounded-md hover:bg-secondary/30 transition-colors text-sm"
+            >
+              Refresh
+            </button>
+          </div>
         </div>
         
         {videos.length === 0 ? (
@@ -139,11 +175,95 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, limit = 20, selectedHashta
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {videos.map((video) => (
-              <VideoCard key={video.id} {...video} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+              {videos.map((video) => (
+                <VideoCard key={video.id} {...video} />
+              ))}
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8">
+                <Pagination>
+                  <PaginationContent>
+                    {currentPage > 1 && (
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          className="cursor-pointer"
+                        />
+                      </PaginationItem>
+                    )}
+                    
+                    {/* Show first page */}
+                    {currentPage > 3 && (
+                      <>
+                        <PaginationItem>
+                          <PaginationLink 
+                            onClick={() => handlePageChange(1)}
+                            className="cursor-pointer"
+                          >
+                            1
+                          </PaginationLink>
+                        </PaginationItem>
+                        {currentPage > 4 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                      </>
+                    )}
+                    
+                    {/* Show current page and surrounding pages */}
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                      if (pageNum > totalPages) return null;
+                      
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            onClick={() => handlePageChange(pageNum)}
+                            isActive={currentPage === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    {/* Show last page */}
+                    {currentPage < totalPages - 2 && (
+                      <>
+                        {currentPage < totalPages - 3 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                        <PaginationItem>
+                          <PaginationLink 
+                            onClick={() => handlePageChange(totalPages)}
+                            className="cursor-pointer"
+                          >
+                            {totalPages}
+                          </PaginationLink>
+                        </PaginationItem>
+                      </>
+                    )}
+                    
+                    {currentPage < totalPages && (
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          className="cursor-pointer"
+                        />
+                      </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

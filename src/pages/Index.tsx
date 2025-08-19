@@ -69,8 +69,7 @@ const Index = () => {
           
           {/* Video Grid - Always shown for everyone */}
           <VideoGrid 
-            title={getVideoGridTitle()} 
-            limit={20} 
+            title={getVideoGridTitle()}
             selectedHashtagId={selectedHashtagId}
             searchQuery={searchQuery}
           />

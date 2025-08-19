@@ -182,14 +182,15 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 8. Get videos from database
-  static async getVideosFromDatabase(limit: number = 12): Promise<any[]> {
+  // 8. Get videos from database with pagination
+  static async getVideosFromDatabase(page: number = 1, perPage: number = 12): Promise<any[]> {
     try {
+      const offset = (page - 1) * perPage;
       const { data, error } = await supabase
         .from('videos')
         .select('*')
         .order('upload_date', { ascending: false })
-        .limit(limit);
+        .range(offset, offset + perPage - 1);
 
       if (error) throw error;
       return data || [];
@@ -199,9 +200,10 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 9. Get videos from database filtered by hashtag
-  static async getVideosFromDatabaseByHashtag(hashtagId: string, limit: number = 12): Promise<any[]> {
+  // 9. Get videos from database filtered by hashtag with pagination
+  static async getVideosFromDatabaseByHashtag(hashtagId: string, page: number = 1, perPage: number = 12): Promise<any[]> {
     try {
+      const offset = (page - 1) * perPage;
       const { data, error } = await supabase
         .from('videos')
         .select(`
@@ -212,7 +214,7 @@ export class SecureDoodstreamAPI {
         `)
         .eq('video_hashtags.hashtag_id', hashtagId)
         .order('upload_date', { ascending: false })
-        .limit(limit);
+        .range(offset, offset + perPage - 1);
 
       if (error) throw error;
       return data || [];
@@ -222,9 +224,10 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 10. Get videos from database filtered by search query
-  static async getVideosFromDatabaseBySearch(searchQuery: string, hashtagId?: string, limit: number = 12): Promise<any[]> {
+  // 10. Get videos from database filtered by search query with pagination
+  static async getVideosFromDatabaseBySearch(searchQuery: string, hashtagId?: string, page: number = 1, perPage: number = 12): Promise<any[]> {
     try {
+      const offset = (page - 1) * perPage;
       let query = supabase
         .from('videos')
         .select(`
@@ -251,7 +254,7 @@ export class SecureDoodstreamAPI {
 
       const { data, error } = await query
         .order('upload_date', { ascending: false })
-        .limit(limit);
+        .range(offset, offset + perPage - 1);
 
       if (error) throw error;
       return data || [];
@@ -261,12 +264,39 @@ export class SecureDoodstreamAPI {
     }
   }
 
-  // 11. Generate embed HTML
+  // 11. Get total count of videos
+  static async getTotalVideosCount(searchQuery?: string, hashtagId?: string): Promise<number> {
+    try {
+      let query = supabase
+        .from('videos')
+        .select('id', { count: 'exact', head: true });
+
+      // Add search filter
+      if (searchQuery?.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      // Add hashtag filter if provided
+      if (hashtagId) {
+        query = query.eq('video_hashtags.hashtag_id', hashtagId);
+      }
+
+      const { count, error } = await query;
+
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      console.error('Get total videos count error:', error);
+      return 0;
+    }
+  }
+
+  // 12. Generate embed HTML
   static generateEmbedHTML(fileCode: string, width: number = 640, height: number = 360): string {
     return `<iframe src="https://dood.re/e/${fileCode}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
   }
 
-  // 12. Generate embed URL
+  // 13. Generate embed URL
   static generateEmbedURL(fileCode: string, autoplay: boolean = false): string {
     return `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
   }
