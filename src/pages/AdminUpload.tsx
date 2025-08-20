@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins, Megaphone, Users } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins, Megaphone, Users, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -12,11 +12,14 @@ import CoinManagement from "@/components/admin/CoinManagement";
 import QuickActions from "@/components/admin/QuickActions";
 import AdsManagement from "@/components/admin/AdsManagement";
 import UserManagement from "@/components/admin/UserManagement";
+import ContactMessageManagement from "@/components/admin/ContactMessageManagement";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
+import { useContactMessages } from "@/hooks/useContactMessages";
 
 const AdminUpload = () => {
   const { toast } = useToast();
+  const { unreadCount } = useContactMessages();
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,6 +81,16 @@ const AdminUpload = () => {
                   <span className="hidden sm:inline">Kelola User</span>
                   <span className="sm:hidden">User</span>
                 </TabsTrigger>
+                <TabsTrigger value="messages" className="gap-2 whitespace-nowrap px-4 py-2 relative" id="messages">
+                  <Mail className="w-4 h-4" />
+                  <span className="hidden sm:inline">Pesan Kontak</span>
+                  <span className="sm:hidden">Pesan</span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </TabsTrigger>
                 <TabsTrigger value="videos" className="gap-2 whitespace-nowrap px-4 py-2" id="videos">
                   <List className="w-4 h-4" />
                   <span className="hidden sm:inline">Kelola Video</span>
@@ -129,6 +142,11 @@ const AdminUpload = () => {
             {/* User Management Tab */}
             <TabsContent value="users">
               <UserManagement />
+            </TabsContent>
+
+            {/* Contact Messages Tab */}
+            <TabsContent value="messages">
+              <ContactMessageManagement />
             </TabsContent>
 
             {/* Videos Tab */}
