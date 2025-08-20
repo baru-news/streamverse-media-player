@@ -31,7 +31,7 @@ export const BadgeStore = () => {
     }
   };
 
-  // Update the BadgeStore component to support custom images
+  // BadgeIcon component to support custom images
   const BadgeIcon = ({ badge, className = "w-8 h-8" }: { badge: any, className?: string }) => {
     if (badge.image_url) {
       return (
@@ -78,39 +78,39 @@ export const BadgeStore = () => {
 
   if (loading) {
     return (
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            <ShoppingBag className="w-4 h-4 mr-2" />
-            Badge Store
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Badge Store</DialogTitle>
-          </DialogHeader>
-          <div className="text-center py-8">Loading badges...</div>
-        </DialogContent>
-      </Dialog>
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <ShoppingBag className="w-4 h-4 mr-2" />
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 hover:from-yellow-500/20 hover:to-orange-500/20"
+        >
+          <ShoppingBag className="w-4 h-4" />
           Badge Store
+          {coins && (
+            <Badge variant="secondary" className="ml-1 bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+              {coins.balance} coins
+            </Badge>
+          )}
         </Button>
       </DialogTrigger>
+      
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center gap-3">
+            <ShoppingBag className="w-6 h-6 text-yellow-500" />
             <span>Badge Store</span>
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <Crown className="w-4 h-4 text-yellow-500" />
-                {activeBadge ? `${activeBadge.icon} ${activeBadge.name}` : 'No badge equipped'}
+                {activeBadge ? `${activeBadge.name}` : 'No badge equipped'}
               </div>
             </div>
           </DialogTitle>
@@ -146,44 +146,44 @@ export const BadgeStore = () => {
                           )}
                         </div>
                         <CardTitle className="text-base">{badge.name}</CardTitle>
-                        <Badge variant="outline" className={cn("w-fit text-xs", getRarityColor(badge.rarity))}>
-                          {badge.rarity}
-                        </Badge>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
                         {badge.description && (
                           <p className="text-sm text-muted-foreground">{badge.description}</p>
                         )}
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-sm font-medium text-yellow-600">
-                            <ShoppingBag className="w-4 h-4" />
-                            {badge.price_coins.toLocaleString()}
+                      </CardHeader>
+
+                      <CardContent className="pt-0">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1">
+                            <span className="text-lg font-bold text-yellow-500">{badge.price_coins}</span>
+                            <span className="text-sm text-muted-foreground">coins</span>
                           </div>
-                          
-                          {badge.owned ? (
-                            <Button 
-                              size="sm" 
-                              variant={badge.user_badge?.is_active ? "default" : "outline"}
-                              onClick={() => handleSetActive(
-                                badge.user_badge?.is_active ? null : badge.badge_key
-                              )}
-                            >
-                              {badge.user_badge?.is_active ? "Equipped" : "Equip"}
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              disabled={!canAfford(badge.price_coins) || purchasing === badge.badge_key}
-                              onClick={() => handlePurchase(badge.badge_key)}
-                            >
-                              {purchasing === badge.badge_key ? "Buying..." : "Buy"}
-                            </Button>
-                          )}
+                          <Badge variant="outline" className={cn("text-xs", getRarityColor(badge.rarity))}>
+                            {badge.rarity}
+                          </Badge>
                         </div>
-                        
-                        {!badge.owned && !canAfford(badge.price_coins) && (
-                          <p className="text-xs text-red-500">Insufficient coins</p>
+
+                        {badge.owned ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full"
+                            disabled
+                          >
+                            <Check className="w-4 h-4 mr-2" />
+                            Owned
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => handlePurchase(badge.badge_key)}
+                            disabled={!canAfford(badge.price_coins) || purchasing === badge.badge_key}
+                          >
+                            {purchasing === badge.badge_key ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            ) : null}
+                            {canAfford(badge.price_coins) ? 'Purchase' : 'Not enough coins'}
+                          </Button>
                         )}
                       </CardContent>
                     </Card>
@@ -192,13 +192,13 @@ export const BadgeStore = () => {
               </div>
             ))}
           </TabsContent>
-          
-          <TabsContent value="inventory" className="space-y-4">
+
+          <TabsContent value="inventory" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {badges.filter(badge => badge.owned).map((badge) => (
                 <Card key={badge.id} className={cn(
-                  "relative overflow-hidden transition-all duration-200",
-                  badge.user_badge?.is_active && "ring-2 ring-primary"
+                  "relative overflow-hidden transition-all duration-200 hover:scale-105",
+                  badge.user_badge?.is_active && "ring-2 ring-yellow-500 bg-yellow-50 dark:bg-yellow-950/20"
                 )}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
@@ -208,35 +208,51 @@ export const BadgeStore = () => {
                       )}
                     </div>
                     <CardTitle className="text-base">{badge.name}</CardTitle>
-                    <Badge variant="outline" className={cn("w-fit text-xs", getRarityColor(badge.rarity))}>
-                      {badge.rarity}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
                     {badge.description && (
                       <p className="text-sm text-muted-foreground">{badge.description}</p>
                     )}
-                    
-                    <Button 
-                      size="sm" 
-                      variant={badge.user_badge?.is_active ? "default" : "outline"}
-                      onClick={() => handleSetActive(
-                        badge.user_badge?.is_active ? null : badge.badge_key
+                  </CardHeader>
+
+                  <CardContent className="pt-0">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge variant="outline" className={cn("text-xs", getRarityColor(badge.rarity))}>
+                        {badge.rarity}
+                      </Badge>
+                      <div className="text-xs text-muted-foreground">
+                        Purchased: {new Date(badge.user_badge?.purchased_at || '').toLocaleDateString()}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {badge.user_badge?.is_active ? (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => handleSetActive(null)}
+                        >
+                          Unequip
+                        </Button>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => handleSetActive(badge.badge_key)}
+                        >
+                          Equip
+                        </Button>
                       )}
-                      className="w-full"
-                    >
-                      {badge.user_badge?.is_active ? "Equipped" : "Equip"}
-                    </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-            
+
             {badges.filter(badge => badge.owned).length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                <Award className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">You don't own any badges yet</p>
-                <p className="text-xs">Purchase badges from the store to show them off!</p>
+                <ShoppingBag className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No badges owned yet</p>
+                <p className="text-sm">Purchase some badges from the store!</p>
               </div>
             )}
           </TabsContent>
