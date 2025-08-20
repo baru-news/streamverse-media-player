@@ -69,7 +69,7 @@ const FavoriteButton = ({
         "transition-all duration-200 flex-shrink-0",
         size === "sm" ? "h-9 px-3 text-xs sm:text-sm" : "text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10",
         isUserFavorite 
-          ? "bg-red-500 hover:bg-red-600 text-white border-red-500" 
+          ? "bg-red-500 hover:bg-red-600 text-background border-red-500" 
           : "hover:border-red-500 hover:text-red-500",
         !user && "opacity-50 cursor-not-allowed",
         className

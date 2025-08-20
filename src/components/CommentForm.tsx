@@ -38,7 +38,7 @@ const CommentForm = ({
     return (
       <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
         <MessageCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-        <h3 className="text-sm font-semibold text-white mb-1">
+        <h3 className="text-sm font-semibold text-foreground mb-1">
           Login untuk Berkomentar
         </h3>
         <p className="text-xs text-muted-foreground mb-3">

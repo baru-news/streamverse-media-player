@@ -412,7 +412,7 @@ const VideoDetail = () => {
         <main className="pt-20">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-12">
-              <p className="text-white text-lg mb-4">Video tidak ditemukan</p>
+              <p className="text-foreground text-lg mb-4">Video tidak ditemukan</p>
               <Link to="/">
                 <Button variant="hero">Kembali ke Beranda</Button>
               </Link>
@@ -460,7 +460,7 @@ const VideoDetail = () => {
               {/* Video Info */}
               <div className="space-y-6">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {video.title}
                   </h1>
                   
@@ -514,10 +514,10 @@ const VideoDetail = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                        <User className="w-6 h-6 text-white" />
+                        <User className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-white">{video.creator}</h3>
+                        <h3 className="font-semibold text-foreground">{video.creator}</h3>
                         <p className="text-muted-foreground text-sm">Creator verified</p>
                       </div>
                       <Button 
@@ -535,7 +535,7 @@ const VideoDetail = () => {
                 {/* Description */}
                 <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                   <CardContent className="p-4 sm:p-6">
-                    <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                       <FileText className="w-4 h-4" />
                       Deskripsi
                     </h3>
@@ -589,7 +589,7 @@ const VideoDetail = () => {
 
             {/* Sidebar - Recommended Videos */}
             <div className="space-y-6">
-              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-1 h-6 bg-gradient-primary rounded-full" />
                 Rekomendasi Untuk Anda
               </h2>
@@ -624,7 +624,7 @@ const VideoDetail = () => {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">D</span>
+                <span className="text-primary-foreground font-bold text-lg">D</span>
               </div>
               <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 DINO18

@@ -66,7 +66,7 @@ const DoodstreamPlayer = ({
                 <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Play className="w-8 h-8 text-primary ml-1" />
                 </div>
-                <h3 className="text-white font-medium mb-4">
+                <h3 className="text-foreground font-medium mb-4">
                   {title || 'Video Player'}
                 </h3>
                 <div className="space-y-2">
@@ -98,7 +98,7 @@ const DoodstreamPlayer = ({
                 <div className="absolute inset-0 bg-black flex items-center justify-center z-10">
                   <div className="text-center">
                     <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-                    <p className="text-white text-sm">Memuat video...</p>
+                    <p className="text-foreground text-sm">Memuat video...</p>
                   </div>
                 </div>
               )}
@@ -108,7 +108,7 @@ const DoodstreamPlayer = ({
                 <div className="absolute inset-0 bg-black flex items-center justify-center z-10">
                   <div className="text-center">
                     <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                    <p className="text-white text-sm mb-4">Gagal memuat video</p>
+                    <p className="text-foreground text-sm mb-4">Gagal memuat video</p>
                     <div className="space-x-2">
                       <Button 
                         onClick={handleLoadPlayer}
@@ -156,7 +156,7 @@ const DoodstreamPlayer = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-white text-sm font-medium">
+                <span className="text-foreground text-sm font-medium">
                   Streaming dari Doodstream
                 </span>
                 {isTracking && (

@@ -115,7 +115,7 @@ const HeroSection = () => {
         <div className="relative z-10 container mx-auto px-4 h-full flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-white text-lg">Memuat video unggulan...</p>
+            <p className="text-foreground text-lg">Memuat video unggulan...</p>
           </div>
         </div>
       </section>
@@ -171,7 +171,7 @@ const HeroSection = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
             {featuredVideo?.title}
           </h1>
 
@@ -225,10 +225,10 @@ const HeroSection = () => {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/70 animate-bounce">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-muted-foreground animate-bounce">
         <div className="flex flex-col items-center gap-2">
           <span className="text-sm">Scroll untuk melihat lebih banyak</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white/70 to-transparent" />
+          <div className="w-px h-8 bg-gradient-to-b from-muted-foreground to-transparent" />
         </div>
       </div>
     </section>

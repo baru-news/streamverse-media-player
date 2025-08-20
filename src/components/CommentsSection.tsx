@@ -37,7 +37,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2 text-foreground">
           <MessageCircle className="w-5 h-5" />
           Komentar ({comments.length})
         </CardTitle>
@@ -61,7 +61,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
         ) : comments.length === 0 ? (
           <div className="text-center py-8">
             <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-white mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Belum Ada Komentar
             </h3>
             <p className="text-muted-foreground">

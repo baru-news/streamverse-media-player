@@ -99,7 +99,7 @@ const CommentItem = ({
             </Avatar>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="font-semibold text-white text-xs">
+                <h4 className="font-semibold text-foreground text-xs">
                   @{comment.profiles?.username || 'Unknown User'}
                 </h4>
                 {comment.user_id && (
@@ -191,7 +191,7 @@ const CommentItem = ({
           </div>
         ) : (
           <>
-            <p className="text-white text-sm leading-snug mb-2 whitespace-pre-wrap">
+            <p className="text-foreground text-sm leading-snug mb-2 whitespace-pre-wrap">
               {comment.content}
             </p>
             
