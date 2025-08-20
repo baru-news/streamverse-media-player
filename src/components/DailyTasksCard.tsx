@@ -223,8 +223,8 @@ export const DailyTasksCard = () => {
         )}
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[400px] p-4">
-          <div className="space-y-4">
+        <ScrollArea className="max-h-[50vh] min-h-[200px] sm:h-[400px] p-4 touch-pan-y">
+          <div className="space-y-4 pb-4">
             {tasks.map((task) => (
               <div key={task.id} className="space-y-2">
                 <div className="flex items-center justify-between">
