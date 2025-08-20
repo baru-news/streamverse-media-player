@@ -40,7 +40,7 @@ const Contact = () => {
     setIsSubmitting(true);
     try {
       const { error } = await supabase
-        .from('contact_messages')
+        .from('contact_messages' as any)
         .insert([
           {
             name: data.name,
