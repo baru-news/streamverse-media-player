@@ -72,7 +72,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
           {/* Logo - Desktop left, Mobile center */}
           <Link to="/" className="flex items-center space-x-2 flex-shrink-0 md:flex-shrink-0">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">D</span>
+              <span className="text-primary-foreground font-bold text-lg">D</span>
             </div>
             <span className="text-xl md:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               DINO18

@@ -114,7 +114,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
     return (
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 flex items-center gap-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 flex items-center gap-3">
             <div className="w-1 h-8 bg-gradient-primary rounded-full" />
             {title}
           </h2>
@@ -131,7 +131,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
     return (
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 flex items-center gap-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 flex items-center gap-3">
             <div className="w-1 h-8 bg-gradient-primary rounded-full" />
             {title}
           </h2>
@@ -153,17 +153,17 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
     <section className="py-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
             <div className="w-1 h-8 bg-gradient-primary rounded-full" />
             {title}
           </h2>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white/70">
+            <span className="text-sm text-muted-foreground">
               {totalVideos > 0 && `${totalVideos} video${totalVideos > 1 ? 's' : ''}`}
             </span>
             <button 
               onClick={() => loadVideos(currentPage)}
-              className="px-4 py-2 bg-secondary/20 text-white rounded-md hover:bg-secondary/30 transition-colors text-sm"
+              className="px-4 py-2 bg-secondary/20 text-foreground rounded-md hover:bg-secondary/30 transition-colors text-sm"
             >
               Refresh
             </button>
@@ -172,10 +172,10 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
         
         {videos.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-white/70 text-lg">
+            <p className="text-muted-foreground text-lg">
               Belum ada video yang tersedia.
             </p>
-            <p className="text-sm text-white/50 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Video akan muncul setelah admin menambahkan konten.
             </p>
           </div>

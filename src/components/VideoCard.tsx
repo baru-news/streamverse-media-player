@@ -76,12 +76,12 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
           {/* Play Overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
             <div className="w-16 h-16 bg-primary/90 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Play className="w-6 h-6 text-white ml-1" fill="white" />
+              <Play className="w-6 h-6 text-foreground ml-1" fill="currentColor" />
             </div>
           </div>
 
           {/* Duration */}
-          <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+          <div className="absolute bottom-2 right-2 bg-primary/80 backdrop-blur-sm text-background text-xs px-2 py-1 rounded flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {duration}
           </div>
@@ -100,7 +100,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
         <div className="p-2 sm:p-3 flex-1 flex flex-col">
           <div className="mb-2 sm:mb-3">
             <div className="relative">
-              <h3 className={`text-white font-medium text-xs sm:text-sm leading-tight group-hover:text-primary transition-colors duration-200 ${
+              <h3 className={`text-foreground font-medium text-xs sm:text-sm leading-tight group-hover:text-primary transition-colors duration-200 ${
                 showFullTitle ? '' : 'line-clamp-2 sm:line-clamp-3'
               }`}>
                 {title}
