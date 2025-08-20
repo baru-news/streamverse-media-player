@@ -610,6 +610,36 @@ const VideoDetail = () => {
           </div>
         </div>
       </main>
+      
+      {/* Footer */}
+      <footer className="bg-card/30 backdrop-blur-sm border-t border-border/50 mt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">D</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                DINO18
+              </span>
+            </div>
+            <p className="text-muted-foreground mb-4">
+              Update Video Viral Terbaru Setiap Hari
+            </p>
+            <div className="hidden justify-center gap-6 mb-4 text-sm">
+              <Link to="/sitemap" className="text-muted-foreground hover:text-primary transition-colors">
+                Peta Situs
+              </Link>
+              <a href="/sitemap.xml" className="text-muted-foreground hover:text-primary transition-colors">
+                XML Sitemap
+              </a>
+            </div>
+            <div className="mt-4 text-sm text-muted-foreground">
+              © 2024 DINO18. Semua hak dilindungi.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
