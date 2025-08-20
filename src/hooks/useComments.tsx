@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useDailyTasks } from "@/hooks/useDailyTasks";
 import { useToast } from "@/hooks/use-toast";
 
 export interface Comment {
@@ -28,6 +29,7 @@ export const useComments = ({ videoId }: UseCommentsProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
+  const { updateTaskProgress } = useDailyTasks();
   const { toast } = useToast();
 
   const loadComments = async () => {
@@ -138,6 +140,11 @@ export const useComments = ({ videoId }: UseCommentsProps) => {
         });
 
       if (error) throw error;
+
+      // Update daily task progress for commenting (only for top-level comments, not replies)
+      if (!parentId) {
+        await updateTaskProgress('daily_comment', 1);
+      }
 
       toast({
         title: "Komentar Ditambahkan",

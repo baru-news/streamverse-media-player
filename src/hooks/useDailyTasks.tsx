@@ -109,17 +109,30 @@ export const useDailyTasks = () => {
   const updateTaskProgress = async (taskKey: string, progressValue: number) => {
     if (!user) return;
 
+    const task = tasks.find(t => t.task_key === taskKey);
+    if (!task) return;
+
     try {
+      const finalProgressValue = Math.min(progressValue, task.target_value);
+      const isCompleted = finalProgressValue >= task.target_value;
+      
       const { error } = await supabase
         .from('user_daily_progress')
         .upsert({
           user_id: user.id,
           task_key: taskKey,
-          progress_value: progressValue,
+          progress_value: finalProgressValue,
+          is_completed: isCompleted,
+          completed_at: isCompleted ? new Date().toISOString() : null,
           task_date: new Date().toISOString().split('T')[0]
         });
 
       if (error) throw error;
+      
+      // Show completion message if task was just completed
+      if (isCompleted) {
+        toast.success(`Task completed! +${task.reward_coins} coins!`);
+      }
       
       // Refresh tasks to get updated progress
       await fetchTasks();
