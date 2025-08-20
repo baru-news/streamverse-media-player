@@ -84,7 +84,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
       </div>
 
       {/* Wheel Container */}
-      <div className="relative">
+      <div className="relative w-80 h-80 mx-auto">
         {/* Decorative Hearts */}
         <div className="absolute -top-4 -left-4 text-pink-400 text-2xl animate-pulse">💕</div>
         <div className="absolute -top-4 -right-4 text-pink-400 text-2xl animate-pulse delay-1000">💖</div>
@@ -98,12 +98,12 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
           <div className="text-pink-600 text-xs font-bold text-center mt-1">🎀</div>
         </div>
 
-        {/* Spin Wheel */}
-        <div className="relative w-80 h-80">
+        {/* Spin Wheel - contained properly within bounds */}
+        <div className="relative w-full h-full">
           <div
             ref={wheelRef}
             className={cn(
-              "w-full h-full rounded-full border-8 border-pink-400 relative shadow-xl",
+              "w-full h-full rounded-full border-4 border-pink-400 relative shadow-xl overflow-hidden",
               "transition-transform duration-4000 ease-out",
               spinning && "animate-spin-slow"
             )}
@@ -117,8 +117,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
               const midAngle = startAngle + (segmentAngle / 2);
               const radians = (midAngle * Math.PI) / 180;
               
-              // Calculate text position - reduced radius to stay within wheel
-              const radius = 60; // Reduced from 100 to keep text inside wheel
+              // Calculate text position - smaller radius to stay within wheel bounds
+              const radius = 55; // Optimized for 320px wheel (w-80)
               const x = Math.cos(radians - Math.PI / 2) * radius;
               const y = Math.sin(radians - Math.PI / 2) * radius;
               
@@ -126,7 +126,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                 <div key={reward.id}>
                   {/* Segment background */}
                   <div
-                    className="absolute w-full h-full"
+                    className="absolute inset-0"
                     style={{
                       transform: `rotate(${startAngle}deg)`,
                       clipPath: `polygon(50% 50%, 50% 0%, ${50 + Math.tan((segmentAngle * Math.PI) / 360) * 50}% 0%)`
@@ -135,20 +135,19 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                     <div className={cn(
                       "w-full h-full bg-gradient-to-r",
                       getRarityColor(reward.rarity)
-                    )}>
-                    </div>
+                    )}></div>
                   </div>
                   
                   {/* Text positioned absolutely within wheel bounds */}
                   <div 
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
                     style={{
                       left: `calc(50% + ${x}px)`,
                       top: `calc(50% + ${y}px)`,
                     }}
                   >
                     <div className={cn(
-                      "text-center space-y-0.5 w-12", // Reduced width to w-12
+                      "text-center space-y-0.5 w-12",
                       getTextColor(reward.rarity)
                     )}>
                       <div className="text-[10px] font-bold leading-tight break-words">
@@ -173,8 +172,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             })}
 
             {/* Center Hello Kitty Face */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full border-4 border-pink-400 flex items-center justify-center shadow-lg z-10">
-              <div className="text-3xl">🐱</div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full border-4 border-pink-400 flex items-center justify-center shadow-lg z-20">
+              <div className="text-2xl">🐱</div>
             </div>
           </div>
         </div>
