@@ -13,6 +13,7 @@ interface BadgeData {
   name: string;
   rarity: string;
   color: string;
+  image_url: string | null;
 }
 
 export const UserBadgeDisplay = ({ userId, className, showTooltip = true }: UserBadgeDisplayProps) => {
@@ -28,7 +29,8 @@ export const UserBadgeDisplay = ({ userId, className, showTooltip = true }: User
           icon: activeBadge.icon,
           name: activeBadge.name,
           rarity: activeBadge.rarity,
-          color: activeBadge.color
+          color: activeBadge.color,
+          image_url: activeBadge.image_url
         } : null);
       } catch (error) {
         console.error('Error fetching user badge:', error);
@@ -51,13 +53,21 @@ export const UserBadgeDisplay = ({ userId, className, showTooltip = true }: User
 
   const badgeElement = (
     <div className={cn(
-      "inline-flex items-center justify-center w-5 h-5 text-sm rounded-full border-2 transition-transform hover:scale-110",
+      "inline-flex items-center justify-center w-5 h-5 text-sm rounded-full border-2 transition-transform hover:scale-110 overflow-hidden",
       getRarityColor(badge.rarity),
       className
     )}
     style={{ borderColor: badge.color }}
     >
-      {badge.icon}
+      {badge.image_url ? (
+        <img 
+          src={badge.image_url} 
+          alt={badge.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        badge.icon
+      )}
     </div>
   );
 

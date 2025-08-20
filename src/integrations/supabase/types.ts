@@ -22,6 +22,7 @@ export type Database = {
           description: string | null
           icon: string
           id: string
+          image_url: string | null
           is_active: boolean
           name: string
           price_coins: number
@@ -35,6 +36,7 @@ export type Database = {
           description?: string | null
           icon: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           name: string
           price_coins: number
@@ -48,6 +50,7 @@ export type Database = {
           description?: string | null
           icon?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           name?: string
           price_coins?: number

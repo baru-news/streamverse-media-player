@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBadges } from '@/hooks/useBadges';
 import { useCoins } from '@/hooks/useCoins';
-import { ShoppingBag, Crown, Star, Gem, Award, Check } from 'lucide-react';
+import { ShoppingBag, Crown, Star, Gem, Award, Check, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -28,6 +28,29 @@ export const BadgeStore = () => {
     const success = await setActiveBadgeKey(badgeKey);
     if (success) {
       toast.success(badgeKey ? 'Badge equipped!' : 'Badge unequipped!');
+    }
+  };
+
+  // Update the BadgeStore component to support custom images
+  const BadgeIcon = ({ badge, className = "w-8 h-8" }: { badge: any, className?: string }) => {
+    if (badge.image_url) {
+      return (
+        <img 
+          src={badge.image_url} 
+          alt={badge.name}
+          className={`${className} object-cover rounded-full`}
+        />
+      );
+    }
+    
+    // Fallback to icon
+    const iconName = badge.icon || 'star';
+    switch (iconName) {
+      case 'crown': return <Crown className={`${className} text-yellow-400`} />;
+      case 'gem': return <Gem className={`${className} text-purple-400`} />;
+      case 'shield': return <Shield className={`${className} text-blue-400`} />;
+      case 'star': return <Star className={`${className} text-yellow-400`} />;
+      default: return <Star className={`${className} text-yellow-400`} />;
     }
   };
 
@@ -117,7 +140,7 @@ export const BadgeStore = () => {
                     )}>
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
-                          <div className="text-2xl">{badge.icon}</div>
+                          <BadgeIcon badge={badge} className="w-8 h-8" />
                           {badge.owned && (
                             <Check className="w-5 h-5 text-green-500" />
                           )}
@@ -179,7 +202,7 @@ export const BadgeStore = () => {
                 )}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <div className="text-2xl">{badge.icon}</div>
+                      <BadgeIcon badge={badge} className="w-8 h-8" />
                       {badge.user_badge?.is_active && (
                         <Crown className="w-5 h-5 text-yellow-500" />
                       )}

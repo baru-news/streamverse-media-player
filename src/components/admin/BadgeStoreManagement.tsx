@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Edit, Trash2, Star, Shield, Crown, Gem, CircleDot } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, Star, Shield, Crown, Gem, CircleDot, Upload, X } from "lucide-react";
 
 interface BadgeStoreItem {
   id: string;
@@ -24,6 +24,7 @@ interface BadgeStoreItem {
   price_coins: number;
   is_active: boolean;
   sort_order: number;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -31,8 +32,10 @@ const BadgeStoreManagement = () => {
   const [badges, setBadges] = useState<BadgeStoreItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [editingBadge, setEditingBadge] = useState<BadgeStoreItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -44,7 +47,8 @@ const BadgeStoreManagement = () => {
     rarity: "common",
     price_coins: 100,
     is_active: true,
-    sort_order: 0
+    sort_order: 0,
+    image_url: null as string | null
   });
 
   const iconOptions = [
@@ -149,8 +153,10 @@ const BadgeStoreManagement = () => {
       rarity: badge.rarity,
       price_coins: badge.price_coins,
       is_active: badge.is_active,
-      sort_order: badge.sort_order
+      sort_order: badge.sort_order,
+      image_url: badge.image_url
     });
+    setImagePreview(badge.image_url);
     setDialogOpen(true);
   };
 
@@ -213,9 +219,11 @@ const BadgeStoreManagement = () => {
       rarity: "common",
       price_coins: 100,
       is_active: true,
-      sort_order: 0
+      sort_order: 0,
+      image_url: null
     });
     setEditingBadge(null);
+    setImagePreview(null);
   };
 
   const getIconComponent = (iconName: string) => {
@@ -226,6 +234,76 @@ const BadgeStoreManagement = () => {
   const getRarityColor = (rarity: string) => {
     const rarityOption = rarityOptions.find(opt => opt.value === rarity);
     return rarityOption ? rarityOption.color : "#9ca3af";
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 2MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      // Create unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      // Upload to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('badge-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('badge-images')
+        .getPublicUrl(fileName);
+
+      setFormData(prev => ({ ...prev, image_url: publicUrl }));
+      setImagePreview(publicUrl);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully"
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, image_url: null }));
+    setImagePreview(null);
   };
 
   if (loading) {
@@ -294,6 +372,62 @@ const BadgeStoreManagement = () => {
                   placeholder="Badge description"
                   rows={3}
                 />
+              </div>
+
+              {/* Image Upload Section */}
+              <div>
+                <Label>Badge Image</Label>
+                <div className="space-y-3">
+                  {imagePreview ? (
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={imagePreview} 
+                        alt="Badge preview" 
+                        className="w-16 h-16 object-cover rounded-lg border"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm text-muted-foreground">Custom image uploaded</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={removeImage}
+                          className="mt-1"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                        disabled={uploading}
+                      />
+                      <label
+                        htmlFor="image-upload"
+                        className="cursor-pointer flex flex-col items-center gap-2"
+                      >
+                        {uploading ? (
+                          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                        ) : (
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                        )}
+                        <div className="text-sm text-muted-foreground">
+                          {uploading ? "Uploading..." : "Click to upload badge image"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Recommended: 64x64px, Max 2MB, PNG/JPG
+                        </div>
+                      </label>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -400,12 +534,20 @@ const BadgeStoreManagement = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div 
-                      className="p-2 rounded-lg"
-                      style={{ backgroundColor: badge.color + '20', color: badge.color }}
-                    >
-                      <IconComponent className="w-5 h-5" />
-                    </div>
+                    {badge.image_url ? (
+                      <img 
+                        src={badge.image_url} 
+                        alt={badge.name}
+                        className="w-12 h-12 object-cover rounded-lg border"
+                      />
+                    ) : (
+                      <div 
+                        className="p-2 rounded-lg"
+                        style={{ backgroundColor: badge.color + '20', color: badge.color }}
+                      >
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                    )}
                     <div>
                       <CardTitle className="text-lg text-white">{badge.name}</CardTitle>
                       <div className="flex items-center gap-2 mt-1">

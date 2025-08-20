@@ -13,6 +13,7 @@ interface Badge {
   icon: string;
   rarity: string;
   color: string;
+  image_url: string | null;
   is_active: boolean;
   sort_order: number;
 }
