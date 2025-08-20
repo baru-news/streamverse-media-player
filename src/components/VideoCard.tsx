@@ -2,6 +2,7 @@ import { Play, Clock, Eye, MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import FavoriteButton from "@/components/FavoriteButton";
 
 interface VideoCardProps {
   id: string;
@@ -82,6 +83,15 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
           <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white text-xs px-2 py-1 rounded flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {duration}
+          </div>
+
+          {/* Favorite Button */}
+          <div className="absolute top-2 right-2">
+            <FavoriteButton 
+              videoId={id} 
+              variant="minimal"
+              className="bg-black/60 backdrop-blur-sm hover:bg-black/80"
+            />
           </div>
         </div>
 

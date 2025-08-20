@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, User, LogOut, Shield, X, Menu } from "lucide-react";
+import { Search, User, LogOut, Shield, X, Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -118,6 +118,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/favorites" className="flex items-center">
+                      <Heart className="mr-2 h-4 w-4" />
+                      <span>Favorit Saya</span>
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin/upload" className="flex items-center">
@@ -198,6 +204,14 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     {isAdmin ? "Administrator" : "User"}
                   </span>
                 </div>
+                <Link 
+                  to="/favorites" 
+                  className="flex items-center p-2 hover:bg-muted/50 rounded-md transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Heart className="mr-3 h-4 w-4" />
+                  <span>Favorit Saya</span>
+                </Link>
                 {isAdmin && (
                   <Link 
                     to="/admin/upload" 

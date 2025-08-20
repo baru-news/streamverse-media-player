@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import VideoCard from "@/components/VideoCard";
 import Header from "@/components/Header";
 import DoodstreamPlayer from "@/components/DoodstreamPlayer";
+import FavoriteButton from "@/components/FavoriteButton";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -480,6 +481,10 @@ const VideoDetail = () => {
                       <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
                       {isLiked ? 'Disukai' : 'Suka'} ({likesCount})
                     </Button>
+                    <FavoriteButton 
+                      videoId={video.id} 
+                      size="default"
+                    />
                     <Button variant="outline" className="gap-2" onClick={handleShare}>
                       <Share2 className="w-4 h-4" />
                       Bagikan

@@ -12,6 +12,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminUpload from "./pages/AdminUpload";
 import NotFound from "./pages/NotFound";
 import Sitemap from "./pages/Sitemap";
+import Favorites from "./pages/Favorites";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/video/:id" element={<VideoDetail />} />
+            <Route path="/favorites" element={<Favorites />} />
             <Route path="/sitemap" element={<Sitemap />} />
             <Route path="/sitemap.xml" element={
               <div style={{display: 'none'}}>
