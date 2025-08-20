@@ -36,7 +36,7 @@ const Index = () => {
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
-        <div className="space-y-8 my-0 px-0 mx-0 py-0">
+        <div className="my-0 py-0 px-0 mx-0">
           {!user && <>
               {/* Category Filter for non-logged users - positioned above CTA */}
               <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
@@ -64,8 +64,17 @@ const Index = () => {
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
-          {/* Ad Banner - Between Categories and Videos */}
-          <AdContainer position="content" size="leaderboard" placeholder={true} />
+          {/* Ad Banners - Tight columns on desktop, stacked on mobile */}
+          <div className="container mx-auto">
+            <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+              <div className="w-full md:w-1/2">
+                <AdContainer position="content" size="banner" placeholder={true} />
+              </div>
+              <div className="w-full md:w-1/2">
+                <AdContainer position="content" size="banner" placeholder={true} />
+              </div>
+            </div>
+          </div>
           
           {/* Video Grid - Full Width */}
           <VideoGrid title={getVideoGridTitle()} selectedHashtagId={selectedHashtagId} selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />

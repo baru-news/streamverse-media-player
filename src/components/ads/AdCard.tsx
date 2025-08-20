@@ -30,7 +30,7 @@ export const AdCard: React.FC<AdCardProps> = ({
         style={{ width, height }}
       >
         <div className="text-center">
-          <div className="font-medium">Sponsored Content</div>
+          <div className="font-medium">Advertisement</div>
           <div className="text-xs opacity-60">{width} x {height}</div>
         </div>
       </div>
