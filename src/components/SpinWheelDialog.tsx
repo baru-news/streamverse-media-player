@@ -72,7 +72,7 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                 rewards={rewards}
                 onSpin={performSpin}
                 spinning={spinning}
-                disabled={!canSpin || hasSpunToday}
+                disabled={!canSpin}
               />
 
               {/* Status Information */}
@@ -80,17 +80,17 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                 {hasSpunToday && todayReward && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <h3 className="font-bold text-green-800 mb-3 flex items-center gap-2 text-lg">
-                      🎁 Hadiah Hari Ini
+                      🎁 Putaran Terakhir
                     </h3>
                     <p className="text-green-700 font-medium text-base leading-relaxed">
-                      Anda sudah memutar roda hari ini dan memenangkan{' '}
+                      Putaran terakhir Anda memenangkan{' '}
                       <span className="font-bold text-green-800">{todayReward.coins_won} koin</span>! 
-                      Kembali lagi besok untuk putaran berikutnya! 🌸
+                      Putar lagi selama Kitty Key masih tersedia! 🌸
                     </p>
                   </div>
                 )}
 
-                {!canSpin && !hasSpunToday && (
+                {!canSpin && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <h3 className="font-bold text-yellow-800 mb-3 flex items-center gap-2 text-lg">
                       🗝️ Kitty Key Diperlukan
