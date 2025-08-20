@@ -64,10 +64,9 @@ export const useDailyTasks = () => {
   const getWIBDate = (): string => {
     const now = new Date();
     
-    // Convert current time to WIB (UTC+7)
-    const wibOffset = 7 * 60; // WIB is UTC+7
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const wibTime = new Date(utc + (wibOffset * 60000));
+    // Convert current time to WIB (UTC+7) - consistent with countdown
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const wibTime = new Date(utcTime + (7 * 60 * 60 * 1000));
     
     // Return date in YYYY-MM-DD format
     return wibTime.toISOString().split('T')[0];
@@ -77,6 +76,8 @@ export const useDailyTasks = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching daily tasks for date:', getWIBDate());
+      
       // Fetch all active daily tasks
       const { data: dailyTasks, error: tasksError } = await supabase
         .from('daily_tasks')
@@ -89,6 +90,8 @@ export const useDailyTasks = () => {
 
       // Fetch today's progress for the user (using WIB timezone)
       const today = getWIBDate();
+      console.log('Fetching progress for today:', today);
+      
       const { data: progress, error: progressError } = await supabase
         .from('user_daily_progress')
         .select('*')
@@ -96,6 +99,8 @@ export const useDailyTasks = () => {
         .eq('task_date', today);
 
       if (progressError) throw progressError;
+
+      console.log('Found progress records:', progress?.length);
 
       // Combine tasks with progress
       const tasksWithProgress: TaskWithProgress[] = dailyTasks.map(task => {
@@ -110,6 +115,7 @@ export const useDailyTasks = () => {
         };
       });
 
+      console.log('Tasks with progress:', tasksWithProgress.length);
       setTasks(tasksWithProgress);
     } catch (error) {
       console.error('Error fetching tasks:', error);

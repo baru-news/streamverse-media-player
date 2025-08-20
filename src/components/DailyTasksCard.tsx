@@ -16,9 +16,11 @@ export const DailyTasksCard = () => {
   // Refresh tasks when countdown reaches zero (reset time)
   useEffect(() => {
     if (isResetting) {
+      console.log('Daily tasks resetting, refreshing tasks...');
       const timer = setTimeout(() => {
         refreshTasks();
-      }, 1000); // Wait 1 second after reset to refresh
+        console.log('Tasks refreshed after reset');
+      }, 2000); // Wait 2 seconds to ensure reset is complete
       
       return () => clearTimeout(timer);
     }
@@ -121,7 +123,7 @@ export const DailyTasksCard = () => {
           </div>
           
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            Semua tugas akan reset pada jam 12:00 WIB
+            Semua tugas akan reset pada jam 00:00 WIB (tengah malam)
           </p>
         </div>
 

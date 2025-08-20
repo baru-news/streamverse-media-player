@@ -138,7 +138,7 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                   <ul className="text-blue-700 font-medium space-y-2 text-base">
                     <li>• Selesaikan semua tugas harian untuk membuka roda 🎯</li>
                     <li>• Satu kali putar per hari jika memenuhi syarat 🎪</li>
-                    <li>• Reset setiap hari pada pukul 12:00 WIB ⏰</li>
+                    <li>• Reset setiap hari pada pukul 00:00 WIB (tengah malam) ⏰</li>
                     <li>• Hadiah langka lebih sulit didapat tapi lebih berharga! 💎</li>
                   </ul>
                 </div>
