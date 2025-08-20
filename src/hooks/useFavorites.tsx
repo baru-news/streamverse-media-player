@@ -136,7 +136,7 @@ export const useFavorites = () => {
           )
         `)
         .in('id', freshFavoriteIds)
-        .eq('status', 'ready')
+        .eq('status', 'active')
         .order('upload_date', { ascending: false });
 
       if (error) throw error;
