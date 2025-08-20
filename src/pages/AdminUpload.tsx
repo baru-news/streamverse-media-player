@@ -31,32 +31,32 @@ const AdminUpload = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6" id="admin-tabs">
-            <div className="w-full overflow-x-auto scrollbar-hide">
-              <TabsList className="bg-card/50 backdrop-blur-sm flex-nowrap min-w-max w-full sm:w-auto">
-                <TabsTrigger value="dashboard" className="gap-2 flex-shrink-0 min-w-[100px]">
+            <div className="w-full overflow-x-auto scrollbar-hide pb-1">
+              <TabsList className="bg-card/50 backdrop-blur-sm inline-flex w-max min-w-full">
+                <TabsTrigger value="dashboard" className="gap-2 whitespace-nowrap px-4 py-2">
                   <Settings className="w-4 h-4" />
-                  <span className="hidden xs:inline">Dashboard</span>
-                  <span className="xs:hidden">Dash</span>
+                  <span className="hidden sm:inline">Dashboard</span>
+                  <span className="sm:hidden">Dash</span>
                 </TabsTrigger>
-                <TabsTrigger value="website" className="gap-2 flex-shrink-0 min-w-[100px]" id="website">
+                <TabsTrigger value="website" className="gap-2 whitespace-nowrap px-4 py-2" id="website">
                   <Globe className="w-4 h-4" />
-                  <span className="hidden xs:inline">Website</span>
-                  <span className="xs:hidden">Web</span>
+                  <span className="hidden sm:inline">Website</span>
+                  <span className="sm:hidden">Web</span>
                 </TabsTrigger>
-                <TabsTrigger value="hashtags" className="gap-2 flex-shrink-0 min-w-[100px]" id="hashtags">
+                <TabsTrigger value="hashtags" className="gap-2 whitespace-nowrap px-4 py-2" id="hashtags">
                   <Hash className="w-4 h-4" />
-                  <span className="hidden xs:inline">Hashtag</span>
-                  <span className="xs:hidden">Tag</span>
+                  <span className="hidden sm:inline">Hashtag</span>
+                  <span className="sm:hidden">Tag</span>
                 </TabsTrigger>
-                <TabsTrigger value="videos" className="gap-2 flex-shrink-0 min-w-[120px]" id="videos">
+                <TabsTrigger value="videos" className="gap-2 whitespace-nowrap px-4 py-2" id="videos">
                   <List className="w-4 h-4" />
-                  <span className="hidden xs:inline">Kelola Video</span>
-                  <span className="xs:hidden">Video</span>
+                  <span className="hidden sm:inline">Kelola Video</span>
+                  <span className="sm:hidden">Video</span>
                 </TabsTrigger>
-                <TabsTrigger value="settings" className="gap-2 flex-shrink-0 min-w-[100px]" id="settings">
+                <TabsTrigger value="settings" className="gap-2 whitespace-nowrap px-4 py-2" id="settings">
                   <Settings className="w-4 h-4" />
-                  <span className="hidden xs:inline">Pengaturan</span>
-                  <span className="xs:hidden">Set</span>
+                  <span className="hidden sm:inline">Pengaturan</span>
+                  <span className="sm:hidden">Set</span>
                 </TabsTrigger>
               </TabsList>
             </div>
