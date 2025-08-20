@@ -52,7 +52,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({
           id: video.file_code || video.id,
           // Use file_code as id for proper routing
           title: video.title,
-          thumbnail: `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`,
+          thumbnail: video.thumbnail_url || `https://img.doodcdn.io/snaps/${video.file_code}.jpg`,
           duration: formatDuration(video.duration || 0),
           views: formatViews(video.views || 0),
           creator: 'DINO18',

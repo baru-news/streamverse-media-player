@@ -27,27 +27,17 @@ Deno.serve(async (req) => {
 
     console.log(`Fetching thumbnail for file code: ${fileCode}`);
     
-    // Try multiple thumbnail URLs in order of preference
-    const urls = [
-      `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`,
-      `https://img.doodcdn.io/snaps/${fileCode}.jpg`,
-      `https://img.doodcdn.co/splash/${fileCode}.jpg`,
-      `https://postercdn.com/snaps/${fileCode}.jpg`
-    ];
+    // Try primary thumbnail URL
+    const primaryUrl = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
+    console.log(`Trying primary URL: ${primaryUrl}`);
     
-    let response = null;
+    let response = await fetch(primaryUrl);
     
-    for (const url of urls) {
-      console.log(`Trying URL: ${url}`);
-      try {
-        response = await fetch(url);
-        if (response.ok) {
-          console.log(`Success with URL: ${url}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Failed to fetch ${url}:`, error.message);
-      }
+    if (!response.ok) {
+      // Try alternative URL
+      const alternativeUrl = `https://img.doodcdn.co/splash/${fileCode}.jpg`;
+      console.log(`Primary failed, trying alternative: ${alternativeUrl}`);
+      response = await fetch(alternativeUrl);
     }
     
     if (response.ok) {

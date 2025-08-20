@@ -177,7 +177,7 @@ serve(async (req) => {
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: fileInfo.thumb_img || `https://img.doodcdn.io/thumbnails/${fileInfo.filecode}.jpg`,
+          thumbnail: fileInfo.single_img || `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
           splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
+            thumbnail: file.single_img || `https://img.doodcdn.io/snaps/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };
@@ -239,80 +239,60 @@ serve(async (req) => {
           // If there are videos from Doodstream, sync them
           if (videos.length > 0) {
         // Transform video data and prepare for database sync
-        const videoRecords = [];
-        for (const video of videos) {
+        const videoRecords = await Promise.all(videos.map(async (video: any) => {
           console.log(`Processing video for sync: ${video.title} (${video.fileCode})`);
           
-          try {
-            // Check if video exists and has edited title/description
-            const { data: existingVideo } = await supabase
-              .from('videos')
-              .select('title, description, title_edited, description_edited')
-              .eq('file_code', video.fileCode)
-              .single();
+          // Check if video exists and has edited title/description
+          const { data: existingVideo } = await supabase
+            .from('videos')
+            .select('title, description, title_edited, description_edited')
+            .eq('file_code', video.fileCode)
+            .single();
 
-            // Prepare record for database - preserve edited content
-            const record = {
-              file_code: video.fileCode,
-              title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
-              description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
-              original_title: video.title, // Always store original from Doodstream
-              duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-              views: video.views || 0,
-              upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-              file_size: video.size ? parseInt(video.size) : null,
-              status: video.canPlay ? 'active' : 'processing',
-              thumbnail_url: existingVideo?.thumbnail_url || `https://img.doodcdn.io/thumbnails/${video.fileCode}.jpg`,
-              // Preserve edit flags
-              title_edited: existingVideo?.title_edited || false,
-              description_edited: existingVideo?.description_edited || false
-            };
-            
-            console.log('Prepared record:', record);
-            videoRecords.push(record);
-          } catch (err) {
-            console.error(`Error preparing video record for ${video.fileCode}:`, err);
-            // Create basic record if there's an error fetching existing data
-            const basicRecord = {
-              file_code: video.fileCode,
-              title: video.title,
-              description: null,
-              original_title: video.title,
-              duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-              views: video.views || 0,
-              upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-              file_size: video.size ? parseInt(video.size) : null,
-              status: video.canPlay ? 'active' : 'processing',
-              thumbnail_url: `https://img.doodcdn.io/thumbnails/${video.fileCode}.jpg`,
-              title_edited: false,
-              description_edited: false
-            };
-            videoRecords.push(basicRecord);
-          }
-        }
+          // Prepare record for database - preserve edited content
+          const record = {
+            file_code: video.fileCode,
+            title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
+            description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
+            original_title: video.title, // Always store original from Doodstream
+            duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+            views: video.views || 0,
+            upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+            file_size: video.size ? parseInt(video.size) : null,
+            status: video.canPlay ? 'active' : 'processing',
+            thumbnail_url: video.thumbnail,
+            // Preserve edit flags
+            title_edited: existingVideo?.title_edited || false,
+            description_edited: existingVideo?.description_edited || false
+          };
+          
+          console.log('Prepared record:', record);
+          return record;
+        }));
 
-        console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
+            console.log(`Prepared video records for upsert:`, JSON.stringify(videoRecords, null, 2));
 
-        // Use upsert with individual error handling
-        for (const record of videoRecords) {
-          try {
-            const { error } = await supabase
-              .from('videos')
-              .upsert(record, { 
-                onConflict: 'file_code',
-                ignoreDuplicates: false 
-              });
+            // Use upsert with individual error handling
+            for (const record of videoRecords) {
+              try {
+                const { error } = await supabase
+                  .from('videos')
+                  .upsert(record, { 
+                    onConflict: 'file_code',
+                    ignoreDuplicates: false 
+                  });
 
-            if (error) {
-              console.error(`Database upsert error for ${record.file_code}:`, error);
-            } else {
-              console.log(`Successfully synced video: ${record.title}`);
+                if (error) {
+                  console.error(`Database upsert error for ${record.file_code}:`, error);
+                } else {
+                  console.log(`Successfully synced video: ${record.title}`);
+                }
+              } catch (err) {
+                console.error(`Failed to sync video ${record.file_code}:`, err);
+              }
             }
-          } catch (err) {
-            console.error(`Failed to sync video ${record.file_code}:`, err);
           }
-        }
-      }
+          
           // Remove videos from database that no longer exist in Doodstream
           if (doodstreamFileCodes.length > 0) {
             const { data: deletedVideos, error: deleteError } = await supabase
@@ -340,15 +320,15 @@ serve(async (req) => {
           }
         }
 
-        result = {
-          success: true,
-          result: videos
-        };
-      } else if (data.status === 200) {
-        result = { success: true, result: data.result };
-      } else {
-        result = { success: false, error: data.msg || 'API request failed' };
-      }
+      result = {
+        success: true,
+        result: videos
+      };
+    } else if (data.status === 200) {
+      result = { success: true, result: data.result };
+    } else {
+      result = { success: false, error: data.msg || 'API request failed' };
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
