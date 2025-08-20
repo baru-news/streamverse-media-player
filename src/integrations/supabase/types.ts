@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      badge_store: {
+        Row: {
+          badge_key: string
+          color: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          price_coins: number
+          rarity: string
+          sort_order: number
+        }
+        Insert: {
+          badge_key: string
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_coins: number
+          rarity?: string
+          sort_order?: number
+        }
+        Update: {
+          badge_key?: string
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_coins?: number
+          rarity?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string
@@ -46,6 +88,45 @@ export type Database = {
           name?: string
           slug?: string
           sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      daily_tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          reward_coins: number
+          target_value: number
+          task_key: string
+          task_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          reward_coins: number
+          target_value?: number
+          task_key: string
+          task_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          reward_coins?: number
+          target_value?: number
+          task_key?: string
+          task_type?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -110,6 +191,93 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_key: string
+          id: string
+          is_active: boolean
+          purchased_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_key: string
+          id?: string
+          is_active?: boolean
+          purchased_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_key?: string
+          id?: string
+          is_active?: boolean
+          purchased_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_coins: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          total_earned: number
+          total_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_daily_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_completed: boolean
+          progress_value: number
+          task_date: string
+          task_key: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          progress_value?: number
+          task_date?: string
+          task_key: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          progress_value?: number
+          task_date?: string
+          task_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -149,6 +317,39 @@ export type Database = {
           creator_name?: string
           id?: string
           subscriber_id?: string
+        }
+        Relationships: []
+      }
+      user_watch_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          is_completed: boolean
+          session_end: string | null
+          session_start: string
+          user_id: string
+          video_id: string | null
+          watch_duration: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          session_end?: string | null
+          session_start?: string
+          user_id: string
+          video_id?: string | null
+          watch_duration?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          session_end?: string | null
+          session_start?: string
+          user_id?: string
+          video_id?: string | null
+          watch_duration?: number
         }
         Relationships: []
       }
@@ -390,6 +591,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      handle_daily_login: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -400,6 +605,10 @@ export type Database = {
       make_user_admin: {
         Args: { user_email: string }
         Returns: boolean
+      }
+      update_watch_progress: {
+        Args: { duration_seconds: number; user_id_param: string }
+        Returns: undefined
       }
     }
     Enums: {
