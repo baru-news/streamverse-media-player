@@ -134,7 +134,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
                   {/* Separator line between segments */}
                   <div
-                    className="absolute top-0 left-1/2 w-0.5 h-1/2 bg-white/80 origin-bottom z-10"
+                    className="absolute top-0 left-1/2 w-0.5 h-1/2 bg-black/70 origin-bottom z-10"
                     style={{
                       transform: `rotate(${startAngle}deg)`,
                       transformOrigin: 'bottom center'
