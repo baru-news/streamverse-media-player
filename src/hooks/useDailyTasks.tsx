@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useKittyKeys } from '@/hooks/useKittyKeys';
 import { toast } from 'sonner';
 
 interface DailyTask {
@@ -31,12 +32,15 @@ interface TaskWithProgress extends DailyTask {
 
 export const useDailyTasks = () => {
   const { user } = useAuth();
+  const { canClaimKittyKey, claimKittyKey } = useKittyKeys();
   const [tasks, setTasks] = useState<TaskWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canClaim, setCanClaim] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchTasks();
+      checkClaimEligibility();
       
       // Subscribe to progress updates
       const channel = supabase
@@ -51,6 +55,7 @@ export const useDailyTasks = () => {
           },
           () => {
             fetchTasks();
+            checkClaimEligibility();
           }
         )
         .subscribe();
@@ -215,11 +220,26 @@ export const useDailyTasks = () => {
     return tasks.length;
   };
 
+  const checkClaimEligibility = async () => {
+    const eligible = await canClaimKittyKey();
+    setCanClaim(eligible);
+  };
+
+  const handleClaimKittyKey = async () => {
+    const success = await claimKittyKey();
+    if (success) {
+      await checkClaimEligibility();
+      await fetchTasks();
+    }
+  };
+
   return {
     tasks,
     loading,
+    canClaim,
     updateTaskProgress,
     completeTask,
+    claimKittyKey: handleClaimKittyKey,
     refreshTasks: fetchTasks,
     getCompletedTasksCount,
     getTotalTasksCount

@@ -2,14 +2,23 @@ import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useDailyTasks } from '@/hooks/useDailyTasks';
 import { useDailyTaskCountdown } from '@/hooks/useDailyTaskCountdown';
 import { useSpinWheel } from '@/hooks/useSpinWheel';
-import { CheckCircle, Clock, Target, Coins, Timer } from 'lucide-react';
+import { CheckCircle, Clock, Target, Coins, Timer, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const DailyTasksCard = () => {
-  const { tasks, loading, getCompletedTasksCount, getTotalTasksCount, refreshTasks } = useDailyTasks();
+  const { 
+    tasks, 
+    loading, 
+    canClaim,
+    claimKittyKey,
+    getCompletedTasksCount, 
+    getTotalTasksCount, 
+    refreshTasks 
+  } = useDailyTasks();
   const { getFormattedCountdown, getProgressPercentage, isResetting } = useDailyTaskCountdown();
   const { canSpin, todayAttempts } = useSpinWheel();
 
@@ -122,6 +131,37 @@ export const DailyTasksCard = () => {
             />
           </div>
           
+          {/* Kitty Key Claim Section */}
+          {getCompletedTasksCount() === getTotalTasksCount() && getTotalTasksCount() > 0 && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-yellow-600" />
+                  <div>
+                    <h3 className="font-bold text-yellow-800">Bonus Kitty Key!</h3>
+                    <p className="text-sm text-yellow-700">
+                      Semua tugas selesai, klaim Kitty Key sekarang!
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={claimKittyKey}
+                  disabled={!canClaim}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold px-4 py-2 rounded-lg shadow-lg"
+                >
+                  {canClaim ? (
+                    <>
+                      <Gift className="w-4 h-4 mr-2" />
+                      Claim 🗝️
+                    </>
+                  ) : (
+                    'Sudah Diklaim'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+
           <p className="text-xs text-muted-foreground mt-2 text-center">
             Semua tugas akan reset pada jam 00:00 WIB (tengah malam)
           </p>

@@ -93,11 +93,11 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                 {!canSpin && !hasSpunToday && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <h3 className="font-bold text-yellow-800 mb-3 flex items-center gap-2 text-lg">
-                      📋 Tugas Diperlukan
+                      🗝️ Kitty Key Diperlukan
                     </h3>
                     <p className="text-yellow-700 font-medium text-base leading-relaxed">
-                      Selesaikan semua tugas harian untuk membuka kunci roda beruntung! 
-                      Periksa progres Anda di bagian tugas harian. ✨
+                      Kamu memerlukan Kitty Key untuk memutar roda beruntung! 
+                      Selesaikan semua tugas harian dan klaim Kitty Key di bagian tugas. ✨
                     </p>
                   </div>
                 )}
@@ -136,9 +136,11 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                     📜 Aturan Permainan
                   </h3>
                   <ul className="text-blue-700 font-medium space-y-2 text-base">
-                    <li>• Selesaikan semua tugas harian untuk membuka roda 🎯</li>
-                    <li>• Satu kali putar per hari jika memenuhi syarat 🎪</li>
-                    <li>• Reset setiap hari pada pukul 00:00 WIB (tengah malam) ⏰</li>
+                    <li>• Selesaikan semua tugas harian untuk mendapatkan Kitty Key 🗝️</li>
+                    <li>• Claim Kitty Key di bagian tugas setelah semua selesai 🎁</li>
+                    <li>• Gunakan 1 Kitty Key untuk memutar roda beruntung 🎪</li>
+                    <li>• Satu kali putar per hari, Kitty Key bisa disimpan 💰</li>
+                    <li>• Reset tugas setiap hari pada pukul 00:00 WIB ⏰</li>
                     <li>• Hadiah langka lebih sulit didapat tapi lebih berharga! 💎</li>
                   </ul>
                 </div>

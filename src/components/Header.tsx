@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { CoinDisplay } from "@/components/CoinDisplay";
+import KittyKeyDisplay from "@/components/KittyKeyDisplay";
 import SpinWheelButton from "@/components/SpinWheelButton";
 import { UserBadgeDisplay } from "@/components/UserBadgeDisplay";
 import { BadgeStore } from "@/components/BadgeStore";
@@ -110,6 +111,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
             {user ? (
               <>
                 <CoinDisplay />
+                <KittyKeyDisplay />
                 <SpinWheelButton />
                 <BadgeStore />
                 <Dialog>
@@ -228,8 +230,9 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                   <span className="text-xs text-muted-foreground">
                     {isAdmin ? "Administrator" : "User"}
                   </span>
-                  <div className="mt-2">
+                  <div className="mt-2 space-y-2">
                     <CoinDisplay />
+                    <KittyKeyDisplay />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">

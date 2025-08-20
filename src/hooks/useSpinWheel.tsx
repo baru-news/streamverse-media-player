@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCoins } from '@/hooks/useCoins';
+import { useKittyKeys } from '@/hooks/useKittyKeys';
 import { toast } from 'sonner';
 
 interface SpinWheelReward {
@@ -25,6 +26,7 @@ interface SpinAttempt {
 export const useSpinWheel = () => {
   const { user } = useAuth();
   const { refreshCoins } = useCoins();
+  const { spendKittyKey } = useKittyKeys();
   const [rewards, setRewards] = useState<SpinWheelReward[]>([]);
   const [canSpin, setCanSpin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -142,6 +144,12 @@ export const useSpinWheel = () => {
         });
 
       if (insertError) throw insertError;
+
+      // Spend kitty key
+      const keySpent = await spendKittyKey(1);
+      if (!keySpent) {
+        throw new Error('Failed to spend kitty key');
+      }
 
       // Update user coins
       const { error: coinsError } = await supabase

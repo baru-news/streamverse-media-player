@@ -407,6 +407,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_kitty_keys: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          total_earned: number
+          total_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -751,7 +781,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_user_claim_kitty_key_today: {
+        Args: { user_id_param: string }
+        Returns: boolean
+      }
       can_user_spin_today: {
+        Args: { user_id_param: string }
+        Returns: boolean
+      }
+      claim_kitty_key: {
         Args: { user_id_param: string }
         Returns: boolean
       }
