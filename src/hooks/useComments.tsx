@@ -51,7 +51,7 @@ export const useComments = ({ videoId }: UseCommentsProps) => {
             .from('profiles')
             .select('username, avatar_url')
             .eq('id', comment.user_id)
-            .single();
+            .maybeSingle();
 
           return {
             ...comment,
@@ -81,7 +81,7 @@ export const useComments = ({ videoId }: UseCommentsProps) => {
                 .from('profiles')
                 .select('username, avatar_url')
                 .eq('id', reply.user_id)
-                .single();
+                .maybeSingle();
 
               return {
                 ...reply,
