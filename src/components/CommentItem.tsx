@@ -105,7 +105,7 @@ const CommentItem = ({
                 {comment.user_id && (
                   <UserBadgeDisplay 
                     userId={comment.user_id} 
-                    className="w-3 h-3" 
+                    className="w-5 h-5" 
                     showTooltip={true}
                   />
                 )}
