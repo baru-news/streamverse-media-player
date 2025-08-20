@@ -1,5 +1,8 @@
 project_id = "agsqdznjjxptiyorljtv"
 
+[functions.admin-user-management]
+verify_jwt = true
+
 [functions.doodstream-api]
 verify_jwt = false
 
