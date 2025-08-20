@@ -86,25 +86,25 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
         </div>
 
         {/* Content */}
-        <div className="p-3 flex-1 flex flex-col">
-          <div className="mb-3">
+        <div className="p-2 sm:p-3 flex-1 flex flex-col">
+          <div className="mb-2 sm:mb-3">
             <div className="relative">
-              <h3 className={`text-white font-medium text-sm leading-relaxed group-hover:text-primary transition-colors duration-200 ${
-                showFullTitle ? '' : 'line-clamp-2'
+              <h3 className={`text-white font-medium text-xs sm:text-sm leading-tight group-hover:text-primary transition-colors duration-200 ${
+                showFullTitle ? '' : 'line-clamp-2 sm:line-clamp-3'
               }`}>
                 {title}
               </h3>
-              {title.length > 50 && (
+              {title.length > 40 && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowFullTitle(!showFullTitle);
                   }}
-                  className="text-primary hover:text-primary/80 transition-colors text-xs mt-1 flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md"
+                  className="text-primary hover:text-primary/80 transition-colors text-[10px] sm:text-xs mt-1 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 sm:px-2 sm:py-1 rounded"
                 >
-                  <MoreHorizontal className="w-3 h-3" />
-                  {showFullTitle ? "Lebih sedikit" : "Selengkapnya"}
+                  <MoreHorizontal className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  {showFullTitle ? "Tutup" : "Baca"}
                 </button>
               )}
             </div>
