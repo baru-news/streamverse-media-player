@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
 import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
 import SEO from "@/components/SEO";
@@ -36,8 +35,6 @@ const Index = () => {
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
-        <HeroSection />
-        
         <div className="space-y-8">
           {!user && (
             <div className="container mx-auto px-4 py-16">
@@ -61,17 +58,17 @@ const Index = () => {
             </div>
           )}
           
-          {/* Hashtag Filter */}
-          <HashtagFilter
-            selectedHashtagId={selectedHashtagId}
-            onHashtagChange={setSelectedHashtagId}
-          />
-          
           {/* Video Grid - Always shown for everyone */}
           <VideoGrid 
             title={getVideoGridTitle()}
             selectedHashtagId={selectedHashtagId}
             searchQuery={searchQuery}
+          />
+          
+          {/* Hashtag Filter */}
+          <HashtagFilter
+            selectedHashtagId={selectedHashtagId}
+            onHashtagChange={setSelectedHashtagId}
           />
         </div>
       </main>
