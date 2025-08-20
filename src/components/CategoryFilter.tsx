@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Folder } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -46,10 +45,7 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
     return (
       <section className="py-6 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Folder className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Kategori</h3>
-          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Kategori</h3>
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-1">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="flex-shrink-0 h-10 w-24 bg-card/50 animate-pulse rounded-lg border border-border" />
@@ -63,10 +59,7 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
   return (
     <section className="py-6 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Folder className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold text-foreground">Kategori</h3>
-        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Kategori</h3>
         
         {/* Horizontal Scrollable Categories */}
         <div className="relative">
@@ -84,10 +77,7 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
                   : 'bg-card/50 text-foreground hover:bg-card/80 border-border hover:border-border/60'
               }`}
             >
-              <span className="flex items-center gap-2">
-                <Folder className="w-4 h-4" />
-                Semua Video
-              </span>
+              Semua Video
             </button>
 
             {/* Category Buttons */}
@@ -102,10 +92,7 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
                 }`}
                 title={category.description}
               >
-                <span className="flex items-center gap-2">
-                  <Folder className="w-4 h-4" />
-                  <span className="whitespace-nowrap">{category.name}</span>
-                </span>
+                <span className="whitespace-nowrap">{category.name}</span>
               </button>
             ))}
             
