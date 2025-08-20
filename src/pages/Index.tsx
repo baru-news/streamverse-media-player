@@ -41,7 +41,7 @@ const Index = () => {
               {/* Category Filter for non-logged users - positioned above CTA */}
               <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
               
-              <div className="container mx-auto px-4 py-16">
+              <div className="container mx-auto py-16">
                 {/* Call to Action */}
                 <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-16">
                   <h2 className="text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
