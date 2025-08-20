@@ -58,6 +58,7 @@ export default {
 				'video-card': 'hsl(var(--video-card))',
 				'video-card-hover': 'hsl(var(--video-card-hover))',
 				'nav-bg': 'hsl(var(--nav-bg))',
+				'footer-bg': 'hsl(var(--footer-bg))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

@@ -44,6 +44,7 @@
     --video-card: 330 60% 95%;
     --video-card-hover: 330 70% 92%;
     --nav-bg: 330 100% 98% / 0.95;
+    --footer-bg: 320 80% 96% / 0.9;
     
     /* Pink gradients */
     --gradient-primary: linear-gradient(135deg, hsl(330 80% 65%), hsl(320 85% 75%));
@@ -98,6 +99,8 @@
     --border: 340 20% 20%;
     --input: 340 20% 15%;
     --ring: 330 75% 70%;
+    
+    --footer-bg: 340 30% 8% / 0.9;
     
     --sidebar-background: 340 25% 12%;
     --sidebar-foreground: 330 40% 90%;

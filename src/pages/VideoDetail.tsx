@@ -531,7 +531,7 @@ const VideoDetail = () => {
       </main>
       
       {/* Footer */}
-      <footer className="bg-card/30 backdrop-blur-sm border-t border-border/50 mt-16">
+      <footer className="bg-footer-bg backdrop-blur-md border-t border-border/40 mt-16">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
