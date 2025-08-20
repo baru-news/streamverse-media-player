@@ -471,27 +471,32 @@ const VideoDetail = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6">
                     <Button 
                       variant={isLiked ? "default" : "hero"} 
-                      className="gap-2" 
+                      size="sm"
                       onClick={handleLike}
                       disabled={isLikeLoading}
+                      className="flex-shrink-0 h-9 px-3 text-xs sm:text-sm"
                     >
-                      <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                      {isLiked ? 'Disukai' : 'Suka'} ({likesCount})
+                      <ThumbsUp className={`w-4 h-4 mr-1 sm:mr-2 ${isLiked ? 'fill-current' : ''}`} />
+                      <span className="hidden sm:inline">{isLiked ? 'Disukai' : 'Suka'} ({likesCount})</span>
+                      <span className="sm:hidden">{likesCount}</span>
                     </Button>
                     <FavoriteButton 
                       videoId={video.id} 
-                      size="default"
+                      size="sm"
+                      className="flex-shrink-0 h-9 px-3"
                     />
-                    <Button variant="outline" className="gap-2" onClick={handleShare}>
-                      <Share2 className="w-4 h-4" />
-                      Bagikan
-                    </Button>
-                    <Button variant="outline" className="gap-2" onClick={handleDownload}>
-                      <Download className="w-4 h-4" />
-                      Unduh
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleShare}
+                      className="flex-shrink-0 h-9 px-3 text-xs sm:text-sm"
+                    >
+                      <Share2 className="w-4 h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Bagikan</span>
+                      <span className="sm:hidden">Share</span>
                     </Button>
                   </div>
                 </div>

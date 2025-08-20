@@ -86,12 +86,12 @@ const Favorites = () => {
               <p className="text-muted-foreground mb-6">
                 Silakan login untuk melihat video favorit Anda
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex flex-wrap gap-2 justify-center">
                 <Link to="/login">
-                  <Button variant="hero">Login</Button>
+                  <Button variant="hero" size="sm" className="h-9 px-4 text-sm">Login</Button>
                 </Link>
                 <Link to="/">
-                  <Button variant="outline">Kembali ke Beranda</Button>
+                  <Button variant="outline" size="sm" className="h-9 px-4 text-sm">Kembali ke Beranda</Button>
                 </Link>
               </div>
             </div>
@@ -156,7 +156,7 @@ const Favorites = () => {
                 Mulai menambahkan video ke favorit dengan menekan tombol hati pada video yang Anda sukai
               </p>
               <Link to="/">
-                <Button variant="hero" className="px-4 py-2 text-sm sm:px-8 sm:py-3 sm:text-base">
+                <Button variant="hero" size="sm" className="h-9 px-4 text-sm sm:px-8 sm:text-base">
                   Jelajahi Video
                 </Button>
               </Link>

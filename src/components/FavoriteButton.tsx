@@ -66,7 +66,8 @@ const FavoriteButton = ({
       onClick={handleToggleFavorite}
       disabled={loading || !user}
       className={cn(
-        "transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10",
+        "transition-all duration-200 flex-shrink-0",
+        size === "sm" ? "h-9 px-3 text-xs sm:text-sm" : "text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10",
         isUserFavorite 
           ? "bg-red-500 hover:bg-red-600 text-white border-red-500" 
           : "hover:border-red-500 hover:text-red-500",
@@ -76,17 +77,14 @@ const FavoriteButton = ({
     >
       <Heart 
         className={cn(
-          "h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 transition-all duration-200",
+          "w-4 h-4 mr-1 sm:mr-2 transition-all duration-200",
           isUserFavorite && "fill-current"
         )} 
       />
-      {isUserFavorite ? (
-        <span className="hidden sm:inline">Hapus Favorit</span>
-      ) : (
-        <span className="hidden sm:inline">Tambah Favorit</span>
-      )}
-      {/* Mobile text */}
-      <span className="sm:hidden text-xs">
+      <span className="hidden sm:inline">
+        {isUserFavorite ? 'Hapus Favorit' : 'Tambah Favorit'}
+      </span>
+      <span className="sm:hidden">
         {isUserFavorite ? 'Hapus' : 'Favorit'}
       </span>
     </Button>

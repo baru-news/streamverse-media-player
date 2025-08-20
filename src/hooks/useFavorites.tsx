@@ -101,15 +101,32 @@ export const useFavorites = () => {
   // Check if video is favorite
   const isFavorite = (videoId: string) => favorites.includes(videoId);
 
-  // Get favorite videos with details and debug logging
+  // Get favorite videos with details - always fetch fresh favorites first
   const getFavoriteVideos = async () => {
-    if (!user || favorites.length === 0) {
-      console.log('No user or no favorites:', { user: !!user, favoritesLength: favorites.length }); // Debug log
+    if (!user) {
+      console.log('No user available'); // Debug log
       return [];
     }
 
-    console.log('Getting favorite videos with IDs:', favorites); // Debug log
+    console.log('Getting favorite videos, fetching fresh favorites first...'); // Debug log
+    
+    // Always fetch fresh favorites first
     try {
+      const { data: favoritesData, error: favError } = await supabase
+        .from('video_favorites')
+        .select('video_id')
+        .eq('user_id', user.id);
+
+      if (favError) throw favError;
+      
+      const freshFavoriteIds = favoritesData.map(fav => fav.video_id);
+      console.log('Fresh favorite IDs:', freshFavoriteIds); // Debug log
+      
+      if (freshFavoriteIds.length === 0) {
+        console.log('No favorites found');
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('videos')
         .select(`
@@ -118,7 +135,7 @@ export const useFavorites = () => {
             hashtags (*)
           )
         `)
-        .in('id', favorites)
+        .in('id', freshFavoriteIds)
         .eq('status', 'ready')
         .order('upload_date', { ascending: false });
 
