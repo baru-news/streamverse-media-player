@@ -130,7 +130,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({
         </div>
       </section>;
   }
-  return <section className="py-6">
+  return <section className="py-2">
       <div className="container mx-auto px-4 py-0">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
