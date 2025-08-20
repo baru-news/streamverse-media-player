@@ -59,7 +59,7 @@ const CategoryFilter = ({
           <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-1">
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-1 py-[5px]">
             {/* All Videos Button */}
             <button onClick={() => onCategoryChange(null)} className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${selectedCategoryId === null ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-card/50 text-foreground hover:bg-card/80 border-border hover:border-border/60'}`}>
               Semua Video
