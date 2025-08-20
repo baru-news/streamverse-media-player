@@ -52,9 +52,21 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-nav-bg backdrop-blur-md border-b border-border/50">
       <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
+        <div className="flex items-center justify-between md:justify-between">
+          {/* Mobile Search Toggle - Left Side */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="h-9 w-9"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Logo - Desktop left, Mobile center */}
+          <Link to="/" className="flex items-center space-x-2 flex-shrink-0 md:flex-shrink-0">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">D</span>
             </div>
@@ -85,18 +97,6 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                 </Button>
               )}
             </div>
-          </div>
-
-          {/* Mobile Search Toggle */}
-          <div className="md:hidden flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="h-9 w-9"
-            >
-              <Search className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* Desktop Navigation */}
@@ -148,7 +148,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
             )}
           </nav>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle - Right Side */}
           <div className="md:hidden">
             <Button
               variant="ghost"
