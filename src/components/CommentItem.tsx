@@ -85,19 +85,19 @@ const CommentItem = ({
   };
 
   return (
-    <div className={`space-y-4 ${level > 0 ? 'ml-8' : ''}`}>
-      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4">
+    <div className={`space-y-3 ${level > 0 ? 'ml-6' : ''}`}>
+      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-3">
         {/* Comment Header */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <Avatar className="w-8 h-8">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Avatar className="w-6 h-6">
               <AvatarImage src={comment.profiles?.avatar_url} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {getUserInitials(comment.profiles?.username || 'User')}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h4 className="font-semibold text-white text-sm">
+              <h4 className="font-semibold text-white text-xs">
                 @{comment.profiles?.username || 'Unknown User'}
               </h4>
               <p className="text-xs text-muted-foreground">
@@ -110,8 +110,8 @@ const CommentItem = ({
           {isOwner && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical className="w-4 h-4" />
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <MoreVertical className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -151,7 +151,7 @@ const CommentItem = ({
 
         {/* Comment Content */}
         {isEditing ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
@@ -160,7 +160,7 @@ const CommentItem = ({
               rows={2}
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleEdit} disabled={isSubmitting || !editContent.trim()}>
+              <Button size="sm" onClick={handleEdit} disabled={isSubmitting || !editContent.trim()} className="h-7 px-2 text-xs">
                 <Send className="w-3 h-3 mr-1" />
                 Simpan
               </Button>
@@ -172,6 +172,7 @@ const CommentItem = ({
                   setEditContent(comment.content);
                 }}
                 disabled={isSubmitting}
+                className="h-7 px-2 text-xs"
               >
                 <X className="w-3 h-3 mr-1" />
                 Batal
@@ -180,18 +181,18 @@ const CommentItem = ({
           </div>
         ) : (
           <>
-            <p className="text-white text-sm leading-relaxed mb-3 whitespace-pre-wrap">
+            <p className="text-white text-sm leading-snug mb-2 whitespace-pre-wrap">
               {comment.content}
             </p>
             
             {/* Comment Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {level < maxLevel && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setIsReplying(!isReplying)}
-                  className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
                 >
                   <Reply className="w-3 h-3 mr-1" />
                   Balas
@@ -202,7 +203,7 @@ const CommentItem = ({
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setShowReplies(!showReplies)}
-                  className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
                 >
                   {showReplies ? (
                     <>
@@ -224,7 +225,7 @@ const CommentItem = ({
 
       {/* Reply Form */}
       {isReplying && (
-        <div className="ml-4">
+        <div className="ml-3">
           <CommentForm
             onSubmit={handleReply}
             isSubmitting={isSubmitting}
@@ -237,7 +238,7 @@ const CommentItem = ({
 
       {/* Replies */}
       {showReplies && hasReplies && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {comment.replies!.map((reply) => (
             <CommentItem
               key={reply.id}
