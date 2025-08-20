@@ -14,7 +14,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: ""
@@ -48,7 +48,7 @@ const Register = () => {
 
     setLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password, formData.fullName);
+    const { error } = await signUp(formData.email, formData.password, formData.username);
     
     setLoading(false);
   };
@@ -83,17 +83,17 @@ const Register = () => {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name */}
+              {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-white">Nama Lengkap</Label>
+                <Label htmlFor="username" className="text-white">Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
-                    id="fullName"
-                    name="fullName"
+                    id="username"
+                    name="username"
                     type="text"
-                    placeholder="Masukkan nama lengkap"
-                    value={formData.fullName}
+                    placeholder="Pilih username unik"
+                    value={formData.username}
                     onChange={handleChange}
                     className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
                     required

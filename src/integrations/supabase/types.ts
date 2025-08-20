@@ -86,27 +86,27 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           email: string
-          full_name: string | null
           id: string
           updated_at: string
+          username: string | null
         }
         Insert: {
           age_verified?: boolean | null
           avatar_url?: string | null
           created_at?: string
           email: string
-          full_name?: string | null
           id: string
           updated_at?: string
+          username?: string | null
         }
         Update: {
           age_verified?: boolean | null
           avatar_url?: string | null
           created_at?: string
           email?: string
-          full_name?: string | null
           id?: string
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -151,6 +151,54 @@ export type Database = {
           subscriber_id?: string
         }
         Relationships: []
+      }
+      video_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_edited: boolean | null
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "video_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_favorites: {
         Row: {

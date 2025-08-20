@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
+import CommentsSection from "@/components/CommentsSection";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -573,6 +574,9 @@ const VideoDetail = () => {
                     </div>
                   </CardContent>
                 </Card>
+              
+                {/* Comments Section */}
+                <CommentsSection videoId={video.id} />
               </div>
             </div>
 
