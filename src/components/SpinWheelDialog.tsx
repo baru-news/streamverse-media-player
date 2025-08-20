@@ -41,7 +41,7 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
         <DialogContent className="sm:max-w-md">
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
-            <span className="ml-2 text-pink-600">Loading magical wheel... ✨</span>
+            <span className="ml-2 text-pink-600">Memuat roda ajaib... ✨</span>
           </div>
         </DialogContent>
       </Dialog>
@@ -56,16 +56,16 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-pink-600 text-xl">
-            🎀 Hello Kitty Lucky Wheel 🎀
+            🎀 Roda Beruntung Hello Kitty 🎀
           </DialogTitle>
         </DialogHeader>
 
         <div className="py-4">
           {rewards.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-pink-400 text-4xl mb-4">😿</div>
-              <p className="text-pink-600">No rewards available at the moment.</p>
-            </div>
+              <div className="text-center py-8">
+                <div className="text-pink-400 text-4xl mb-4">😿</div>
+                <p className="text-pink-600">Tidak ada hadiah tersedia saat ini.</p>
+              </div>
           ) : (
             <>
               <HelloKittySpinWheel
@@ -137,7 +137,7 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                   </h3>
                   <ul className="text-blue-700 font-medium space-y-2 text-base">
                     <li>• Selesaikan semua tugas harian untuk mendapatkan Kitty Key 🗝️</li>
-                    <li>• Claim Kitty Key di bagian tugas setelah semua selesai 🎁</li>
+                    <li>• Klaim Kitty Key di bagian tugas setelah semua selesai 🎁</li>
                     <li>• Gunakan 1 Kitty Key untuk memutar roda beruntung 🎪</li>
                     <li>• Satu kali putar per hari, Kitty Key bisa disimpan 💰</li>
                     <li>• Reset tugas setiap hari pada pukul 00:00 WIB ⏰</li>

@@ -118,12 +118,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                   <DialogTrigger asChild>
                     <Button variant="ghost" size="sm" className="gap-2">
                       <Target className="w-4 h-4" />
-                      Tasks
+                      Tugas
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Daily Tasks</DialogTitle>
+                      <DialogTitle>Tugas Harian</DialogTitle>
                     </DialogHeader>
                     <DailyTasksCard />
                   </DialogContent>
@@ -154,7 +154,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                       <DropdownMenuItem asChild>
                         <Link to="/admin/upload" className="flex items-center">
                           <Shield className="mr-2 h-4 w-4" />
-                          <span>Admin Dashboard</span>
+                          <span>Dashboard Admin</span>
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -242,12 +242,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="justify-start gap-2">
                         <Target className="w-4 h-4" />
-                        Daily Tasks
+                        Tugas Harian
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Daily Tasks</DialogTitle>
+                        <DialogTitle>Tugas Harian</DialogTitle>
                       </DialogHeader>
                       <DailyTasksCard />
                     </DialogContent>
@@ -268,7 +268,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Shield className="mr-3 h-4 w-4" />
-                    <span>Admin Dashboard</span>
+                    <span>Dashboard Admin</span>
                   </Link>
                 )}
                 <button

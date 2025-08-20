@@ -38,9 +38,10 @@ export const DailyTasksCard = () => {
 
   const formatTaskType = (type: string) => {
     switch (type) {
-      case 'login': return 'Daily';
-      case 'watch_time': return 'Watch Time';
-      case 'community': return 'Community';
+      case 'login': return 'Harian';
+      case 'watch_time': return 'Waktu Tonton';
+      case 'community': return 'Komunitas';
+      case 'share': return 'Berbagi';
       default: return type;
     }
   };
@@ -69,7 +70,7 @@ export const DailyTasksCard = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
-            Daily Tasks
+            Tugas Harian
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -97,7 +98,7 @@ export const DailyTasksCard = () => {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5" />
-            Daily Tasks
+            Tugas Harian
           </div>
           <Badge variant="outline" className="text-xs">
             {completedCount}/{totalCount}
@@ -123,7 +124,7 @@ export const DailyTasksCard = () => {
           
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Task completion</span>
+              <span>Penyelesaian tugas</span>
               <span>{Math.round((completedCount / Math.max(totalCount, 1)) * 100)}%</span>
             </div>
             <Progress 
@@ -211,11 +212,11 @@ export const DailyTasksCard = () => {
             <div className="flex items-center gap-2 text-sm">
               <span className="text-pink-600">🎀</span>
               {hasSpunToday ? (
-                <span className="text-pink-700 font-medium">Lucky wheel completed today! ✨</span>
+                <span className="text-pink-700 font-medium">Roda beruntung selesai hari ini! ✨</span>
               ) : canSpin ? (
-                <span className="text-pink-700 font-medium animate-pulse">Lucky wheel unlocked! Click the wheel button! 🎡</span>
+                <span className="text-pink-700 font-medium animate-pulse">Roda beruntung terbuka! Klik tombol roda! 🎡</span>
               ) : (
-                <span className="text-pink-600">Lucky wheel available soon... 🌸</span>
+                <span className="text-pink-600">Roda beruntung akan tersedia segera... 🌸</span>
               )}
             </div>
           </div>
@@ -249,14 +250,14 @@ export const DailyTasksCard = () => {
                       variant={task.progress?.is_completed ? "default" : "secondary"}
                       className="text-xs"
                     >
-                      {task.progress?.is_completed ? "Complete" : "Pending"}
+                      {task.progress?.is_completed ? "Selesai" : "Menunggu"}
                     </Badge>
                   </div>
                 </div>
                 
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{formatProgressText(task)}</span>
+                    <span>Progres</span>
                     <span>{Math.round(task.progress_percentage)}%</span>
                   </div>
                   <Progress 
@@ -273,7 +274,7 @@ export const DailyTasksCard = () => {
             {tasks.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No daily tasks available</p>
+                <p className="text-sm">Tidak ada tugas harian tersedia</p>
               </div>
             )}
           </div>
