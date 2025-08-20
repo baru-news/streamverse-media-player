@@ -455,18 +455,18 @@ const VideoDetail = () => {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
             <div className="w-full md:w-1/2">
-              <AdContainer position="banner" size="banner" placeholder={false} adIndex={0} />
+              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
             </div>
             <div className="w-full md:w-1/2">
-              <AdContainer position="banner" size="banner" placeholder={false} adIndex={1} />
+              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
             </div>
           </div>
           <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
             <div className="w-full md:w-1/2">
-              <AdContainer position="banner" size="banner" placeholder={false} adIndex={2} />
+              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
             </div>
             <div className="w-full md:w-1/2">
-              <AdContainer position="banner" size="banner" placeholder={false} adIndex={3} />
+              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
             </div>
           </div>
         </div>
@@ -480,7 +480,7 @@ const VideoDetail = () => {
               {/* Mobile Ad - Above Video Player */}
               {shouldShowAds && (
                 <div className="lg:hidden mb-4">
-                  <AdContainer position="content" size="banner" placeholder={false} adIndex={4} />
+                  <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
                 </div>
               )}
               
