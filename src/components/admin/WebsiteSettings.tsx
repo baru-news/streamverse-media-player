@@ -26,8 +26,6 @@ const WebsiteSettings = () => {
       await Promise.all([
         updateSetting('site_title', currentSettings.site_title || ''),
         updateSetting('site_description', currentSettings.site_description || ''),
-        updateSetting('hero_title', currentSettings.hero_title || ''),
-        updateSetting('hero_description', currentSettings.hero_description || ''),
         updateSetting('site_logo_url', currentSettings.site_logo_url || ''),
         updateSetting('favicon_url', currentSettings.favicon_url || ''),
         updateSetting('google_verification_code', currentSettings.google_verification_code || ''),
@@ -175,39 +173,6 @@ const WebsiteSettings = () => {
         </CardContent>
       </Card>
 
-      {/* Hero Section Settings */}
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-        <CardHeader>
-          <CardTitle className="text-foreground flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Bagian Hero
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="hero_title" className="text-foreground">Judul Hero</Label>
-            <Input
-              id="hero_title"
-              value={currentSettings.hero_title || ''}
-              onChange={(e) => handleInputChange('hero_title', e.target.value)}
-              placeholder="Selamat Datang di DINO18"
-              className="bg-background/50"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="hero_description" className="text-foreground">Deskripsi Hero</Label>
-            <Textarea
-              id="hero_description"
-              value={currentSettings.hero_description || ''}
-              onChange={(e) => handleInputChange('hero_description', e.target.value)}
-              placeholder="Platform streaming terbaik untuk menonton video..."
-              className="bg-background/50"
-              rows={3}
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* SEO & Analytics */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
