@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Comment } from "@/hooks/useComments";
+import { UserBadgeDisplay } from "@/components/UserBadgeDisplay";
 import { Edit, Trash2, Reply, MoreVertical, Send, X, ChevronDown, ChevronUp } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -97,9 +98,18 @@ const CommentItem = ({
               </AvatarFallback>
             </Avatar>
             <div>
-              <h4 className="font-semibold text-white text-xs">
-                @{comment.profiles?.username || 'Unknown User'}
-              </h4>
+              <div className="flex items-center gap-2">
+                <h4 className="font-semibold text-white text-xs">
+                  @{comment.profiles?.username || 'Unknown User'}
+                </h4>
+                {comment.user_id && (
+                  <UserBadgeDisplay 
+                    userId={comment.user_id} 
+                    className="w-3 h-3" 
+                    showTooltip={true}
+                  />
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {formatTimeAgo(comment.created_at)}
                 {comment.is_edited && ' • diedit'}
