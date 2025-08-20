@@ -10,13 +10,15 @@ interface AdContainerProps {
   size: 'banner' | 'rectangle' | 'leaderboard' | 'skyscraper';
   className?: string;
   placeholder?: boolean;
+  adIndex?: number; // Index iklan mana yang akan ditampilkan
 }
 
 export const AdContainer: React.FC<AdContainerProps> = ({
   position,
   size,
   className,
-  placeholder = true // Default to placeholder during development
+  placeholder = true, // Default to placeholder during development
+  adIndex = 0 // Default to first ad
 }) => {
   const { getActiveAds, settings, isLoading } = useAds();
   const { user } = useAuth();
@@ -43,13 +45,13 @@ export const AdContainer: React.FC<AdContainerProps> = ({
   if (ads.length === 0 && !placeholder) return null;
   
   const renderAd = () => {
-    // If there are real ads, show the first one
-    if (ads.length > 0) {
-      const ad = ads[0];
+    // If there are real ads, show the one at the specified index
+    if (ads.length > 0 && ads[adIndex]) {
+      const ad = ads[adIndex];
       return <AdBanner size={size} ad={ad} />;
     }
     
-    // Show placeholder if requested and no real ads
+    // Show placeholder if requested and no real ads or invalid index
     if (placeholder) {
       return <AdBanner size={size} placeholder={placeholder} />;
     }
