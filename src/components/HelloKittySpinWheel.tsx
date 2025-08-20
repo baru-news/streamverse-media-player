@@ -93,9 +93,9 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
         {/* Arrow Pointer */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
-          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-pink-600">
+          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-500 drop-shadow-lg">
           </div>
-          <div className="text-pink-600 text-xs font-bold text-center mt-1">🎀</div>
+          <div className="text-yellow-600 text-xs font-bold text-center mt-1 drop-shadow-md">🎀</div>
         </div>
 
         {/* Spin Wheel - contained properly within bounds */}
