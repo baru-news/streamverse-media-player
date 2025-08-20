@@ -202,14 +202,14 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
       {/* Last Won Display */}
       {lastWonReward && (
-        <div className="bg-gradient-to-r from-pink-100 to-pink-200 border-2 border-pink-300 rounded-lg p-4 animate-bounce">
+        <div className="bg-gradient-to-r from-pink-100 to-pink-200 border-2 border-pink-300 rounded-lg p-5 animate-bounce">
           <div className="text-center">
-            <div className="text-pink-600 font-bold text-lg">🎉 Congratulations! 🎉</div>
-            <div className="text-pink-800 font-semibold">
-              You won: {lastWonReward.name}
+            <div className="text-pink-700 font-bold text-xl mb-2">🎉 Selamat! 🎉</div>
+            <div className="text-pink-900 font-bold text-lg mb-1">
+              Anda memenangkan: {lastWonReward.name}
             </div>
-            <div className="text-pink-700">
-              +{lastWonReward.coin_amount} coins! 🪙✨
+            <div className="text-pink-800 font-bold text-lg">
+              +{lastWonReward.coin_amount} koin! 🪙✨
             </div>
           </div>
         </div>
@@ -217,9 +217,9 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
       {/* Instructions */}
       {disabled && (
-        <div className="text-center bg-pink-50 border border-pink-200 rounded-lg p-3 max-w-sm">
-          <p className="text-pink-600 text-sm font-medium">
-            🌸 Complete all daily tasks to unlock the lucky wheel! 🌸
+        <div className="text-center bg-pink-50 border border-pink-200 rounded-lg p-4 max-w-sm">
+          <p className="text-pink-700 text-base font-bold leading-relaxed">
+            🌸 Selesaikan semua tugas harian untuk membuka roda beruntung! 🌸
           </p>
         </div>
       )}

@@ -78,34 +78,34 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
               {/* Status Information */}
               <div className="mt-6 space-y-4">
                 {hasSpunToday && todayReward && (
-                  <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-pink-700 mb-2 flex items-center gap-2">
-                      🎁 Today's Reward
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 className="font-bold text-green-800 mb-3 flex items-center gap-2 text-lg">
+                      🎁 Hadiah Hari Ini
                     </h3>
-                    <p className="text-pink-600">
-                      You already spun the wheel today and won{' '}
-                      <span className="font-bold">{todayReward.coins_won} coins</span>! 
-                      Come back tomorrow for another spin! 🌸
+                    <p className="text-green-700 font-medium text-base leading-relaxed">
+                      Anda sudah memutar roda hari ini dan memenangkan{' '}
+                      <span className="font-bold text-green-800">{todayReward.coins_won} koin</span>! 
+                      Kembali lagi besok untuk putaran berikutnya! 🌸
                     </p>
                   </div>
                 )}
 
                 {!canSpin && !hasSpunToday && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-yellow-700 mb-2 flex items-center gap-2">
-                      📋 Tasks Required
+                    <h3 className="font-bold text-yellow-800 mb-3 flex items-center gap-2 text-lg">
+                      📋 Tugas Diperlukan
                     </h3>
-                    <p className="text-yellow-600">
-                      Complete all your daily tasks to unlock the lucky wheel! 
-                      Check your progress in the daily tasks section. ✨
+                    <p className="text-yellow-700 font-medium text-base leading-relaxed">
+                      Selesaikan semua tugas harian untuk membuka kunci roda beruntung! 
+                      Periksa progres Anda di bagian tugas harian. ✨
                     </p>
                   </div>
                 )}
 
                 {/* Rewards Preview */}
                 <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-pink-700 mb-3 flex items-center gap-2">
-                    🏆 Available Rewards
+                  <h3 className="font-bold text-pink-800 mb-3 flex items-center gap-2 text-lg">
+                    🏆 Hadiah Tersedia
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {rewards.map((reward) => (
@@ -113,17 +113,17 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                         key={reward.id}
                         className="bg-white border border-pink-200 rounded-lg p-2 text-center"
                       >
-                        <div className="text-xs font-medium text-pink-800 truncate">
+                        <div className="text-sm font-bold text-pink-900 truncate">
                           {reward.name}
                         </div>
-                        <div className="text-sm font-bold text-pink-600">
+                        <div className="text-lg font-bold text-pink-700">
                           {reward.coin_amount} 🪙
                         </div>
-                        <div className="text-xs text-pink-500">
-                          {reward.rarity === 'legendary' && '👑 Legendary'}
-                          {reward.rarity === 'epic' && '⭐ Epic'}
-                          {reward.rarity === 'rare' && '💎 Rare'}
-                          {reward.rarity === 'common' && '🌸 Common'}
+                        <div className="text-sm font-medium text-pink-600">
+                          {reward.rarity === 'legendary' && '👑 Legendaris'}
+                          {reward.rarity === 'epic' && '⭐ Epik'}
+                          {reward.rarity === 'rare' && '💎 Langka'}
+                          {reward.rarity === 'common' && '🌸 Biasa'}
                         </div>
                       </div>
                     ))}
@@ -132,14 +132,14 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
 
                 {/* Rules */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
-                    📜 Rules
+                  <h3 className="font-bold text-blue-800 mb-3 flex items-center gap-2 text-lg">
+                    📜 Aturan Permainan
                   </h3>
-                  <ul className="text-blue-600 text-sm space-y-1">
-                    <li>• Complete all daily tasks to unlock the wheel 🎯</li>
-                    <li>• One spin per day when qualified 🎪</li>
-                    <li>• Resets every day at midnight WIB ⏰</li>
-                    <li>• Higher rarity rewards are rarer but worth more! 💎</li>
+                  <ul className="text-blue-700 font-medium space-y-2 text-base">
+                    <li>• Selesaikan semua tugas harian untuk membuka roda 🎯</li>
+                    <li>• Satu kali putar per hari jika memenuhi syarat 🎪</li>
+                    <li>• Reset setiap hari pada pukul 12:00 WIB ⏰</li>
+                    <li>• Hadiah langka lebih sulit didapat tapi lebih berharga! 💎</li>
                   </ul>
                 </div>
               </div>
