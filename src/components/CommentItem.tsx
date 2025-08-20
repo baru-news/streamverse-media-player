@@ -155,8 +155,9 @@ const CommentItem = ({
             <Textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="min-h-[60px] bg-muted/30 border-muted focus:border-primary transition-colors"
+              className="min-h-[40px] bg-muted/30 border-muted focus:border-primary transition-colors"
               disabled={isSubmitting}
+              rows={2}
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleEdit} disabled={isSubmitting || !editContent.trim()}>
