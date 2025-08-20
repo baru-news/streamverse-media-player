@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, Image, FileText, Save, Loader2, Search } from "lucide-react";
+import { Globe, Image, FileText, Save, Loader2, Search, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { supabase } from "@/integrations/supabase/client";
 
 const WebsiteSettings = () => {
   const { settings, isLoading, updateSetting } = useWebsiteSettings();
   const [localSettings, setLocalSettings] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState<{ favicon?: boolean; logo?: boolean }>({});
   const { toast } = useToast();
 
   // Use settings from hook, fallback to local state
@@ -54,6 +56,72 @@ const WebsiteSettings = () => {
 
   const handleInputChange = (key: string, value: string) => {
     setLocalSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleFileUpload = async (file: File, type: 'favicon' | 'logo') => {
+    setIsUploading(prev => ({ ...prev, [type]: true }));
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${type}-${Date.now()}.${fileExt}`;
+      const filePath = `${type}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('website-assets')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('website-assets')
+        .getPublicUrl(filePath);
+
+      const settingKey = type === 'favicon' ? 'favicon_url' : 'site_logo_url';
+      handleInputChange(settingKey, publicUrl);
+
+      toast({
+        title: "Berhasil",
+        description: `${type === 'favicon' ? 'Favicon' : 'Logo'} berhasil diupload.`,
+      });
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: `Gagal mengupload ${type === 'favicon' ? 'favicon' : 'logo'}.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(prev => ({ ...prev, [type]: false }));
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'favicon' | 'logo') => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/svg+xml'];
+      if (!validTypes.includes(file.type)) {
+        toast({
+          title: "Error",
+          description: "Format file tidak didukung. Gunakan PNG, JPG, GIF, atau SVG.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "Ukuran file terlalu besar. Maksimal 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      handleFileUpload(file, type);
+    }
   };
 
   if (isLoading) {
@@ -190,55 +258,129 @@ const WebsiteSettings = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Favicon URL */}
+          {/* Favicon Upload */}
           <div>
-            <Label htmlFor="favicon_url" className="text-foreground mb-2 block">URL Favicon</Label>
-            <div className="flex items-center gap-4">
-              {currentSettings.favicon_url && (
-                <img 
-                  src={currentSettings.favicon_url} 
-                  alt="Favicon" 
-                  className="w-8 h-8 rounded"
-                />
-              )}
-              <div className="flex-1">
+            <Label className="text-foreground mb-2 block">Favicon</Label>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                {currentSettings.favicon_url && (
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={currentSettings.favicon_url} 
+                      alt="Favicon" 
+                      className="w-8 h-8 rounded border"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleInputChange('favicon_url', '')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                <div className="flex-1 flex gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'favicon')}
+                    className="hidden"
+                    id="favicon-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('favicon-upload')?.click()}
+                    disabled={isUploading.favicon}
+                    className="gap-2"
+                  >
+                    {isUploading.favicon ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    Upload File
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="favicon_url" className="text-sm text-muted-foreground">Atau masukkan URL:</Label>
                 <Input
                   id="favicon_url"
                   value={currentSettings.favicon_url || ''}
                   onChange={(e) => handleInputChange('favicon_url', e.target.value)}
                   placeholder="https://example.com/favicon.png"
-                  className="bg-background/50"
+                  className="bg-background/50 mt-1"
                 />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Masukkan URL gambar favicon (PNG, JPG, ICO). Ukuran recommended: 32x32px atau 16x16px
+            <p className="text-xs text-muted-foreground mt-2">
+              Upload file atau masukkan URL favicon (PNG, JPG, ICO). Ukuran recommended: 32x32px atau 16x16px
             </p>
           </div>
 
-          {/* Logo URL */}
+          {/* Logo Upload */}
           <div>
-            <Label htmlFor="site_logo_url" className="text-foreground mb-2 block">URL Logo Website</Label>
-            <div className="flex items-center gap-4">
-              {currentSettings.site_logo_url && (
-                <img 
-                  src={currentSettings.site_logo_url} 
-                  alt="Logo" 
-                  className="h-12 w-auto rounded"
-                />
-              )}
-              <div className="flex-1">
+            <Label className="text-foreground mb-2 block">Logo Website</Label>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                {currentSettings.site_logo_url && (
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={currentSettings.site_logo_url} 
+                      alt="Logo" 
+                      className="h-12 w-auto rounded border"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleInputChange('site_logo_url', '')}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                <div className="flex-1 flex gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'logo')}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('logo-upload')?.click()}
+                    disabled={isUploading.logo}
+                    className="gap-2"
+                  >
+                    {isUploading.logo ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    Upload File
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="site_logo_url" className="text-sm text-muted-foreground">Atau masukkan URL:</Label>
                 <Input
                   id="site_logo_url"
                   value={currentSettings.site_logo_url || ''}
                   onChange={(e) => handleInputChange('site_logo_url', e.target.value)}
                   placeholder="https://example.com/logo.png"
-                  className="bg-background/50"
+                  className="bg-background/50 mt-1"
                 />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Masukkan URL gambar logo (PNG, JPG, SVG). Ukuran recommended: 200x50px
+            <p className="text-xs text-muted-foreground mt-2">
+              Upload file atau masukkan URL logo (PNG, JPG, SVG). Ukuran recommended: 200x50px
             </p>
           </div>
         </CardContent>
