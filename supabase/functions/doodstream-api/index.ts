@@ -177,7 +177,7 @@ serve(async (req) => {
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
+          thumbnail: fileInfo.thumb_img || `https://img.doodcdn.io/thumbnails/${fileInfo.filecode}.jpg`,
           splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
@@ -191,7 +191,7 @@ serve(async (req) => {
             upload_date: videoData.uploadDate ? new Date(videoData.uploadDate).toISOString() : new Date().toISOString(),
             file_size: videoData.size ? parseInt(videoData.size) : null,
             status: videoData.canPlay ? 'active' : 'processing',
-            thumbnail_url: `https://img.doodcdn.io/snaps/${videoData.fileCode}.jpg`
+            thumbnail_url: videoData.thumbnail
           }, { onConflict: 'file_code' });
 
           if (upsertError) {
@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: `https://img.doodcdn.io/snaps/${file.file_code}.jpg`,
+            thumbnail: existingVideo?.thumbnail_url || `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };
@@ -260,7 +260,7 @@ serve(async (req) => {
             upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
             file_size: video.size ? parseInt(video.size) : null,
             status: video.canPlay ? 'active' : 'processing',
-            thumbnail_url: `https://img.doodcdn.io/snaps/${video.fileCode}.jpg`,
+            thumbnail_url: existingVideo?.thumbnail_url || `https://img.doodcdn.io/thumbnails/${video.fileCode}.jpg`,
             // Preserve edit flags
             title_edited: existingVideo?.title_edited || false,
             description_edited: existingVideo?.description_edited || false

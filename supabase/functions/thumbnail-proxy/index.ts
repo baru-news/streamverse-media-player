@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
     
     // Try multiple thumbnail URLs in order of preference
     const urls = [
+      `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`,
       `https://img.doodcdn.io/snaps/${fileCode}.jpg`,
       `https://img.doodcdn.co/splash/${fileCode}.jpg`,
       `https://postercdn.com/snaps/${fileCode}.jpg`
