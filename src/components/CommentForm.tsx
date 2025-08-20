@@ -36,22 +36,22 @@ const CommentForm = ({
 
   if (!user) {
     return (
-      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-6 text-center">
-        <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">
+      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+        <MessageCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+        <h3 className="text-sm font-semibold text-white mb-1">
           Login untuk Berkomentar
         </h3>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-xs text-muted-foreground mb-3">
           Bergabunglah dengan diskusi dan bagikan pendapat Anda tentang video ini.
         </p>
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-2 justify-center">
           <Link to="/login">
-            <Button variant="hero" size="sm">
+            <Button variant="hero" size="sm" className="text-xs px-3 py-1 h-7">
               Masuk
             </Button>
           </Link>
           <Link to="/register">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="text-xs px-3 py-1 h-7">
               Daftar
             </Button>
           </Link>
