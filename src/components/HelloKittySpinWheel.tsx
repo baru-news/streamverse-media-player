@@ -117,8 +117,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
               const midAngle = startAngle + (segmentAngle / 2);
               const radians = (midAngle * Math.PI) / 180;
               
-              // Calculate text position
-              const radius = 100; // Distance from center
+              // Calculate text position - reduced radius to stay within wheel
+              const radius = 60; // Reduced from 100 to keep text inside wheel
               const x = Math.cos(radians - Math.PI / 2) * radius;
               const y = Math.sin(radians - Math.PI / 2) * radius;
               
@@ -139,7 +139,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                     </div>
                   </div>
                   
-                  {/* Text positioned absolutely */}
+                  {/* Text positioned absolutely within wheel bounds */}
                   <div 
                     className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                     style={{
@@ -148,19 +148,19 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                     }}
                   >
                     <div className={cn(
-                      "text-center space-y-0.5 w-16",
+                      "text-center space-y-0.5 w-12", // Reduced width to w-12
                       getTextColor(reward.rarity)
                     )}>
-                      <div className="text-xs font-bold leading-tight break-words">
+                      <div className="text-[10px] font-bold leading-tight break-words">
                         {reward.name}
                       </div>
-                      <div className="text-sm font-bold leading-tight">
+                      <div className="text-[11px] font-bold leading-tight">
                         {reward.coin_amount}
                       </div>
-                      <div className="text-xs leading-none">
+                      <div className="text-[9px] leading-none">
                         🪙
                       </div>
-                      <div className="text-xs leading-none">
+                      <div className="text-[9px] leading-none">
                         {reward.rarity === 'legendary' && '👑'}
                         {reward.rarity === 'epic' && '⭐'}
                         {reward.rarity === 'rare' && '💎'}
