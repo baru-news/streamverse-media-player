@@ -36,12 +36,12 @@ const Index = () => {
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
-        <div className="my-0 py-0 px-0 mx-0">
+        <div className="space-y-8 my-0 px-0 mx-0 py-0">
           {!user && <>
               {/* Category Filter for non-logged users - positioned above CTA */}
               <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
               
-              <div className="container mx-auto py-16">
+              <div className="container mx-auto px-4 py-16">
                 {/* Call to Action */}
                 <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-16">
                   <h2 className="text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
@@ -64,17 +64,8 @@ const Index = () => {
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
-          {/* Ad Banners - Tight columns on desktop, stacked on mobile */}
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
-              <div className="w-full md:w-1/2">
-                <AdContainer position="content" size="banner" placeholder={true} />
-              </div>
-              <div className="w-full md:w-1/2">
-                <AdContainer position="content" size="banner" placeholder={true} />
-              </div>
-            </div>
-          </div>
+          {/* Ad Banner - Between Categories and Videos */}
+          <AdContainer position="content" size="leaderboard" placeholder={true} />
           
           {/* Video Grid - Full Width */}
           <VideoGrid title={getVideoGridTitle()} selectedHashtagId={selectedHashtagId} selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />
