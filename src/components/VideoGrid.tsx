@@ -187,40 +187,40 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
               {videos.map((video, index) => (
                 <React.Fragment key={video.id}>
                   <VideoCard {...video} />
-                  {/* Ad Cards every 2 videos - 3 rows of ads */}
-                  {(index + 1) % 2 === 0 && (
+                  {/* Ad Cards every 4 videos - 3 rows of ads */}
+                  {(index + 1) % 4 === 0 && (
                     <>
-                      {/* First ad row - Always visible */}
-                      <div className="col-span-full">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 mb-2">
+                      {/* First ad row */}
+                      <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
                           <AdCard size="small" placeholder={true} />
                           <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
+                          <AdCard size="small" placeholder={true} className="hidden sm:block" />
+                          <AdCard size="small" placeholder={true} className="hidden lg:block" />
+                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
+                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
                         </div>
                       </div>
-                      {/* Second ad row - Always visible */}
-                      <div className="col-span-full">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 mb-2">
+                      {/* Second ad row */}
+                      <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
                           <AdCard size="small" placeholder={true} />
                           <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
+                          <AdCard size="small" placeholder={true} className="hidden sm:block" />
+                          <AdCard size="small" placeholder={true} className="hidden lg:block" />
+                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
+                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
                         </div>
                       </div>
-                      {/* Third ad row - Always visible */}
-                      <div className="col-span-full">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 mb-2">
+                      {/* Third ad row */}
+                      <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
                           <AdCard size="small" placeholder={true} />
                           <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
+                          <AdCard size="small" placeholder={true} className="hidden sm:block" />
+                          <AdCard size="small" placeholder={true} className="hidden lg:block" />
+                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
+                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
                         </div>
                       </div>
                     </>
