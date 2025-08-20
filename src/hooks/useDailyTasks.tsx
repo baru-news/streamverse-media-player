@@ -61,6 +61,18 @@ export const useDailyTasks = () => {
     }
   }, [user]);
 
+  const getWIBDate = (): string => {
+    const now = new Date();
+    
+    // Convert current time to WIB (UTC+7)
+    const wibOffset = 7 * 60; // WIB is UTC+7
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const wibTime = new Date(utc + (wibOffset * 60000));
+    
+    // Return date in YYYY-MM-DD format
+    return wibTime.toISOString().split('T')[0];
+  };
+
   const fetchTasks = async () => {
     if (!user) return;
 
@@ -75,8 +87,8 @@ export const useDailyTasks = () => {
 
       if (tasksError) throw tasksError;
 
-      // Fetch today's progress for the user
-      const today = new Date().toISOString().split('T')[0];
+      // Fetch today's progress for the user (using WIB timezone)
+      const today = getWIBDate();
       const { data: progress, error: progressError } = await supabase
         .from('user_daily_progress')
         .select('*')
@@ -113,8 +125,8 @@ export const useDailyTasks = () => {
     if (!task) return;
 
     try {
-      // Check if task is already completed today
-      const today = new Date().toISOString().split('T')[0];
+      // Check if task is already completed today (using WIB timezone)
+      const today = getWIBDate();
       const { data: existingProgress } = await supabase
         .from('user_daily_progress')
         .select('*')
@@ -177,7 +189,7 @@ export const useDailyTasks = () => {
           progress_value: task.target_value,
           is_completed: true,
           completed_at: new Date().toISOString(),
-          task_date: new Date().toISOString().split('T')[0]
+          task_date: getWIBDate()
         });
 
       if (error) throw error;

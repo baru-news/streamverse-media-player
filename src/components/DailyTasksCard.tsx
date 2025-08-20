@@ -3,11 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useDailyTasks } from '@/hooks/useDailyTasks';
-import { CheckCircle, Clock, Target, Coins } from 'lucide-react';
+import { useDailyTaskCountdown } from '@/hooks/useDailyTaskCountdown';
+import { CheckCircle, Clock, Target, Coins, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const DailyTasksCard = () => {
-  const { tasks, loading, getCompletedTasksCount, getTotalTasksCount } = useDailyTasks();
+  const { tasks, loading, getCompletedTasksCount, getTotalTasksCount, refreshTasks } = useDailyTasks();
+  const { getFormattedCountdown, getProgressPercentage, isResetting } = useDailyTaskCountdown();
+
+  // Refresh tasks when countdown reaches zero (reset time)
+  useEffect(() => {
+    if (isResetting) {
+      const timer = setTimeout(() => {
+        refreshTasks();
+      }, 1000); // Wait 1 second after reset to refresh
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isResetting, refreshTasks]);
 
   const formatTaskType = (type: string) => {
     switch (type) {
@@ -74,6 +87,39 @@ export const DailyTasksCard = () => {
             {completedCount}/{totalCount}
           </Badge>
         </CardTitle>
+        
+        {/* Countdown Section */}
+        <div className="mt-3 p-3 bg-muted/20 rounded-lg border border-border/50">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Timer className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">Reset dalam:</span>
+            </div>
+            <div className={cn(
+              "text-sm font-mono font-bold px-2 py-1 rounded",
+              isResetting 
+                ? "text-green-400 bg-green-500/20" 
+                : "text-primary bg-primary/10"
+            )}>
+              {getFormattedCountdown()}
+            </div>
+          </div>
+          
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Progress hari ini</span>
+              <span>{Math.round(getProgressPercentage())}%</span>
+            </div>
+            <Progress 
+              value={getProgressPercentage()} 
+              className="h-1.5"
+            />
+          </div>
+          
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Semua tugas akan reset pada jam 12:00 WIB
+          </p>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
