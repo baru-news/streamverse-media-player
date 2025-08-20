@@ -16,7 +16,6 @@ interface AdFormData {
   image_url: string;
   link_url: string;
   position: string;
-  size: string;
   sort_order: number;
 }
 
@@ -33,7 +32,6 @@ const AdsManagement = () => {
     image_url: "",
     link_url: "",
     position: "content",
-    size: "banner",
     sort_order: 0,
   });
 
@@ -100,7 +98,6 @@ const AdsManagement = () => {
       image_url: "",
       link_url: "",
       position: "content",
-      size: "banner",
       sort_order: 0,
     });
     setEditingAd(null);
@@ -118,7 +115,6 @@ const AdsManagement = () => {
       image_url: ad.image_url,
       link_url: ad.link_url || "",
       position: ad.position,
-      size: ad.size,
       sort_order: ad.sort_order,
     });
     setPreviewImage(ad.image_url);
@@ -323,23 +319,6 @@ const AdsManagement = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="size">Ukuran</Label>
-                  <Select
-                    value={formData.size}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, size: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="banner">Banner</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
-                      <SelectItem value="square">Square</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
                   <Label htmlFor="sort_order">Urutan</Label>
                   <Input
                     id="sort_order"
@@ -385,7 +364,7 @@ const AdsManagement = () => {
                     <div>
                       <h3 className="font-medium">{ad.title}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {ad.position} • {ad.size} • Urutan: {ad.sort_order}
+                        {ad.position} • Urutan: {ad.sort_order}
                       </p>
                     </div>
                   </div>

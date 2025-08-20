@@ -22,7 +22,6 @@ export type Database = {
           is_active: boolean
           link_url: string | null
           position: string
-          size: string
           sort_order: number
           title: string
           updated_at: string
@@ -34,7 +33,6 @@ export type Database = {
           is_active?: boolean
           link_url?: string | null
           position?: string
-          size?: string
           sort_order?: number
           title: string
           updated_at?: string
@@ -46,7 +44,6 @@ export type Database = {
           is_active?: boolean
           link_url?: string | null
           position?: string
-          size?: string
           sort_order?: number
           title?: string
           updated_at?: string
