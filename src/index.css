@@ -18,20 +18,20 @@
 
     /* Soft pink brand colors */
     --primary: 330 80% 65%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --primary-glow: 320 90% 75%;
 
     --secondary: 330 30% 90%;
-    --secondary-foreground: 340 90% 15%;
+    --secondary-foreground: 340 100% 5%;
 
     --muted: 330 20% 92%;
-    --muted-foreground: 340 60% 30%;
+    --muted-foreground: 340 80% 20%;
 
     --accent: 320 75% 70%;
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 0 0% 0%;
 
     --border: 330 40% 85%;
     --input: 330 50% 94%;
@@ -62,7 +62,7 @@
     --sidebar-background: 330 60% 96%;
     --sidebar-foreground: 340 90% 8%;
     --sidebar-primary: 330 80% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 330 30% 90%;
     --sidebar-accent-foreground: 340 90% 15%;
     --sidebar-border: 330 40% 85%;
