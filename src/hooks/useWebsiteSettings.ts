@@ -61,15 +61,24 @@ export const useWebsiteSettings = () => {
 
   const updateSetting = async (key: string, value: string) => {
     try {
+      // Determine setting type based on key
+      const getSettingType = (settingKey: string): string => {
+        const urlSettings = ['site_logo_url', 'favicon_url'];
+        return urlSettings.includes(settingKey) ? 'url' : 'text';
+      };
+
       const { error } = await supabase
         .from('website_settings')
         .upsert({ 
           setting_key: key, 
           setting_value: value,
-          setting_type: 'text' // Add missing setting_type
+          setting_type: getSettingType(key)
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       // Update local state
       setSettings(prev => ({ ...prev, [key]: value }));
