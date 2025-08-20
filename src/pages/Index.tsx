@@ -78,11 +78,24 @@ const Index = () => {
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
-          {/* Ad Banner - Only show if ads are enabled */}
+          {/* Ad Banners - Only show if ads are enabled */}
           {shouldShowAds && (
-            <div className="container mx-auto py-4">
-              <div className="flex justify-center max-w-4xl mx-auto">
-                <AdContainer position="banner" size="banner" placeholder={false} adIndex={0} />
+            <div className="container mx-auto">
+              <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={0} />
+                </div>
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={1} />
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={2} />
+                </div>
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={3} />
+                </div>
               </div>
             </div>
           )}
