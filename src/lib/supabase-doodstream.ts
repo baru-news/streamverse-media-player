@@ -189,6 +189,7 @@ export class SecureDoodstreamAPI {
       const { data, error } = await supabase
         .from('videos')
         .select('*')
+        .eq('status', 'active')
         .order('upload_date', { ascending: false })
         .range(offset, offset + perPage - 1);
 
@@ -213,6 +214,7 @@ export class SecureDoodstreamAPI {
           )
         `)
         .eq('video_hashtags.hashtag_id', hashtagId)
+        .eq('status', 'active')
         .order('upload_date', { ascending: false })
         .range(offset, offset + perPage - 1);
 
@@ -232,6 +234,7 @@ export class SecureDoodstreamAPI {
         .from('videos')
         .select('*')
         .eq('category_id', categoryId)
+        .eq('status', 'active')
         .order('upload_date', { ascending: false })
         .range(offset, offset + perPage - 1);
 
@@ -277,6 +280,7 @@ export class SecureDoodstreamAPI {
       }
 
       const { data, error } = await query
+        .eq('status', 'active')
         .order('upload_date', { ascending: false })
         .range(offset, offset + perPage - 1);
 
@@ -295,6 +299,7 @@ export class SecureDoodstreamAPI {
         .from('videos')
         .select('*')
         .eq('file_code', fileCode)
+        .eq('status', 'active')
         .maybeSingle();
 
       if (error) throw error;
@@ -327,7 +332,7 @@ export class SecureDoodstreamAPI {
         query = query.eq('category_id', categoryId);
       }
 
-      const { count, error } = await query;
+      const { count, error } = await query.eq('status', 'active');
 
       if (error) throw error;
       return count || 0;

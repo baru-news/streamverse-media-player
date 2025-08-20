@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { 
   Edit, Save, X, RefreshCw, Upload, RotateCcw, Search, 
   Filter, Download, Copy, Eye, Trash2, ChevronDown,
-  AlertCircle, CheckCircle2, Clock
+  AlertCircle, CheckCircle2, Clock, EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,8 @@ import VideoHashtagSelector from "@/components/VideoHashtagSelector";
 import VideoCategorySelector from "@/components/VideoCategorySelector";
 import { generateSEOTitle, generateSlug, generateMetaDescription } from "@/lib/seo-utils";
 import { exportVideosData, importVideosData } from "@/lib/video-export";
+import HideVideoButton from "@/components/admin/HideVideoButton";
+import { useVideoStatus } from "@/hooks/useVideoStatus";
 
 interface VideoData {
   id: string;
@@ -55,12 +57,20 @@ const EnhancedVideoManager = () => {
   const [showOnlyEdited, setShowOnlyEdited] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
+  const { bulkHideVideos, bulkShowVideos } = useVideoStatus();
 
   const loadVideos = async () => {
     setIsLoading(true);
     try {
-      const videoList = await SecureDoodstreamAPI.getVideosFromDatabase(1, 100);
-      setVideos(videoList);
+      // For admin panel, we want to see ALL videos including hidden ones
+      const { data: videoList, error } = await supabase
+        .from('videos')
+        .select('*')
+        .order('upload_date', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+      setVideos(videoList || []);
     } catch (error) {
       console.error("Failed to load videos:", error);
       toast({
@@ -324,6 +334,7 @@ const EnhancedVideoManager = () => {
                   <SelectItem value="all">Semua Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="hidden">Hidden</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -352,6 +363,34 @@ const EnhancedVideoManager = () => {
             <div className="flex gap-2">
               <Button onClick={handleBulkEdit} size="sm" variant="default">
                 Optimasi SEO Massal
+              </Button>
+              <Button 
+                onClick={async () => {
+                  const selectedVideoIds = Array.from(selectedVideos);
+                  await bulkHideVideos(selectedVideoIds);
+                  setSelectedVideos(new Set());
+                  loadVideos();
+                }}
+                size="sm" 
+                variant="outline"
+                className="gap-1"
+              >
+                <EyeOff className="w-3 h-3" />
+                Sembunyikan
+              </Button>
+              <Button 
+                onClick={async () => {
+                  const selectedVideoIds = Array.from(selectedVideos);
+                  await bulkShowVideos(selectedVideoIds);
+                  setSelectedVideos(new Set());
+                  loadVideos();
+                }}
+                size="sm" 
+                variant="outline"
+                className="gap-1"
+              >
+                <Eye className="w-3 h-3" />
+                Tampilkan
               </Button>
               <Button 
                 onClick={() => setSelectedVideos(new Set())} 
@@ -500,6 +539,11 @@ const EnhancedVideoManager = () => {
                             {video.title}
                           </h3>
                           <div className="flex items-center gap-1">
+                            <HideVideoButton
+                              videoId={video.id}
+                              currentStatus={video.status || 'processing'}
+                              onStatusChange={loadVideos}
+                            />
                             <Button
                               onClick={() => handleEditVideo(video)}
                               variant="ghost"
@@ -530,10 +574,13 @@ const EnhancedVideoManager = () => {
                         
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <div className={`flex items-center gap-1 ${
-                            video.status === 'active' ? 'text-green-400' : 'text-yellow-400'
+                            video.status === 'active' ? 'text-green-400' : 
+                            video.status === 'hidden' ? 'text-red-400' : 'text-yellow-400'
                           }`}>
                             {video.status === 'active' ? (
                               <CheckCircle2 className="w-3 h-3" />
+                            ) : video.status === 'hidden' ? (
+                              <EyeOff className="w-3 h-3" />
                             ) : (
                               <Clock className="w-3 h-3" />
                             )}
