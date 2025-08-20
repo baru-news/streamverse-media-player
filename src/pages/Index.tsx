@@ -48,7 +48,7 @@ const Index = () => {
                     Bergabung dengan DINO18
                   </h2>
                   <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
-                    Dapatkan akses penuh ke koleksi video eksklusif kami. Daftar sekarang dan mulai menikmati pengalaman streaming yang tak terlupakan.
+                    Dapatkan Berbagai Fitur Menarik Seperti Menambahkan Video Favorite dan Limited Badge!
                   </p>
                   <div className="flex gap-4 justify-center">
                     <Button asChild variant="hero" size="lg">
