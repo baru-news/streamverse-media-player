@@ -62,7 +62,8 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
           views: formatViews(video.views || 0),
           creator: 'DINO18',
           category: 'Video',
-          fileCode: video.file_code
+          fileCode: video.file_code,
+          videoId: video.id // Pass database ID for favorites
         }));
         setVideos(transformedVideos);
       } else {

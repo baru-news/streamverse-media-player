@@ -8,13 +8,14 @@ export const useFavorites = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch user's favorites
+  // Fetch user's favorites with debug logging
   const fetchFavorites = async () => {
     if (!user) {
       setFavorites([]);
       return;
     }
 
+    console.log('Fetching favorites for user:', user.id); // Debug log
     try {
       const { data, error } = await supabase
         .from('video_favorites')
@@ -23,19 +24,22 @@ export const useFavorites = () => {
 
       if (error) throw error;
       
-      setFavorites(data.map(fav => fav.video_id));
+      const favoriteIds = data.map(fav => fav.video_id);
+      console.log('Fetched favorite IDs:', favoriteIds); // Debug log
+      setFavorites(favoriteIds);
     } catch (error) {
       console.error('Error fetching favorites:', error);
     }
   };
 
-  // Add video to favorites
+  // Add debug logging to the favorites hook
   const addToFavorites = async (videoId: string) => {
     if (!user) {
       toast.error('Silakan login untuk menambah favorit');
       return false;
     }
 
+    console.log('Adding video to favorites:', videoId); // Debug log
     setLoading(true);
     try {
       const { error } = await supabase
@@ -97,10 +101,14 @@ export const useFavorites = () => {
   // Check if video is favorite
   const isFavorite = (videoId: string) => favorites.includes(videoId);
 
-  // Get favorite videos with details
+  // Get favorite videos with details and debug logging
   const getFavoriteVideos = async () => {
-    if (!user || favorites.length === 0) return [];
+    if (!user || favorites.length === 0) {
+      console.log('No user or no favorites:', { user: !!user, favoritesLength: favorites.length }); // Debug log
+      return [];
+    }
 
+    console.log('Getting favorite videos with IDs:', favorites); // Debug log
     try {
       const { data, error } = await supabase
         .from('videos')
@@ -115,6 +123,7 @@ export const useFavorites = () => {
         .order('upload_date', { ascending: false });
 
       if (error) throw error;
+      console.log('Fetched video details:', data); // Debug log
       return data || [];
     } catch (error) {
       console.error('Error fetching favorite videos:', error);

@@ -27,6 +27,7 @@ const Favorites = () => {
     setLoading(true);
     try {
       const videos = await getFavoriteVideos();
+      console.log('Fetched favorite videos:', videos); // Debug log
       const formattedVideos = videos.map(video => ({
         id: video.file_code || video.id,
         title: video.title,
@@ -35,8 +36,10 @@ const Favorites = () => {
         views: formatViews(video.views || 0),
         creator: "DINO18",
         category: "Video",
-        fileCode: video.file_code
+        fileCode: video.file_code,
+        videoId: video.id // Pass database ID for favorites
       }));
+      console.log('Formatted favorite videos:', formattedVideos); // Debug log
       setFavoriteVideos(formattedVideos);
     } catch (error) {
       console.error('Error loading favorites:', error);
@@ -153,7 +156,7 @@ const Favorites = () => {
                 Mulai menambahkan video ke favorit dengan menekan tombol hati pada video yang Anda sukai
               </p>
               <Link to="/">
-                <Button variant="hero" className="px-8">
+                <Button variant="hero" className="px-4 py-2 text-sm sm:px-8 sm:py-3 sm:text-base">
                   Jelajahi Video
                 </Button>
               </Link>

@@ -13,9 +13,10 @@ interface VideoCardProps {
   creator: string;
   category: string;
   fileCode?: string;
+  videoId?: string; // Add actual database video ID
 }
 
-const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }: VideoCardProps) => {
+const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, videoId }: VideoCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
@@ -88,7 +89,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
           {/* Favorite Button */}
           <div className="absolute top-2 right-2">
             <FavoriteButton 
-              videoId={id} 
+              videoId={videoId || id} 
               variant="minimal"
               className="bg-black/60 backdrop-blur-sm hover:bg-black/80"
             />
