@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import VideoHashtagSelector from "@/components/VideoHashtagSelector";
+import VideoCategorySelector from "@/components/VideoCategorySelector";
 import { generateSEOTitle, generateSlug, generateMetaDescription } from "@/lib/seo-utils";
 import { exportVideosData, importVideosData } from "@/lib/video-export";
 
@@ -467,6 +468,7 @@ const EnhancedVideoManager = () => {
                         </Label>
                       </div>
                       
+                      <VideoCategorySelector videoId={video.id} />
                       <VideoHashtagSelector videoId={video.id} />
                       
                       <div className="flex gap-2">
