@@ -86,26 +86,25 @@ const CommentItem = ({
   };
 
   return (
-    <div className={`space-y-2 ${level > 0 ? 'ml-6' : ''}`}>
-      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-3">
+    <div className={`space-y-3 ${level > 0 ? 'ml-8' : ''}`}>
+      <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4">
         {/* Comment Header */}
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Avatar className="w-6 h-6">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-start gap-3">
+            <Avatar className="w-8 h-8 flex-shrink-0">
               <AvatarImage src={comment.profiles?.avatar_url} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                 {getUserInitials(comment.profiles?.username || 'User')}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-semibold text-foreground text-xs">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="font-semibold text-foreground text-sm truncate">
                   @{comment.profiles?.username || 'Unknown User'}
                 </h4>
                 {comment.user_id && (
                   <UserBadgeDisplay 
                     userId={comment.user_id} 
-                    className="w-5 h-5" 
                     showTooltip={true}
                   />
                 )}
@@ -161,7 +160,7 @@ const CommentItem = ({
 
         {/* Comment Content */}
         {isEditing ? (
-          <div className="space-y-2">
+          <div className="space-y-2 ml-11">
             <Textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
@@ -191,12 +190,14 @@ const CommentItem = ({
           </div>
         ) : (
           <>
-            <p className="text-foreground text-sm leading-snug mb-2 whitespace-pre-wrap">
-              {comment.content}
-            </p>
+            <div className="ml-11">
+              <p className="text-foreground text-sm leading-relaxed mb-3 whitespace-pre-wrap">
+                {comment.content}
+              </p>
+            </div>
             
             {/* Comment Actions */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 ml-11">
               {level < maxLevel && (
                 <Button 
                   variant="ghost" 
@@ -235,7 +236,7 @@ const CommentItem = ({
 
       {/* Reply Form */}
       {isReplying && (
-        <div className="ml-3">
+        <div className="ml-11">
           <CommentForm
             onSubmit={handleReply}
             isSubmitting={isSubmitting}
@@ -248,7 +249,7 @@ const CommentItem = ({
 
       {/* Replies */}
       {showReplies && hasReplies && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {comment.replies!.map((reply) => (
             <CommentItem
               key={reply.id}
