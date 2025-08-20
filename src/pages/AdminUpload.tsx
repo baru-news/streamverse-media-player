@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import WebsiteSettings from "@/components/admin/WebsiteSettings";
 import HashtagManagement from "@/components/admin/HashtagManagement";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import BadgeStoreManagement from "@/components/admin/BadgeStoreManagement";
+import CoinManagement from "@/components/admin/CoinManagement";
 import QuickActions from "@/components/admin/QuickActions";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
@@ -60,6 +61,11 @@ const AdminUpload = () => {
                   <span className="hidden sm:inline">Badge Store</span>
                   <span className="sm:hidden">Badge</span>
                 </TabsTrigger>
+                <TabsTrigger value="coins" className="gap-2 whitespace-nowrap px-4 py-2" id="coins">
+                  <Coins className="w-4 h-4" />
+                  <span className="hidden sm:inline">Coin Management</span>
+                  <span className="sm:hidden">Coins</span>
+                </TabsTrigger>
                 <TabsTrigger value="videos" className="gap-2 whitespace-nowrap px-4 py-2" id="videos">
                   <List className="w-4 h-4" />
                   <span className="hidden sm:inline">Kelola Video</span>
@@ -96,6 +102,11 @@ const AdminUpload = () => {
             {/* Badge Store Management Tab */}
             <TabsContent value="badges">
               <BadgeStoreManagement />
+            </TabsContent>
+
+            {/* Coin Management Tab */}
+            <TabsContent value="coins">
+              <CoinManagement />
             </TabsContent>
 
             {/* Videos Tab */}

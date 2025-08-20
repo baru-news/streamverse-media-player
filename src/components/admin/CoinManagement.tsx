@@ -23,7 +23,7 @@ interface UserCoin {
     username: string | null;
     email: string;
     avatar_url: string | null;
-  };
+  } | null;
 }
 
 const CoinManagement = () => {
@@ -44,20 +44,43 @@ const CoinManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch user coins and profiles separately then join
+      const { data: userCoins, error: coinsError } = await supabase
         .from('user_coins')
-        .select(`
-          *,
-          profiles (
-            username,
-            email,
-            avatar_url
-          )
-        `)
+        .select('*')
         .order('balance', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (coinsError) throw coinsError;
+
+      if (!userCoins || userCoins.length === 0) {
+        setUsers([]);
+        return;
+      }
+
+      // Get all profile data for these users
+      const userIds = userCoins.map(coin => coin.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, username, email, avatar_url')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const usersWithProfiles: UserCoin[] = userCoins.map(coin => {
+        const profile = profiles?.find(p => p.id === coin.user_id);
+        return {
+          ...coin,
+          profiles: profile ? {
+            username: profile.username,
+            email: profile.email,
+            avatar_url: profile.avatar_url
+          } : null
+        };
+      }).filter(user => user.profiles !== null); // Only show users with profiles
+
+      setUsers(usersWithProfiles);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -97,10 +120,10 @@ const CoinManagement = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `${actionType === 'add' ? 'Added' : 'Subtracted'} ${coinAmount} coins ${actionType === 'add' ? 'to' : 'from'} ${selectedUser.profiles.username || selectedUser.profiles.email}`,
-      });
+        toast({
+          title: "Success",
+          description: `${actionType === 'add' ? 'Added' : 'Subtracted'} ${coinAmount} coins ${actionType === 'add' ? 'to' : 'from'} ${selectedUser.profiles?.username || selectedUser.profiles?.email}`,
+        });
 
       setDialogOpen(false);
       setCoinAmount(0);
@@ -126,8 +149,10 @@ const CoinManagement = () => {
   };
 
   const filteredUsers = users.filter(user => 
-    user.profiles.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.profiles && (
+      user.profiles.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const totalCoinsInSystem = users.reduce((sum, user) => sum + user.balance, 0);
@@ -213,19 +238,19 @@ const CoinManagement = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={user.profiles.avatar_url || undefined} />
+                    <AvatarImage src={user.profiles?.avatar_url || undefined} />
                     <AvatarFallback className="bg-primary/20 text-primary">
-                      {(user.profiles.username || user.profiles.email).charAt(0).toUpperCase()}
+                      {(user.profiles?.username || user.profiles?.email || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-white">
-                        {user.profiles.username || 'Anonymous User'}
+                        {user.profiles?.username || 'Anonymous User'}
                       </h3>
                       <Badge variant="outline" className="text-xs">
-                        {user.profiles.email}
+                        {user.profiles?.email || 'No email'}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -285,7 +310,7 @@ const CoinManagement = () => {
               {actionType === 'add' ? 'Add Coins' : 'Remove Coins'}
             </DialogTitle>
             <DialogDescription>
-              {actionType === 'add' ? 'Add coins to' : 'Remove coins from'} {selectedUser?.profiles.username || selectedUser?.profiles.email}
+              {actionType === 'add' ? 'Add coins to' : 'Remove coins from'} {selectedUser?.profiles?.username || selectedUser?.profiles?.email}
               <br />
               Current balance: <span className="text-yellow-500 font-medium">{selectedUser?.balance} coins</span>
             </DialogDescription>
