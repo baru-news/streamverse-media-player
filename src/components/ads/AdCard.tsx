@@ -8,7 +8,7 @@ interface AdCardProps {
 }
 
 const adCardSizes = {
-  small: { width: 250, height: 200 },
+  small: { width: 180, height: 150 },
   medium: { width: 300, height: 250 },
   large: { width: 350, height: 280 }
 };
