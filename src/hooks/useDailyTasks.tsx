@@ -113,24 +113,45 @@ export const useDailyTasks = () => {
     if (!task) return;
 
     try {
-      const finalProgressValue = Math.min(progressValue, task.target_value);
-      const isCompleted = finalProgressValue >= task.target_value;
+      // Check if task is already completed today
+      const today = new Date().toISOString().split('T')[0];
+      const { data: existingProgress } = await supabase
+        .from('user_daily_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('task_key', taskKey)
+        .eq('task_date', today)
+        .maybeSingle();
+
+      // If task is already completed, don't update to avoid duplicates
+      if (existingProgress?.is_completed) {
+        console.log(`Task ${taskKey} already completed today`);
+        return;
+      }
+
+      const currentProgress = existingProgress?.progress_value || 0;
+      const newProgress = Math.min(currentProgress + progressValue, task.target_value);
+      const isCompleted = newProgress >= task.target_value;
+      const wasAlreadyCompleted = existingProgress?.is_completed || false;
       
       const { error } = await supabase
         .from('user_daily_progress')
         .upsert({
           user_id: user.id,
           task_key: taskKey,
-          progress_value: finalProgressValue,
+          progress_value: newProgress,
           is_completed: isCompleted,
           completed_at: isCompleted ? new Date().toISOString() : null,
-          task_date: new Date().toISOString().split('T')[0]
+          task_date: today
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating task progress:', error);
+        return;
+      }
       
-      // Show completion message if task was just completed
-      if (isCompleted) {
+      // Show completion message only if task was just completed (not already completed)
+      if (isCompleted && !wasAlreadyCompleted) {
         toast.success(`Task completed! +${task.reward_coins} coins!`);
       }
       
