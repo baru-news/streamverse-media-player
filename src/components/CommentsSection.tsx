@@ -91,6 +91,17 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
                 </Button>
               </div>
             )}
+            {visibleComments > 3 && (
+              <div className="text-center pt-2">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setVisibleComments(3)}
+                  className="text-sm text-muted-foreground hover:text-primary"
+                >
+                  Lihat lebih sedikit
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
