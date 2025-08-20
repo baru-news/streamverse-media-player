@@ -13,29 +13,20 @@ export const useDailyTaskCountdown = () => {
   const calculateTimeUntilMidnightWIB = (): CountdownTime => {
     const now = new Date();
     
-    // Get current time in WIB (UTC+7)
-    const wibOffset = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
-    const nowWIB = new Date(now.getTime() + wibOffset - (now.getTimezoneOffset() * 60000));
+    // Create WIB time (UTC+7) - simple and direct approach
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const wibTime = new Date(utcTime + (7 * 60 * 60 * 1000));
     
-    // Calculate next midnight WIB
-    const nextMidnightWIB = new Date(nowWIB);
-    nextMidnightWIB.setHours(24, 0, 0, 0);
+    // Get next midnight WIB
+    const nextMidnightWIB = new Date(wibTime);
+    nextMidnightWIB.setDate(wibTime.getDate() + 1);
+    nextMidnightWIB.setHours(0, 0, 0, 0);
     
-    // Convert back to local time for comparison
-    const nextMidnightLocal = new Date(nextMidnightWIB.getTime() - wibOffset + (now.getTimezoneOffset() * 60000));
-    
-    const timeDiff = nextMidnightLocal.getTime() - now.getTime();
+    // Calculate time difference
+    const timeDiff = nextMidnightWIB.getTime() - wibTime.getTime();
     
     if (timeDiff <= 0) {
-      // If somehow we get negative time, calculate for next day
-      const tomorrow = new Date(nextMidnightLocal);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const newTimeDiff = tomorrow.getTime() - now.getTime();
-      const totalSeconds = Math.floor(newTimeDiff / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      return { hours, minutes, seconds, totalSeconds };
+      return { hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 };
     }
     
     const totalSeconds = Math.floor(timeDiff / 1000);
