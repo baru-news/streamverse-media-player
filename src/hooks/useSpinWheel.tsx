@@ -52,6 +52,7 @@ export const useSpinWheel = () => {
   // Check if user can spin (has kitty keys)
   const checkCanSpin = useCallback(async () => {
     if (!user) {
+      console.log('No user found');
       setCanSpin(false);
       return;
     }
@@ -64,7 +65,12 @@ export const useSpinWheel = () => {
         .maybeSingle();
 
       if (error) throw error;
-      setCanSpin((data?.balance || 0) > 0);
+      
+      const balance = data?.balance || 0;
+      console.log('Kitty keys balance:', balance);
+      console.log('Can spin:', balance > 0);
+      
+      setCanSpin(balance > 0);
     } catch (error) {
       console.error('Error checking kitty keys balance:', error);
       setCanSpin(false);
@@ -112,8 +118,12 @@ export const useSpinWheel = () => {
 
   // Perform spin
   const performSpin = useCallback(async (): Promise<SpinWheelReward | null> => {
-    if (!user || !canSpin || spinning) return null;
+    if (!user || !canSpin || spinning) {
+      console.log('Cannot spin:', { user: !!user, canSpin, spinning });
+      return null;
+    }
 
+    console.log('Starting spin...');
     setSpinning(true);
 
     try {
