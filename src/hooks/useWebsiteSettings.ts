@@ -73,6 +73,8 @@ export const useWebsiteSettings = () => {
           setting_key: key, 
           setting_value: value,
           setting_type: getSettingType(key)
+        }, {
+          onConflict: 'setting_key'
         });
 
       if (error) {
