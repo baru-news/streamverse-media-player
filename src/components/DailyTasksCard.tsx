@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDailyTasks } from '@/hooks/useDailyTasks';
 import { useDailyTaskCountdown } from '@/hooks/useDailyTaskCountdown';
 import { useSpinWheel } from '@/hooks/useSpinWheel';
@@ -220,61 +221,63 @@ export const DailyTasksCard = () => {
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {tasks.map((task) => (
-            <div key={task.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {task.progress?.is_completed ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                  )}
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{task.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTaskType(task.task_type)}
-                    </p>
+      <CardContent className="p-0">
+        <ScrollArea className="h-[400px] p-4">
+          <div className="space-y-4">
+            {tasks.map((task) => (
+              <div key={task.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {task.progress?.is_completed ? (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{task.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatTaskType(task.task_type)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-xs text-yellow-600">
+                      <Coins className="w-3 h-3" />
+                      {task.reward_coins}
+                    </div>
+                    <Badge 
+                      variant={task.progress?.is_completed ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      {task.progress?.is_completed ? "Complete" : "Pending"}
+                    </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 text-xs text-yellow-600">
-                    <Coins className="w-3 h-3" />
-                    {task.reward_coins}
+                
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{formatProgressText(task)}</span>
+                    <span>{Math.round(task.progress_percentage)}%</span>
                   </div>
-                  <Badge 
-                    variant={task.progress?.is_completed ? "default" : "secondary"}
-                    className="text-xs"
-                  >
-                    {task.progress?.is_completed ? "Complete" : "Pending"}
-                  </Badge>
+                  <Progress 
+                    value={task.progress_percentage} 
+                    className={cn(
+                      "h-2",
+                      task.progress?.is_completed && "bg-green-200"
+                    )}
+                  />
                 </div>
               </div>
-              
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{formatProgressText(task)}</span>
-                  <span>{Math.round(task.progress_percentage)}%</span>
-                </div>
-                <Progress 
-                  value={task.progress_percentage} 
-                  className={cn(
-                    "h-2",
-                    task.progress?.is_completed && "bg-green-200"
-                  )}
-                />
+            ))}
+            
+            {tasks.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No daily tasks available</p>
               </div>
-            </div>
-          ))}
-          
-          {tasks.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No daily tasks available</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
