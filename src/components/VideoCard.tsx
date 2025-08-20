@@ -85,8 +85,8 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
         </div>
 
         {/* Content */}
-        <div className="p-3 flex-1 flex flex-col justify-between h-20">
-          <h3 className="text-white font-medium text-sm leading-tight line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200 overflow-hidden h-10 flex items-start">
+        <div className="p-3 flex-1 flex flex-col justify-between min-h-[80px]">
+          <h3 className="text-white font-medium text-sm leading-tight line-clamp-3 sm:line-clamp-4 mb-2 group-hover:text-primary transition-colors duration-200 overflow-hidden">
             {title}
           </h3>
           

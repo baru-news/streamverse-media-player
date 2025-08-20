@@ -151,6 +151,9 @@ export default {
 				'scale-in': 'scale-in 0.2s ease-out',
 				'slide-up': 'slide-up 0.4s ease-out',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite'
+			},
+			screens: {
+				'xs': '475px',
 			}
 		}
 	},
