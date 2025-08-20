@@ -36,7 +36,7 @@ const Index = () => {
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
-        <div className="space-y-8 my-0 py-0 px-0 mx-0">
+        <div className="my-0 py-0 px-0 mx-0">
           {!user && <>
               {/* Category Filter for non-logged users - positioned above CTA */}
               <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
