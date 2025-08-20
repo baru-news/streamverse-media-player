@@ -10,15 +10,20 @@ import HashtagFilter from "@/components/HashtagFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
 import { AdContainer } from "@/components/ads/AdContainer";
-
 const Index = () => {
-  const { user } = useAuth();
-  const { settings } = useWebsiteSettings();
-  const { settings: adsSettings, isLoading: adsLoading } = useAds();
+  const {
+    user
+  } = useAuth();
+  const {
+    settings
+  } = useWebsiteSettings();
+  const {
+    settings: adsSettings,
+    isLoading: adsLoading
+  } = useAds();
   const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-
   const getVideoGridTitle = () => {
     if (searchQuery.trim()) {
       return `Hasil pencarian: "${searchQuery}"`;
@@ -33,28 +38,18 @@ const Index = () => {
   };
 
   // Check if ads should be displayed
-  const shouldShowAds = !adsLoading && 
-    adsSettings.ads_enabled && 
-    ((!user && adsSettings.show_ads_to_guests) || (user && adsSettings.show_ads_to_users));
-
-  return (
-    <div className="min-h-screen bg-background">
-      <SEO 
-        title={settings.site_title || "Platform Streaming Video Terdepan"} 
-        description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."} 
-        keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia" 
-        type="website" 
-      />
+  const shouldShowAds = !adsLoading && adsSettings.ads_enabled && (!user && adsSettings.show_ads_to_guests || user && adsSettings.show_ads_to_users);
+  return <div className="min-h-screen bg-background">
+      <SEO title={settings.site_title || "Platform Streaming Video Terdepan"} description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."} keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia" type="website" />
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
         <div className="my-0 py-0 px-0 mx-0">
-          {!user && (
-            <>
+          {!user && <>
               {/* Category Filter for non-logged users - positioned above CTA */}
               <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
               
-              <div className="container mx-auto px-4 py-16">
+              <div className="container mx-auto px-4 py-0">
                 {/* Call to Action */}
                 <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl px-4 sm:px-8 py-8">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
@@ -73,8 +68,7 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            </>}
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
@@ -99,12 +93,7 @@ const Index = () => {
             </div>}
           
           {/* Video Grid - Full Width */}
-          <VideoGrid 
-            title={getVideoGridTitle()} 
-            selectedHashtagId={selectedHashtagId} 
-            selectedCategoryId={selectedCategoryId} 
-            searchQuery={searchQuery} 
-          />
+          <VideoGrid title={getVideoGridTitle()} selectedHashtagId={selectedHashtagId} selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />
           
           {/* Hashtag Filter */}
           <HashtagFilter selectedHashtagId={selectedHashtagId} onHashtagChange={setSelectedHashtagId} />
@@ -140,8 +129,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
