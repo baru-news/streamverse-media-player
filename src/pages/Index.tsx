@@ -65,7 +65,7 @@ const Index = () => {
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
           {/* Ad Banners - Tight columns on desktop, stacked on mobile */}
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
               <div className="w-full md:w-1/2">
                 <AdContainer position="content" size="banner" placeholder={true} />
