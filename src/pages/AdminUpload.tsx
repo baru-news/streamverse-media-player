@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, List, Settings, Globe, Hash, Folder } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import WebsiteSettings from "@/components/admin/WebsiteSettings";
 import HashtagManagement from "@/components/admin/HashtagManagement";
 import CategoryManagement from "@/components/admin/CategoryManagement";
+import BadgeStoreManagement from "@/components/admin/BadgeStoreManagement";
 import QuickActions from "@/components/admin/QuickActions";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
@@ -54,6 +55,11 @@ const AdminUpload = () => {
                   <span className="hidden sm:inline">Tagar</span>
                   <span className="sm:hidden">Tag</span>
                 </TabsTrigger>
+                <TabsTrigger value="badges" className="gap-2 whitespace-nowrap px-4 py-2" id="badges">
+                  <Award className="w-4 h-4" />
+                  <span className="hidden sm:inline">Badge Store</span>
+                  <span className="sm:hidden">Badge</span>
+                </TabsTrigger>
                 <TabsTrigger value="videos" className="gap-2 whitespace-nowrap px-4 py-2" id="videos">
                   <List className="w-4 h-4" />
                   <span className="hidden sm:inline">Kelola Video</span>
@@ -85,6 +91,11 @@ const AdminUpload = () => {
             {/* Hashtag Management Tab */}
             <TabsContent value="hashtags">
               <HashtagManagement />
+            </TabsContent>
+
+            {/* Badge Store Management Tab */}
+            <TabsContent value="badges">
+              <BadgeStoreManagement />
             </TabsContent>
 
             {/* Videos Tab */}
