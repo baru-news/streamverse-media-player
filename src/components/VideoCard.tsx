@@ -1,4 +1,4 @@
-import { Play, Clock, Eye } from "lucide-react";
+import { Play, Clock, Eye, MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,7 @@ interface VideoCardProps {
 const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }: VideoCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [showFullTitle, setShowFullTitle] = useState(false);
   const [currentImageSrc, setCurrentImageSrc] = useState(
     thumbnail || (fileCode ? `https://img.doodcdn.io/snaps/${fileCode}.jpg` : '/placeholder.svg')
   );
@@ -85,12 +86,35 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
         </div>
 
         {/* Content */}
-        <div className="p-3 flex-1 flex flex-col justify-between min-h-[80px]">
-          <h3 className="text-white font-medium text-sm leading-tight line-clamp-3 sm:line-clamp-4 mb-2 group-hover:text-primary transition-colors duration-200 overflow-hidden">
-            {title}
-          </h3>
+        <div className="p-3 flex-1 flex flex-col min-h-[100px]">
+          <div className="flex-1 mb-3">
+            <div className="relative">
+              <h3 className="text-white font-medium text-sm leading-tight group-hover:text-primary transition-colors duration-200">
+                {(() => {
+                  const maxLength = 60;
+                  if (title.length <= maxLength) return title;
+                  
+                  const truncatedTitle = title.substring(0, maxLength) + "...";
+                  return showFullTitle ? title : truncatedTitle;
+                })()}
+              </h3>
+              {title.length > 60 && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowFullTitle(!showFullTitle);
+                  }}
+                  className="text-primary hover:text-primary/80 transition-colors text-xs mt-1 flex items-center gap-1"
+                >
+                  <MoreHorizontal className="w-3 h-3" />
+                  {showFullTitle ? "Lebih sedikit" : "Selengkapnya"}
+                </button>
+              )}
+            </div>
+          </div>
           
-          <div className="flex items-center justify-between text-muted-foreground text-xs">
+          <div className="flex items-center justify-between text-muted-foreground text-xs mt-auto">
             <span className="hover:text-primary transition-colors cursor-pointer truncate max-w-[70%]">
               {creator}
             </span>
