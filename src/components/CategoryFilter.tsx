@@ -50,9 +50,9 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
             <Folder className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-semibold text-foreground">Kategori</h3>
           </div>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-1">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex-shrink-0 h-12 w-28 bg-muted animate-pulse rounded-full" />
+              <div key={i} className="flex-shrink-0 h-10 w-24 bg-card/50 animate-pulse rounded-lg border border-border" />
             ))}
           </div>
         </div>
@@ -78,10 +78,10 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
             {/* All Videos Button */}
             <button
               onClick={() => onCategoryChange(null)}
-              className={`flex-shrink-0 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm ${
+              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
                 selectedCategoryId === null
-                  ? 'bg-primary text-primary-foreground shadow-[0_0_20px_rgba(59,130,246,0.5)] scale-105 border-2 border-primary/30'
-                  : 'bg-secondary/30 text-secondary-foreground hover:bg-secondary/50 hover:scale-105 border-2 border-secondary/20 hover:border-secondary/40'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'bg-card/50 text-foreground hover:bg-card/80 border-border hover:border-border/60'
               }`}
             >
               <span className="flex items-center gap-2">
@@ -95,29 +95,17 @@ const CategoryFilter = ({ selectedCategoryId, onCategoryChange }: CategoryFilter
               <button
                 key={category.id}
                 onClick={() => onCategoryChange(category.id)}
-                className={`flex-shrink-0 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm flex items-center gap-2 ${
+                className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
                   selectedCategoryId === category.id
-                    ? 'scale-105 shadow-[0_0_20px] hover:scale-110'
-                    : 'hover:scale-105 hover:shadow-lg'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'bg-card/50 text-foreground hover:bg-card/80 border-border hover:border-border/60'
                 }`}
-                style={{
-                  backgroundColor: selectedCategoryId === category.id 
-                    ? category.color 
-                    : `${category.color}15`,
-                  color: selectedCategoryId === category.id ? '#ffffff' : category.color,
-                  borderColor: selectedCategoryId === category.id 
-                    ? `${category.color}80` 
-                    : `${category.color}40`,
-                  borderWidth: '2px',
-                  borderStyle: 'solid',
-                  boxShadow: selectedCategoryId === category.id 
-                    ? `0 0 20px ${category.color}60` 
-                    : undefined
-                }}
                 title={category.description}
               >
-                <Folder className="w-4 h-4" />
-                <span className="whitespace-nowrap">{category.name}</span>
+                <span className="flex items-center gap-2">
+                  <Folder className="w-4 h-4" />
+                  <span className="whitespace-nowrap">{category.name}</span>
+                </span>
               </button>
             ))}
             
