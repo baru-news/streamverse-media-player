@@ -785,10 +785,6 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: boolean
       }
-      can_user_spin_today: {
-        Args: { user_id_param: string }
-        Returns: boolean
-      }
       claim_kitty_key: {
         Args: { user_id_param: string }
         Returns: boolean

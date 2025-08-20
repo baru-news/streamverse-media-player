@@ -8,16 +8,15 @@ import { cn } from '@/lib/utils';
 
 const SpinWheelButton: React.FC = () => {
   const { user } = useAuth();
-  const { canSpin, loading, todayAttempts } = useSpinWheel();
+  const { canSpin, loading } = useSpinWheel();
   const { kittyKeys } = useKittyKeys();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // Don't show button if user is not logged in
   if (!user) return null;
 
-  const hasSpunToday = todayAttempts.length > 0;
   const hasKeys = kittyKeys && kittyKeys.balance > 0;
-  const isEligible = canSpin && !hasSpunToday && hasKeys;
+  const isEligible = canSpin && hasKeys;
 
   return (
     <>

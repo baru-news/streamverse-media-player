@@ -15,14 +15,6 @@ interface SpinWheelReward {
   sort_order: number;
 }
 
-interface SpinAttempt {
-  id: string;
-  reward_id: string;
-  coins_won: number;
-  spin_date: string;
-  created_at: string;
-}
-
 export const useSpinWheel = () => {
   const { user } = useAuth();
   const { refreshCoins } = useCoins();
@@ -31,7 +23,6 @@ export const useSpinWheel = () => {
   const [canSpin, setCanSpin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [spinning, setSpinning] = useState(false);
-  const [todayAttempts, setTodayAttempts] = useState<SpinAttempt[]>([]);
 
   // Fetch available rewards
   const fetchRewards = useCallback(async () => {
@@ -77,34 +68,13 @@ export const useSpinWheel = () => {
     }
   }, [user]);
 
-  // Fetch today's spin attempts
-  const fetchTodayAttempts = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
-        .from('user_spin_attempts')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('spin_date', today)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTodayAttempts(data || []);
-    } catch (error) {
-      console.error('Error fetching today attempts:', error);
-    }
-  }, [user]);
-
   // Initialize data
   useEffect(() => {
     const initializeData = async () => {
       setLoading(true);
       await Promise.all([
         fetchRewards(),
-        checkCanSpin(),
-        fetchTodayAttempts()
+        checkCanSpin()
       ]);
       setLoading(false);
     };
@@ -114,7 +84,7 @@ export const useSpinWheel = () => {
     } else {
       setLoading(false);
     }
-  }, [user, fetchRewards, checkCanSpin, fetchTodayAttempts]);
+  }, [user, fetchRewards, checkCanSpin]);
 
   // Perform spin
   const performSpin = useCallback(async (): Promise<SpinWheelReward | null> => {
@@ -198,7 +168,6 @@ export const useSpinWheel = () => {
       // Refresh data
       await Promise.all([
         checkCanSpin(),
-        fetchTodayAttempts(),
         refreshCoins()
       ]);
 
@@ -215,23 +184,21 @@ export const useSpinWheel = () => {
     } finally {
       setSpinning(false);
     }
-  }, [user, canSpin, spinning, rewards, checkCanSpin, fetchTodayAttempts, refreshCoins]);
+  }, [user, canSpin, spinning, rewards, checkCanSpin, refreshCoins]);
 
   // Refresh all data
   const refreshData = useCallback(async () => {
     await Promise.all([
       fetchRewards(),
-      checkCanSpin(),
-      fetchTodayAttempts()
+      checkCanSpin()
     ]);
-  }, [fetchRewards, checkCanSpin, fetchTodayAttempts]);
+  }, [fetchRewards, checkCanSpin]);
 
   return {
     rewards,
     canSpin,
     loading,
     spinning,
-    todayAttempts,
     performSpin,
     refreshData
   };

@@ -23,7 +23,6 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
     canSpin,
     loading,
     spinning,
-    todayAttempts,
     performSpin,
     refreshData
   } = useSpinWheel();
@@ -47,9 +46,6 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
       </Dialog>
     );
   }
-
-  const hasSpunToday = todayAttempts.length > 0;
-  const todayReward = hasSpunToday ? todayAttempts[0] : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,19 +73,6 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
 
               {/* Status Information */}
               <div className="mt-6 space-y-4">
-                {hasSpunToday && todayReward && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h3 className="font-bold text-green-800 mb-3 flex items-center gap-2 text-lg">
-                      🎁 Putaran Terakhir
-                    </h3>
-                    <p className="text-green-700 font-medium text-base leading-relaxed">
-                      Putaran terakhir Anda memenangkan{' '}
-                      <span className="font-bold text-green-800">{todayReward.coins_won} koin</span>! 
-                      Putar lagi selama Kitty Key masih tersedia! 🌸
-                    </p>
-                  </div>
-                )}
-
                 {!canSpin && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <h3 className="font-bold text-yellow-800 mb-3 flex items-center gap-2 text-lg">

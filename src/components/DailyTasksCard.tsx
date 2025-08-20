@@ -21,7 +21,7 @@ export const DailyTasksCard = () => {
     refreshTasks 
   } = useDailyTasks();
   const { getFormattedCountdown, getProgressPercentage, isResetting } = useDailyTaskCountdown();
-  const { canSpin, todayAttempts } = useSpinWheel();
+  const { canSpin } = useSpinWheel();
 
   // Refresh tasks when countdown reaches zero (reset time)
   useEffect(() => {
@@ -90,7 +90,6 @@ export const DailyTasksCard = () => {
   const completedCount = getCompletedTasksCount();
   const totalCount = getTotalTasksCount();
   const allTasksCompleted = totalCount > 0 && completedCount === totalCount;
-  const hasSpunToday = todayAttempts.length > 0;
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -211,12 +210,10 @@ export const DailyTasksCard = () => {
           <div className="mt-3 p-3 bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 rounded-lg">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-pink-600">🎀</span>
-              {hasSpunToday ? (
-                <span className="text-pink-700 font-medium">Roda beruntung selesai hari ini! ✨</span>
-              ) : canSpin ? (
-                <span className="text-pink-700 font-medium animate-pulse">Roda beruntung terbuka! Klik tombol roda! 🎡</span>
+              {canSpin ? (
+                <span className="text-pink-700 font-medium animate-pulse">Roda beruntung tersedia! Kumpulkan Kitty Key! 🎡</span>
               ) : (
-                <span className="text-pink-600">Roda beruntung akan tersedia segera... 🌸</span>
+                <span className="text-pink-600">Kumpulkan Kitty Key untuk bermain roda beruntung! 🌸</span>
               )}
             </div>
           </div>
