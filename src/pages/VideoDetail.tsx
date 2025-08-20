@@ -515,11 +515,13 @@ const VideoDetail = () => {
 
                 {/* Description */}
                 <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <h3 className="font-semibold text-white mb-3">Deskripsi</h3>
-                    <p className="text-muted-foreground leading-relaxed mb-4">
-                      {video.description}
-                    </p>
+                    <div className="min-h-[120px] sm:min-h-[80px]">
+                      <p className="text-muted-foreground leading-relaxed mb-4 whitespace-pre-wrap break-words">
+                        {video.description}
+                      </p>
+                    </div>
                     
                     <div className="flex flex-wrap gap-2">
                       {videoHashtags.map((hashtag, index) => (

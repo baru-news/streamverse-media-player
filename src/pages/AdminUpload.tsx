@@ -31,28 +31,35 @@ const AdminUpload = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6" id="admin-tabs">
-            <TabsList className="bg-card/50 backdrop-blur-sm">
-              <TabsTrigger value="dashboard" className="gap-2">
-                <Settings className="w-4 h-4" />
-                Dashboard
-              </TabsTrigger>
-              <TabsTrigger value="website" className="gap-2" id="website">
-                <Globe className="w-4 h-4" />
-                Website
-              </TabsTrigger>
-              <TabsTrigger value="hashtags" className="gap-2" id="hashtags">
-                <Hash className="w-4 h-4" />
-                Hashtag
-              </TabsTrigger>
-              <TabsTrigger value="videos" className="gap-2" id="videos">
-                <List className="w-4 h-4" />
-                Kelola Video
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2" id="settings">
-                <Settings className="w-4 h-4" />
-                Pengaturan Doodstream
-              </TabsTrigger>
-            </TabsList>
+            <div className="w-full overflow-x-auto scrollbar-hide">
+              <TabsList className="bg-card/50 backdrop-blur-sm flex-nowrap min-w-max w-full sm:w-auto">
+                <TabsTrigger value="dashboard" className="gap-2 flex-shrink-0 min-w-[100px]">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden xs:inline">Dashboard</span>
+                  <span className="xs:hidden">Dash</span>
+                </TabsTrigger>
+                <TabsTrigger value="website" className="gap-2 flex-shrink-0 min-w-[100px]" id="website">
+                  <Globe className="w-4 h-4" />
+                  <span className="hidden xs:inline">Website</span>
+                  <span className="xs:hidden">Web</span>
+                </TabsTrigger>
+                <TabsTrigger value="hashtags" className="gap-2 flex-shrink-0 min-w-[100px]" id="hashtags">
+                  <Hash className="w-4 h-4" />
+                  <span className="hidden xs:inline">Hashtag</span>
+                  <span className="xs:hidden">Tag</span>
+                </TabsTrigger>
+                <TabsTrigger value="videos" className="gap-2 flex-shrink-0 min-w-[120px]" id="videos">
+                  <List className="w-4 h-4" />
+                  <span className="hidden xs:inline">Kelola Video</span>
+                  <span className="xs:hidden">Video</span>
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="gap-2 flex-shrink-0 min-w-[100px]" id="settings">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden xs:inline">Pengaturan</span>
+                  <span className="xs:hidden">Set</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Dashboard Tab */}
             <TabsContent value="dashboard">
