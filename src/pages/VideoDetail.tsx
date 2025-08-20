@@ -450,27 +450,6 @@ const VideoDetail = () => {
       />
       <Header />
       
-      {/* Ad Banners - Only show if ads are enabled */}
-      {shouldShowAds && (
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
-            <div className="w-full md:w-1/2">
-              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
-            </div>
-            <div className="w-full md:w-1/2">
-              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
-            <div className="w-full md:w-1/2">
-              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
-            </div>
-            <div className="w-full md:w-1/2">
-              <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
-            </div>
-          </div>
-        </div>
-      )}
       
       <main className="pt-20">
         <div className="container mx-auto px-4 py-8">
