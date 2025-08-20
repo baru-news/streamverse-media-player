@@ -3,22 +3,22 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { useAds } from "@/hooks/useAds";
 import Header from "@/components/Header";
 import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
 import { AdContainer } from "@/components/ads/AdContainer";
+
 const Index = () => {
-  const {
-    user
-  } = useAuth();
-  const {
-    settings
-  } = useWebsiteSettings();
+  const { user } = useAuth();
+  const { settings } = useWebsiteSettings();
+  const { settings: adsSettings, isLoading: adsLoading } = useAds();
   const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
   const getVideoGridTitle = () => {
     if (searchQuery.trim()) {
       return `Hasil pencarian: "${searchQuery}"`;
@@ -31,13 +31,26 @@ const Index = () => {
     }
     return "Video Terbaru";
   };
-  return <div className="min-h-screen bg-background">
-      <SEO title={settings.site_title || "Platform Streaming Video Terdepan"} description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."} keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia" type="website" />
+
+  // Check if ads should be displayed
+  const shouldShowAds = !adsLoading && 
+    adsSettings.ads_enabled && 
+    ((!user && adsSettings.show_ads_to_guests) || (user && adsSettings.show_ads_to_users));
+
+  return (
+    <div className="min-h-screen bg-background">
+      <SEO 
+        title={settings.site_title || "Platform Streaming Video Terdepan"} 
+        description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."} 
+        keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia" 
+        type="website" 
+      />
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
         <div className="my-0 py-0 px-0 mx-0">
-          {!user && <>
+          {!user && (
+            <>
               {/* Category Filter for non-logged users - positioned above CTA */}
               <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
               
@@ -60,32 +73,40 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-            </>}
+            </>
+          )}
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
-          {/* Ad Banners - Tight columns on desktop, stacked on mobile */}
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
-              <div className="w-full md:w-1/2">
-                <AdContainer position="content" size="banner" placeholder={true} />
+          {/* Ad Banners - Only show if ads are enabled */}
+          {shouldShowAds && (
+            <div className="container mx-auto">
+              <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="content" size="banner" placeholder={true} />
+                </div>
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="content" size="banner" placeholder={true} />
+                </div>
               </div>
-              <div className="w-full md:w-1/2">
-                <AdContainer position="content" size="banner" placeholder={true} />
+              <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="content" size="banner" placeholder={true} />
+                </div>
+                <div className="w-full md:w-1/2">
+                  <AdContainer position="content" size="banner" placeholder={true} />
+                </div>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
-              <div className="w-full md:w-1/2">
-                <AdContainer position="content" size="banner" placeholder={true} />
-              </div>
-              <div className="w-full md:w-1/2">
-                <AdContainer position="content" size="banner" placeholder={true} />
-              </div>
-            </div>
-          </div>
+          )}
           
           {/* Video Grid - Full Width */}
-          <VideoGrid title={getVideoGridTitle()} selectedHashtagId={selectedHashtagId} selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />
+          <VideoGrid 
+            title={getVideoGridTitle()} 
+            selectedHashtagId={selectedHashtagId} 
+            selectedCategoryId={selectedCategoryId} 
+            searchQuery={searchQuery} 
+          />
           
           {/* Hashtag Filter */}
           <HashtagFilter selectedHashtagId={selectedHashtagId} onHashtagChange={setSelectedHashtagId} />
@@ -121,6 +142,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
