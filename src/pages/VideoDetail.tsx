@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
 import CommentsSection from "@/components/CommentsSection";
 import { AdContainer } from "@/components/ads/AdContainer";
+import { useAds } from "@/hooks/useAds";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -22,6 +23,7 @@ const VideoDetail = () => {
   const { user } = useAuth();
   const { updateTaskProgress } = useDailyTasks();
   const { toast } = useToast();
+  const { settings: adsSettings, isLoading: adsLoading } = useAds();
   const [video, setVideo] = useState<any>(null);
   const [relatedVideos, setRelatedVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +34,11 @@ const VideoDetail = () => {
   const [isSubscribeLoading, setIsSubscribeLoading] = useState(false);
   const [videoHashtags, setVideoHashtags] = useState<any[]>([]);
   const [showFullDescription, setShowFullDescription] = useState(false);
+
+  // Check if ads should be displayed
+  const shouldShowAds = !adsLoading && 
+    adsSettings.ads_enabled && 
+    ((!user && adsSettings.show_ads_to_guests) || (user && adsSettings.show_ads_to_users));
 
   useEffect(() => {
     loadVideoData();
@@ -443,19 +450,27 @@ const VideoDetail = () => {
       />
       <Header />
       
-      {/* Mobile Sponsored Content Ad - Fixed Top Right */}
-      <div className="lg:hidden fixed top-20 right-4 z-40">
-        <AdContainer 
-          position="content" 
-          size="banner" 
-          placeholder={true} 
-          adIndex={0}
-          className="bg-card/90 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg p-2"
-        />
-        <div className="text-center mt-1">
-          <span className="text-xs text-muted-foreground">Sponsored Content</span>
+      {/* Ad Banners - Only show if ads are enabled */}
+      {shouldShowAds && (
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+            <div className="w-full md:w-1/2">
+              <AdContainer position="banner" size="banner" placeholder={false} adIndex={0} />
+            </div>
+            <div className="w-full md:w-1/2">
+              <AdContainer position="banner" size="banner" placeholder={false} adIndex={1} />
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+            <div className="w-full md:w-1/2">
+              <AdContainer position="banner" size="banner" placeholder={false} adIndex={2} />
+            </div>
+            <div className="w-full md:w-1/2">
+              <AdContainer position="banner" size="banner" placeholder={false} adIndex={3} />
+            </div>
+          </div>
         </div>
-      </div>
+      )}
       
       <main className="pt-20">
         <div className="container mx-auto px-4 py-8">
