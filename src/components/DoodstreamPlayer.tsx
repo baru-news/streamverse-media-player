@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Play, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useWatchTime } from "@/hooks/useWatchTime";
 
 interface DoodstreamPlayerProps {
   fileCode: string;
   title?: string;
+  videoId?: string;
   width?: number;
   height?: number;
   autoplay?: boolean;
@@ -14,7 +16,8 @@ interface DoodstreamPlayerProps {
 
 const DoodstreamPlayer = ({ 
   fileCode, 
-  title, 
+  title,
+  videoId,
   width = 800, 
   height = 450, 
   autoplay = false,
@@ -23,6 +26,7 @@ const DoodstreamPlayer = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
+  const { watchTime, formatWatchTime, isTracking } = useWatchTime(videoId);
 
   const embedUrl = `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
   const directUrl = `https://dood.re/d/${fileCode}`;
@@ -155,6 +159,11 @@ const DoodstreamPlayer = ({
                 <span className="text-white text-sm font-medium">
                   Streaming dari Doodstream
                 </span>
+                {isTracking && (
+                  <span className="text-xs text-yellow-400">
+                    Watch time: {formatWatchTime(watchTime)}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button 

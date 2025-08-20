@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, User, LogOut, Shield, X, Menu, Heart } from "lucide-react";
+import { Search, User, LogOut, Shield, X, Menu, Heart, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { CoinDisplay } from "@/components/CoinDisplay";
+import { BadgeStore } from "@/components/BadgeStore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DailyTasksCard } from "@/components/DailyTasksCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,42 +106,60 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-3">
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <User className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-popover/95 backdrop-blur-md">
-                  <DropdownMenuItem asChild>
-                    <div className="flex flex-col items-start px-2 py-1">
-                      <span className="text-sm font-medium">{user.email}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {isAdmin ? "Administrator" : "User"}
-                      </span>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/favorites" className="flex items-center">
-                      <Heart className="mr-2 h-4 w-4" />
-                      <span>Favorit Saya</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  {isAdmin && (
+              <>
+                <CoinDisplay />
+                <BadgeStore />
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <Target className="w-4 h-4" />
+                      Tasks
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Daily Tasks</DialogTitle>
+                    </DialogHeader>
+                    <DailyTasksCard />
+                  </DialogContent>
+                </Dialog>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-popover/95 backdrop-blur-md">
                     <DropdownMenuItem asChild>
-                      <Link to="/admin/upload" className="flex items-center">
-                        <Shield className="mr-2 h-4 w-4" />
-                        <span>Admin Dashboard</span>
+                      <div className="flex flex-col items-start px-2 py-1">
+                        <span className="text-sm font-medium">{user.email}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {isAdmin ? "Administrator" : "User"}
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/favorites" className="flex items-center">
+                        <Heart className="mr-2 h-4 w-4" />
+                        <span>Favorit Saya</span>
                       </Link>
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={signOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Keluar</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/upload" className="flex items-center">
+                          <Shield className="mr-2 h-4 w-4" />
+                          <span>Admin Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Keluar</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                 <Link to="/login">
@@ -203,6 +225,26 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                   <span className="text-xs text-muted-foreground">
                     {isAdmin ? "Administrator" : "User"}
                   </span>
+                  <div className="mt-2">
+                    <CoinDisplay />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <BadgeStore />
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="justify-start gap-2">
+                        <Target className="w-4 h-4" />
+                        Daily Tasks
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Daily Tasks</DialogTitle>
+                      </DialogHeader>
+                      <DailyTasksCard />
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 <Link 
                   to="/favorites" 

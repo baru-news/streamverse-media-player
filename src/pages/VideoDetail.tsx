@@ -445,6 +445,7 @@ const VideoDetail = () => {
               <DoodstreamPlayer 
                 fileCode={video.fileCode || "sample-file-code"} 
                 title={video.title}
+                videoId={video.id}
                 width={800}
                 height={450}
                 className="mb-6"
