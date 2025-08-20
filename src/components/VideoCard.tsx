@@ -41,7 +41,6 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
             loading="lazy"
             onLoad={() => {
               setImageLoaded(true);
-              console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);
             }}
             onError={(e) => {
               console.error(`Failed to load thumbnail: ${currentImageSrc}`);
@@ -50,18 +49,15 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
               if (currentSrc.includes('thumbnails') && fileCode) {
                 // Try snaps format as fallback
                 const newSrc = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
-                console.log(`Trying snaps format: ${newSrc}`);
                 setCurrentImageSrc(newSrc);
                 e.currentTarget.src = newSrc;
               } else if (currentSrc.includes('snaps') && fileCode) {
                 // Try splash format as final fallback
                 const newSrc = `https://img.doodcdn.io/splash/${fileCode}.jpg`;
-                console.log(`Trying splash format: ${newSrc}`);
                 setCurrentImageSrc(newSrc);
                 e.currentTarget.src = newSrc;
               } else if (!currentSrc.includes('placeholder.svg')) {
                 // Final fallback to placeholder
-                console.log('Using placeholder fallback');
                 setCurrentImageSrc('/placeholder.svg');
                 e.currentTarget.src = '/placeholder.svg';
                 setImageError(true);
