@@ -318,7 +318,7 @@ const BadgeStoreManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Badge Store Management</h2>
+          <h2 className="text-2xl font-bold text-foreground">Badge Store Management</h2>
           <p className="text-muted-foreground">Kelola badge yang tersedia di toko</p>
         </div>
         
@@ -549,7 +549,7 @@ const BadgeStoreManagement = () => {
                       </div>
                     )}
                     <div>
-                      <CardTitle className="text-lg text-white">{badge.name}</CardTitle>
+                      <CardTitle className="text-lg text-foreground">{badge.name}</CardTitle>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge 
                           variant="secondary" 
@@ -575,7 +575,7 @@ const BadgeStoreManagement = () => {
               
               <CardContent className="pt-0">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-lg font-semibold text-white">
+                  <div className="text-lg font-semibold text-foreground">
                     {badge.price_coins} coins
                   </div>
                 </div>

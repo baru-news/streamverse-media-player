@@ -65,7 +65,7 @@ const Register = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">D</span>
+              <span className="text-primary-foreground font-bold text-xl">D</span>
             </div>
             <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               DINO18
@@ -75,7 +75,7 @@ const Register = () => {
 
         <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-white">Bergabung dengan DINO18</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Bergabung dengan DINO18</CardTitle>
             <CardDescription className="text-muted-foreground">
               Buat akun baru dan mulai menikmati ribuan video berkualitas tinggi
             </CardDescription>
@@ -85,7 +85,7 @@ const Register = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-white">Username</Label>
+                <Label htmlFor="username" className="text-foreground">Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
@@ -103,7 +103,7 @@ const Register = () => {
 
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email</Label>
+                <Label htmlFor="email" className="text-foreground">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
@@ -121,7 +121,7 @@ const Register = () => {
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Kata Sandi</Label>
+                <Label htmlFor="password" className="text-foreground">Kata Sandi</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
@@ -146,7 +146,7 @@ const Register = () => {
 
               {/* Confirm Password */}
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-white">Konfirmasi Kata Sandi</Label>
+                <Label htmlFor="confirmPassword" className="text-foreground">Konfirmasi Kata Sandi</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input

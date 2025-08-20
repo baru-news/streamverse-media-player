@@ -111,7 +111,7 @@ export const BadgeStore = () => {
           <ShoppingBag className="w-4 h-4" />
           Badge Store
           {coins && (
-            <Badge variant="secondary" className="ml-1 bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+            <Badge variant="secondary" className="ml-1 bg-yellow-500/20 text-foreground border-yellow-500/30">
               {coins.balance} coins
             </Badge>
           )}
@@ -199,7 +199,7 @@ export const BadgeStore = () => {
                             disabled={!canAfford(badge.price_coins) || purchasing === badge.badge_key}
                           >
                             {purchasing === badge.badge_key ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
                             ) : null}
                             {canAfford(badge.price_coins) ? 'Purchase' : 'Not enough coins'}
                           </Button>

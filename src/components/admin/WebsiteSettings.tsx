@@ -70,14 +70,14 @@ const WebsiteSettings = () => {
       {/* Basic Website Information */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Globe className="w-5 h-5" />
             Informasi Website
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="site_title" className="text-white">Judul Website</Label>
+            <Label htmlFor="site_title" className="text-foreground">Judul Website</Label>
             <Input
               id="site_title"
               value={currentSettings.site_title || ''}
@@ -91,7 +91,7 @@ const WebsiteSettings = () => {
           </div>
 
           <div>
-            <Label htmlFor="site_description" className="text-white">Deskripsi Website</Label>
+            <Label htmlFor="site_description" className="text-foreground">Deskripsi Website</Label>
             <Textarea
               id="site_description"
               value={currentSettings.site_description || ''}
@@ -110,14 +110,14 @@ const WebsiteSettings = () => {
       {/* Hero Section Settings */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <FileText className="w-5 h-5" />
             Bagian Hero
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="hero_title" className="text-white">Judul Hero</Label>
+            <Label htmlFor="hero_title" className="text-foreground">Judul Hero</Label>
             <Input
               id="hero_title"
               value={currentSettings.hero_title || ''}
@@ -128,7 +128,7 @@ const WebsiteSettings = () => {
           </div>
 
           <div>
-            <Label htmlFor="hero_description" className="text-white">Deskripsi Hero</Label>
+            <Label htmlFor="hero_description" className="text-foreground">Deskripsi Hero</Label>
             <Textarea
               id="hero_description"
               value={currentSettings.hero_description || ''}
@@ -144,14 +144,14 @@ const WebsiteSettings = () => {
       {/* SEO & Analytics */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Search className="w-5 h-5" />
             SEO & Analytics
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="google_verification_code" className="text-white">Google Search Console Verification Code</Label>
+            <Label htmlFor="google_verification_code" className="text-foreground">Google Search Console Verification Code</Label>
             <Input
               id="google_verification_code"
               value={currentSettings.google_verification_code || ''}
@@ -165,7 +165,7 @@ const WebsiteSettings = () => {
           </div>
 
           <div>
-            <Label htmlFor="meta_keywords" className="text-white">Meta Keywords</Label>
+            <Label htmlFor="meta_keywords" className="text-foreground">Meta Keywords</Label>
             <Textarea
               id="meta_keywords"
               value={currentSettings.meta_keywords || ''}
@@ -184,7 +184,7 @@ const WebsiteSettings = () => {
       {/* Logo and Favicon */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Image className="w-5 h-5" />
             Logo dan Favicon
           </CardTitle>
@@ -192,7 +192,7 @@ const WebsiteSettings = () => {
         <CardContent className="space-y-6">
           {/* Favicon URL */}
           <div>
-            <Label htmlFor="favicon_url" className="text-white mb-2 block">URL Favicon</Label>
+            <Label htmlFor="favicon_url" className="text-foreground mb-2 block">URL Favicon</Label>
             <div className="flex items-center gap-4">
               {currentSettings.favicon_url && (
                 <img 
@@ -218,7 +218,7 @@ const WebsiteSettings = () => {
 
           {/* Logo URL */}
           <div>
-            <Label htmlFor="site_logo_url" className="text-white mb-2 block">URL Logo Website</Label>
+            <Label htmlFor="site_logo_url" className="text-foreground mb-2 block">URL Logo Website</Label>
             <div className="flex items-center gap-4">
               {currentSettings.site_logo_url && (
                 <img 

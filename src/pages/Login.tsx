@@ -45,7 +45,7 @@ const Login = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">D</span>
+              <span className="text-primary-foreground font-bold text-xl">D</span>
             </div>
             <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               DINO18
@@ -55,7 +55,7 @@ const Login = () => {
 
         <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-white">Masuk ke Akun Anda</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Masuk ke Akun Anda</CardTitle>
             <CardDescription className="text-muted-foreground">
               Masukkan email dan kata sandi untuk mengakses akun DINO18 Anda
             </CardDescription>
@@ -65,7 +65,7 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email</Label>
+                <Label htmlFor="email" className="text-foreground">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
@@ -82,7 +82,7 @@ const Login = () => {
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Kata Sandi</Label>
+                <Label htmlFor="password" className="text-foreground">Kata Sandi</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input

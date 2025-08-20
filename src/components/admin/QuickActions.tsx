@@ -141,7 +141,7 @@ const QuickActions = () => {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4 text-center">
               <Video className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{stats.totalVideos}</div>
+              <div className="text-2xl font-bold text-foreground">{stats.totalVideos}</div>
               <div className="text-xs text-muted-foreground">Total Video</div>
             </CardContent>
           </Card>
@@ -149,7 +149,7 @@ const QuickActions = () => {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4 text-center">
               <Activity className="w-6 h-6 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">${stats.balance}</div>
+              <div className="text-2xl font-bold text-foreground">${stats.balance}</div>
               <div className="text-xs text-muted-foreground">Balance</div>
             </CardContent>
           </Card>
@@ -157,7 +157,7 @@ const QuickActions = () => {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4 text-center">
               <Download className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{stats.storageUsed}</div>
+              <div className="text-2xl font-bold text-foreground">{stats.storageUsed}</div>
               <div className="text-xs text-muted-foreground">Storage Used</div>
             </CardContent>
           </Card>
@@ -165,7 +165,7 @@ const QuickActions = () => {
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4 text-center">
               <Upload className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{stats.storageLeft}</div>
+              <div className="text-2xl font-bold text-foreground">{stats.storageLeft}</div>
               <div className="text-xs text-muted-foreground">Storage Left</div>
             </CardContent>
           </Card>
@@ -175,7 +175,7 @@ const QuickActions = () => {
       {/* Quick Actions Grid */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
             Quick Actions
           </CardTitle>
@@ -197,7 +197,7 @@ const QuickActions = () => {
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-white">{action.title}</div>
+                      <div className="font-medium text-foreground">{action.title}</div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {action.description}
                       </div>
@@ -218,7 +218,7 @@ const QuickActions = () => {
       {/* Recent Activity */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Activity className="w-5 h-5" />
             Aktivitas Terbaru
           </CardTitle>

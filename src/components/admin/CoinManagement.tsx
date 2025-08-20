@@ -171,7 +171,7 @@ const CoinManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Coin Management</h2>
+          <h2 className="text-2xl font-bold text-foreground">Coin Management</h2>
           <p className="text-muted-foreground">Kelola coin pengguna dan lihat statistik coin</p>
         </div>
       </div>
@@ -180,7 +180,7 @@ const CoinManagement = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Total Coins in System</CardTitle>
+            <CardTitle className="text-sm font-medium text-foreground">Total Coins in System</CardTitle>
             <Coins className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
@@ -191,7 +191,7 @@ const CoinManagement = () => {
 
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Total Earned</CardTitle>
+            <CardTitle className="text-sm font-medium text-foreground">Total Earned</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -202,7 +202,7 @@ const CoinManagement = () => {
 
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Total Spent</CardTitle>
+            <CardTitle className="text-sm font-medium text-foreground">Total Spent</CardTitle>
             <TrendingDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
@@ -215,7 +215,7 @@ const CoinManagement = () => {
       {/* Search */}
       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-white">Search Users</CardTitle>
+          <CardTitle className="text-foreground">Search Users</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="relative">
@@ -246,7 +246,7 @@ const CoinManagement = () => {
                   
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-white">
+                      <h3 className="font-semibold text-foreground">
                         {user.profiles?.username || 'Anonymous User'}
                       </h3>
                       <Badge variant="outline" className="text-xs">

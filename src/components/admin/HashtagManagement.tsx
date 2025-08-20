@@ -219,7 +219,7 @@ const HashtagManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Hash className="w-6 h-6" />
             Kelola Hashtag
           </h2>
@@ -242,12 +242,12 @@ const HashtagManagement = () => {
       {isCreating && (
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle className="text-white">Buat Hashtag Baru</CardTitle>
+            <CardTitle className="text-foreground">Buat Hashtag Baru</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="new-name" className="text-white">
+                <Label htmlFor="new-name" className="text-foreground">
                   Nama Hashtag
                 </Label>
                 <Input
@@ -259,7 +259,7 @@ const HashtagManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="new-color" className="text-white">
+                <Label htmlFor="new-color" className="text-foreground">
                   Warna
                 </Label>
                 <div className="flex gap-2">
@@ -280,7 +280,7 @@ const HashtagManagement = () => {
               </div>
             </div>
             <div>
-              <Label htmlFor="new-description" className="text-white">
+              <Label htmlFor="new-description" className="text-foreground">
                 Deskripsi (Opsional)
               </Label>
               <Textarea
@@ -325,7 +325,7 @@ const HashtagManagement = () => {
               {editingId === hashtag.id ? (
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-white">Nama</Label>
+                    <Label className="text-foreground">Nama</Label>
                     <Input
                       value={editForm.name}
                       onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
@@ -333,7 +333,7 @@ const HashtagManagement = () => {
                     />
                   </div>
                   <div>
-                    <Label className="text-white">Warna</Label>
+                    <Label className="text-foreground">Warna</Label>
                     <div className="flex gap-2">
                       <Input
                         type="color"
@@ -349,7 +349,7 @@ const HashtagManagement = () => {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-white">Deskripsi</Label>
+                    <Label className="text-foreground">Deskripsi</Label>
                     <Textarea
                       value={editForm.description}
                       onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
@@ -440,7 +440,7 @@ const HashtagManagement = () => {
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="py-12 text-center">
             <Hash className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-white font-medium mb-2">Belum ada hashtag</p>
+            <p className="text-foreground font-medium mb-2">Belum ada hashtag</p>
             <p className="text-muted-foreground">
               Buat hashtag pertama untuk mengorganisir video Anda
             </p>
