@@ -10,12 +10,14 @@ import HashtagFilter from "@/components/HashtagFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
 import { AdContainer } from "@/components/ads/AdContainer";
+import { Skeleton } from "@/components/ui/skeleton";
 const Index = () => {
   const {
     user
   } = useAuth();
   const {
-    settings
+    settings,
+    isLoading
   } = useWebsiteSettings();
   const {
     settings: adsSettings,
@@ -105,7 +107,12 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
-              {settings.site_logo_url ? (
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+              ) : settings.site_logo_url ? (
                 <img 
                   src={settings.site_logo_url} 
                   alt="Logo" 

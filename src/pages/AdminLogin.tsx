@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +15,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, user, isAdmin } = useAuth();
-  const { settings } = useWebsiteSettings();
+  const { settings, isLoading } = useWebsiteSettings();
 
   // Redirect if already logged in as admin
   if (user && isAdmin) {
@@ -46,7 +47,12 @@ const AdminLogin = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            {settings.site_logo_url ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-12 w-12 rounded-lg" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+            ) : settings.site_logo_url ? (
               <img 
                 src={settings.site_logo_url} 
                 alt="Logo" 

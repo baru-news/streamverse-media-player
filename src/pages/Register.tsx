@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +22,7 @@ const Register = () => {
     confirmPassword: ""
   });
   const { signUp, user } = useAuth();
-  const { settings } = useWebsiteSettings();
+  const { settings, isLoading } = useWebsiteSettings();
 
   // Redirect if already logged in
   if (user) {
@@ -66,7 +67,12 @@ const Register = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            {settings.site_logo_url ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-12 w-12 rounded-lg" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+            ) : settings.site_logo_url ? (
               <img 
                 src={settings.site_logo_url} 
                 alt="Logo" 

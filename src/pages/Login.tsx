@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/hooks/useAuth";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import SEO from "@/components/SEO";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, user } = useAuth();
-  const { settings } = useWebsiteSettings();
+  const { settings, isLoading } = useWebsiteSettings();
 
   // Redirect if already logged in
   if (user) {
@@ -46,7 +47,12 @@ const Login = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            {settings.site_logo_url ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-12 w-12 rounded-lg" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+            ) : settings.site_logo_url ? (
               <img 
                 src={settings.site_logo_url} 
                 alt="Logo" 

@@ -12,6 +12,7 @@ import { BadgeStore } from "@/components/BadgeStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DailyTasksCard } from "@/components/DailyTasksCard";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +31,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
-  const { settings } = useWebsiteSettings();
+  const { settings, isLoading } = useWebsiteSettings();
 
   const searchQuery = externalSearchQuery ?? internalSearchQuery;
 
@@ -76,7 +77,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
 
           {/* Logo - Desktop left, Mobile center */}
           <Link to="/" className="flex items-center space-x-2 flex-shrink-0 md:flex-shrink-0">
-            {settings.site_logo_url ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-8 w-8 rounded-lg" />
+                <Skeleton className="h-6 w-20" />
+              </div>
+            ) : settings.site_logo_url ? (
               <img 
                 src={settings.site_logo_url} 
                 alt="Logo" 
