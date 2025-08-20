@@ -9,6 +9,7 @@ import DoodstreamPlayer from "@/components/DoodstreamPlayer";
 import FavoriteButton from "@/components/FavoriteButton";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { useAuth } from "@/hooks/useAuth";
+import { useDailyTasks } from "@/hooks/useDailyTasks";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
@@ -18,6 +19,7 @@ const VideoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { updateTaskProgress } = useDailyTasks();
   const { toast } = useToast();
   const [video, setVideo] = useState<any>(null);
   const [relatedVideos, setRelatedVideos] = useState<any[]>([]);
@@ -197,6 +199,10 @@ const VideoDetail = () => {
         
         setIsLiked(true);
         setLikesCount(prev => prev + 1);
+        
+        // Update daily task progress for liking a video
+        await updateTaskProgress('daily_like', 1);
+        
         toast({
           title: "Video Disukai!",
           description: "Terima kasih telah menyukai video ini",
