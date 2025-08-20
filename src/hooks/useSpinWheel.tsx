@@ -49,7 +49,7 @@ export const useSpinWheel = () => {
     }
   }, []);
 
-  // Check if user can spin today
+  // Check if user can spin (has kitty keys)
   const checkCanSpin = useCallback(async () => {
     if (!user) {
       setCanSpin(false);
@@ -57,14 +57,16 @@ export const useSpinWheel = () => {
     }
 
     try {
-      const { data, error } = await supabase.rpc('can_user_spin_today', {
-        user_id_param: user.id
-      });
+      const { data, error } = await supabase
+        .from('user_kitty_keys')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       if (error) throw error;
-      setCanSpin(data || false);
+      setCanSpin((data?.balance || 0) > 0);
     } catch (error) {
-      console.error('Error checking spin eligibility:', error);
+      console.error('Error checking kitty keys balance:', error);
       setCanSpin(false);
     }
   }, [user]);

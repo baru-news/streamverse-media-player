@@ -245,7 +245,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
       {disabled && (
         <div className="text-center bg-pink-50 border border-pink-200 rounded-lg p-4 max-w-sm">
           <p className="text-pink-700 text-base font-bold leading-relaxed">
-            🌸 Selesaikan semua tugas harian untuk membuka roda beruntung! 🌸
+            🗝️ Kumpulkan Kitty Key untuk memutar roda beruntung! 🌸
           </p>
         </div>
       )}
