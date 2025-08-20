@@ -57,7 +57,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50/30 via-background to-pink-100/20 flex items-center justify-center px-4 py-8">
       <SEO 
         title="Daftar Akun DINO18"
         description="Bergabung dengan DINO18 dan nikmati ribuan video streaming berkualitas tinggi secara gratis. Daftar sekarang untuk akses penuh ke platform streaming video terbaik."
@@ -91,7 +91,7 @@ const Register = () => {
           </Link>
         </div>
 
-        <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
+        <Card className="bg-pink-50/10 backdrop-blur-xl border-pink-200/30 shadow-xl shadow-pink-500/10">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-foreground">Bergabung dengan {settings.site_title || 'DINO18'}</CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -113,7 +113,7 @@ const Register = () => {
                     placeholder="Pilih username unik"
                     value={formData.username}
                     onChange={handleChange}
-                    className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
+                    className="pl-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
                   />
                 </div>
@@ -131,7 +131,7 @@ const Register = () => {
                     placeholder="nama@email.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
+                    className="pl-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
                   />
                 </div>
@@ -149,7 +149,7 @@ const Register = () => {
                     placeholder="Buat kata sandi yang kuat"
                     value={formData.password}
                     onChange={handleChange}
-                    className="pl-10 pr-10 bg-muted/30 border-muted focus:border-primary transition-colors"
+                    className="pl-10 pr-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
                   />
                   <button
@@ -174,7 +174,7 @@ const Register = () => {
                     placeholder="Ulangi kata sandi"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="pl-10 pr-10 bg-muted/30 border-muted focus:border-primary transition-colors"
+                    className="pl-10 pr-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
                   />
                   <button

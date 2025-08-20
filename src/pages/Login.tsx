@@ -37,7 +37,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50/30 via-background to-pink-100/20 flex items-center justify-center px-4">
       <SEO 
         title="Masuk ke Akun DINO18"
         description="Masuk ke akun DINO18 Anda untuk mengakses ribuan video streaming berkualitas tinggi. Platform streaming video terbaik dengan konten dari Doodstream."
@@ -71,7 +71,7 @@ const Login = () => {
           </Link>
         </div>
 
-        <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
+        <Card className="bg-pink-50/10 backdrop-blur-xl border-pink-200/30 shadow-xl shadow-pink-500/10">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-foreground">Masuk ke Akun Anda</CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -92,7 +92,7 @@ const Login = () => {
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
+                    className="pl-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
                   />
                 </div>
@@ -109,7 +109,7 @@ const Login = () => {
                     placeholder="Masukkan kata sandi"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-muted/30 border-muted focus:border-primary transition-colors"
+                    className="pl-10 pr-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
                   />
                   <button
