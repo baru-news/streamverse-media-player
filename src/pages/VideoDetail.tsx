@@ -503,9 +503,9 @@ const VideoDetail = () => {
             {/* Sidebar - Recommended Videos */}
             <div className="space-y-6">
               {/* Desktop Ad - Above Recommendations */}
-              <div className="hidden lg:block">
-                <AdContainer position="content" size="rectangle" placeholder={true} />
-              </div>
+              {shouldShowAds && <div className="hidden lg:block">
+                  <AdContainer position="content" size="rectangle" placeholder={false} adIndex={0} />
+                </div>}
               
               <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-1 h-6 bg-gradient-primary rounded-full" />
