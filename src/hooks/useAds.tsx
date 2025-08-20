@@ -177,11 +177,10 @@ export const useAds = () => {
     }
   };
 
-  const getActiveAds = (position?: string, size?: string) => {
+  const getActiveAds = (position?: string) => {
     return ads.filter(ad => {
       if (!ad.is_active) return false;
       if (position && ad.position !== position) return false;
-      if (size && ad.size !== size) return false;
       return true;
     });
   };

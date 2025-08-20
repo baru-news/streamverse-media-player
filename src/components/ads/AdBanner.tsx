@@ -18,22 +18,15 @@ interface AdBannerProps {
   ad?: Ad;
 }
 
-const adSizes = {
-  banner: { width: 728, height: 70 },
-  rectangle: { width: 300, height: 70 },
-  leaderboard: { width: 728, height: 70 },
-  skyscraper: { width: 160, height: 70 }
-};
-
-export const AdBanner: React.FC<AdBannerProps> = ({ 
+const AdBanner: React.FC<AdBannerProps> = ({ 
   className,
   placeholder = false,
   ad
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
-  // Default size based on ad data or fallback
-  const width = 300;
-  const height = 70;
+  // Responsive ad size
+  const width = ad ? 'auto' : 300;
+  const height = ad ? 'auto' : 70;
 
   useEffect(() => {
     if (!placeholder && !ad && adRef.current) {
@@ -53,14 +46,13 @@ export const AdBanner: React.FC<AdBannerProps> = ({
       <img 
         src={ad.image_url} 
         alt={ad.title}
-        className="w-full h-full object-cover"
+        className="w-full h-auto object-contain max-h-[70px]"
       />
     );
 
     return (
       <div 
-        className={cn("overflow-hidden rounded-lg cursor-pointer", className)}
-        style={{ width, height }}
+        className={cn("overflow-hidden rounded-lg cursor-pointer max-w-sm mx-auto", className)}
         onClick={() => ad.link_url && window.open(ad.link_url, '_blank')}
       >
         <AdContent />
@@ -72,14 +64,14 @@ export const AdBanner: React.FC<AdBannerProps> = ({
     return (
       <div 
         className={cn(
-          "bg-muted border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center text-muted-foreground text-sm",
+          "bg-muted border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center text-muted-foreground text-sm max-w-sm mx-auto",
           className
         )}
-        style={{ width, height }}
+        style={{ width: 300, height: 70 }}
       >
         <div className="text-center">
           <div className="font-medium">Sponsored Content</div>
-          <div className="text-xs opacity-60">{width} x {height}</div>
+          <div className="text-xs opacity-60">300 x 70</div>
         </div>
       </div>
     );
@@ -88,12 +80,12 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   return (
     <div 
       ref={adRef}
-      className={cn("overflow-hidden rounded-lg", className)}
-      style={{ width, height }}
+      className={cn("overflow-hidden rounded-lg max-w-sm mx-auto", className)}
+      style={{ width: 300, height: 70 }}
     >
       <ins
         className="adsbygoogle"
-        style={{ display: 'block', width, height }}
+        style={{ display: 'block', width: 300, height: 70 }}
         data-ad-client="ca-pub-xxxxxxxxxxxxxxxxxx" // Replace with your AdSense client ID
         data-ad-slot="xxxxxxxxxx" // Replace with your ad slot ID
         data-ad-format="auto"
@@ -102,3 +94,5 @@ export const AdBanner: React.FC<AdBannerProps> = ({
     </div>
   );
 };
+
+export { AdBanner };
