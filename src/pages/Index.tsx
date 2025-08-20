@@ -8,7 +8,6 @@ import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
-import AnimatedDino from "@/components/AnimatedDino";
 
 const Index = () => {
   const { user } = useAuth();
@@ -115,9 +114,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-      
-      {/* Animated Dino Character */}
-      <AnimatedDino />
     </div>
   );
 };
