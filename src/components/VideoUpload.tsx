@@ -129,7 +129,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
   return (
     <Card className="w-full max-w-2xl mx-auto bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2 text-foreground">
           <Video className="w-5 h-5" />
           Upload Video ke Doodstream
         </CardTitle>
@@ -140,7 +140,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
           // File Selection
           <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
             <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg font-medium text-white mb-2">
+            <p className="text-lg font-medium text-foreground mb-2">
               Pilih video untuk diunggah
             </p>
             <p className="text-muted-foreground mb-4">
@@ -167,7 +167,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               <div className="flex items-center gap-3">
                 <Video className="w-8 h-8 text-primary" />
                 <div className="flex-1">
-                  <p className="font-medium text-white">{file.name}</p>
+                  <p className="font-medium text-foreground">{file.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {(file.size / (1024 * 1024)).toFixed(1)} MB
                   </p>
@@ -185,7 +185,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
 
             {/* Title Input */}
             <div className="space-y-2">
-              <Label htmlFor="video-title" className="text-white">
+              <Label htmlFor="video-title" className="text-foreground">
                 Judul Video
               </Label>
               <Input
@@ -202,7 +202,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
             {isUploading && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-white">Mengupload...</span>
+                  <span className="text-foreground">Mengupload...</span>
                   <span className="text-muted-foreground">{uploadProgress}%</span>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
@@ -264,7 +264,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
 
         {/* Info */}
         <div className="bg-muted/20 p-4 rounded-lg">
-          <h4 className="font-medium text-white mb-2">Informasi Upload</h4>
+          <h4 className="font-medium text-foreground mb-2">Informasi Upload</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>• Video akan diproses otomatis setelah upload</li>
             <li>• Embed link akan tersedia setelah pemrosesan selesai</li>

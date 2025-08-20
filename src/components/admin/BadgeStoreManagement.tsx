@@ -591,13 +591,14 @@ const BadgeStoreManagement = () => {
                     Edit
                   </Button>
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleActive(badge.id, badge.is_active)}
-                  >
-                    <Switch checked={badge.is_active} className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      checked={badge.is_active} 
+                      onCheckedChange={(checked) => toggleActive(badge.id, !badge.is_active)}
+                      className="w-4 h-4" 
+                    />
+                    <Label className="text-xs">Active</Label>
+                  </div>
                   
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

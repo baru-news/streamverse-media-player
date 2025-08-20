@@ -45,7 +45,7 @@ const AdminLogin = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">D</span>
+              <span className="text-primary-foreground font-bold text-xl">D</span>
             </div>
             <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               DINO18
@@ -57,10 +57,10 @@ const AdminLogin = () => {
           <CardHeader className="space-y-1 text-center">
             <div className="flex items-center justify-center mb-4">
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-white" />
+                <Shield className="w-8 h-8 text-primary-foreground" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-white">Admin Login</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Admin Login</CardTitle>
             <CardDescription className="text-muted-foreground">
               Masuk sebagai administrator untuk mengelola website DINO18
             </CardDescription>
@@ -70,7 +70,7 @@ const AdminLogin = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email Admin</Label>
+                <Label htmlFor="email" className="text-foreground">Email Admin</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
@@ -87,7 +87,7 @@ const AdminLogin = () => {
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Kata Sandi Admin</Label>
+                <Label htmlFor="password" className="text-foreground">Kata Sandi Admin</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input

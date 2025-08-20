@@ -30,7 +30,7 @@ const AdminUpload = () => {
                 Kembali
               </Button>
             </Link>
-            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6" id="admin-tabs">
@@ -118,7 +118,7 @@ const AdminUpload = () => {
             <TabsContent value="settings">
               <div className="space-y-6">
                 <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6">
-                  <h3 className="text-white text-lg font-semibold mb-4">Informasi Akun Doodstream</h3>
+                  <h3 className="text-foreground text-lg font-semibold mb-4">Informasi Akun Doodstream</h3>
                   
                   <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg">
                     <h4 className="font-medium text-yellow-300 mb-2">⚠️ Konfigurasi Diperlukan</h4>

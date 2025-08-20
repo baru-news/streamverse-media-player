@@ -127,7 +127,7 @@ const VideoHashtagSelector = ({
   if (isLoading) {
     return (
       <div className={`space-y-3 ${className}`}>
-        <Label className="text-white">Hashtag Video</Label>
+        <Label className="text-foreground">Hashtag Video</Label>
         <div className="animate-pulse">
           <div className="h-4 bg-muted/50 rounded mb-2"></div>
           <div className="flex gap-2">
@@ -145,7 +145,7 @@ const VideoHashtagSelector = ({
   return (
     <div className={`space-y-3 ${className}`}>
       <div className="flex items-center justify-between">
-        <Label className="text-white flex items-center gap-2">
+        <Label className="text-foreground flex items-center gap-2">
           <Hash className="w-4 h-4" />
           Hashtag Video
         </Label>
