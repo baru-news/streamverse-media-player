@@ -62,12 +62,9 @@ const DoodstreamPlayer = ({
                 <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Play className="w-8 h-8 text-primary ml-1" />
                 </div>
-                <h3 className="text-white font-medium mb-2">
+                <h3 className="text-white font-medium mb-4">
                   {title || 'Video Player'}
                 </h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Klik untuk memuat video dari Doodstream
-                </p>
                 <div className="space-y-2">
                   <Button 
                     onClick={handleLoadPlayer}
