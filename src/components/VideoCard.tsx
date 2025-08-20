@@ -86,26 +86,22 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode }:
         </div>
 
         {/* Content */}
-        <div className="p-3 flex-1 flex flex-col min-h-[100px]">
-          <div className="flex-1 mb-3">
+        <div className="p-3 flex-1 flex flex-col">
+          <div className="mb-3">
             <div className="relative">
-              <h3 className="text-white font-medium text-sm leading-tight group-hover:text-primary transition-colors duration-200">
-                {(() => {
-                  const maxLength = 60;
-                  if (title.length <= maxLength) return title;
-                  
-                  const truncatedTitle = title.substring(0, maxLength) + "...";
-                  return showFullTitle ? title : truncatedTitle;
-                })()}
+              <h3 className={`text-white font-medium text-sm leading-relaxed group-hover:text-primary transition-colors duration-200 ${
+                showFullTitle ? '' : 'line-clamp-2'
+              }`}>
+                {title}
               </h3>
-              {title.length > 60 && (
+              {title.length > 50 && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowFullTitle(!showFullTitle);
                   }}
-                  className="text-primary hover:text-primary/80 transition-colors text-xs mt-1 flex items-center gap-1"
+                  className="text-primary hover:text-primary/80 transition-colors text-xs mt-1 flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md"
                 >
                   <MoreHorizontal className="w-3 h-3" />
                   {showFullTitle ? "Lebih sedikit" : "Selengkapnya"}
