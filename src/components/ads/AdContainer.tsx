@@ -17,7 +17,7 @@ export const AdContainer: React.FC<AdContainerProps> = ({
 }) => {
   const containerClasses = {
     header: "w-full flex justify-center py-4",
-    content: "w-full flex justify-center my-6",
+    content: "w-full flex justify-center",
     sidebar: "sticky top-4",
     footer: "w-full flex justify-center py-4"
   };
