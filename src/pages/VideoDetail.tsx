@@ -443,6 +443,20 @@ const VideoDetail = () => {
       />
       <Header />
       
+      {/* Mobile Sponsored Content Ad - Fixed Top Right */}
+      <div className="lg:hidden fixed top-20 right-4 z-40">
+        <AdContainer 
+          position="content" 
+          size="banner" 
+          placeholder={true} 
+          adIndex={0}
+          className="bg-card/90 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg p-2"
+        />
+        <div className="text-center mt-1">
+          <span className="text-xs text-muted-foreground">Sponsored Content</span>
+        </div>
+      </div>
+      
       <main className="pt-20">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
