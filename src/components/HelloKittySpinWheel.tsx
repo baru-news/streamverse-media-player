@@ -99,11 +99,11 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
         </div>
 
         {/* Spin Wheel */}
-        <div className="relative w-72 h-72">
+        <div className="relative w-80 h-80">
           <div
             ref={wheelRef}
             className={cn(
-              "w-full h-full rounded-full border-8 border-pink-400 relative overflow-hidden shadow-xl",
+              "w-full h-full rounded-full border-8 border-pink-400 relative shadow-xl",
               "transition-transform duration-4000 ease-out",
               spinning && "animate-spin-slow"
             )}
@@ -131,22 +131,27 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                   )}>
                     {/* Segment Content */}
                     <div 
-                      className="absolute top-4 left-1/2 transform -translate-x-1/2"
-                      style={{ transform: `rotate(${segmentAngle / 2}deg)` }}
+                      className="absolute top-8 left-1/2 transform -translate-x-1/2"
+                      style={{ 
+                        transform: `rotate(${segmentAngle / 2}deg)`,
+                        transformOrigin: 'center bottom'
+                      }}
                     >
                       <div className={cn(
-                        "text-center space-y-1",
+                        "text-center space-y-0.5 px-1 w-16",
                         getTextColor(reward.rarity)
                       )}>
-                        <div className="text-xs font-bold truncate w-16">
+                        <div className="text-[11px] font-bold leading-tight break-words hyphens-auto">
                           {reward.name}
                         </div>
-                        <div className="text-xs font-bold">
+                        <div className="text-[12px] font-bold leading-tight">
                           {reward.coin_amount}
-                          <span className="text-yellow-600"> 🪙</span>
+                        </div>
+                        <div className="text-[10px] leading-none">
+                          🪙
                         </div>
                         {/* Rarity indicator */}
-                        <div className="text-xs">
+                        <div className="text-[11px] leading-none">
                           {reward.rarity === 'legendary' && '👑'}
                           {reward.rarity === 'epic' && '⭐'}
                           {reward.rarity === 'rare' && '💎'}
@@ -160,8 +165,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             })}
 
             {/* Center Hello Kitty Face */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full border-4 border-pink-400 flex items-center justify-center shadow-lg">
-              <div className="text-2xl">🐱</div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full border-4 border-pink-400 flex items-center justify-center shadow-lg z-10">
+              <div className="text-3xl">🐱</div>
             </div>
           </div>
         </div>
