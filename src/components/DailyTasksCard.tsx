@@ -107,11 +107,11 @@ export const DailyTasksCard = () => {
           
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Progress hari ini</span>
-              <span>{Math.round(getProgressPercentage())}%</span>
+              <span>Task completion</span>
+              <span>{Math.round((completedCount / Math.max(totalCount, 1)) * 100)}%</span>
             </div>
             <Progress 
-              value={getProgressPercentage()} 
+              value={(completedCount / Math.max(totalCount, 1)) * 100} 
               className="h-1.5"
             />
           </div>
