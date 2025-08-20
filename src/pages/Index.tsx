@@ -9,14 +9,16 @@ import HashtagFilter from "@/components/HashtagFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
 import { AdContainer } from "@/components/ads/AdContainer";
-
 const Index = () => {
-  const { user } = useAuth();
-  const { settings } = useWebsiteSettings();
+  const {
+    user
+  } = useAuth();
+  const {
+    settings
+  } = useWebsiteSettings();
   const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-
   const getVideoGridTitle = () => {
     if (searchQuery.trim()) {
       return `Hasil pencarian: "${searchQuery}"`;
@@ -29,26 +31,15 @@ const Index = () => {
     }
     return "Video Terbaru";
   };
-  
-  return (
-    <div className="min-h-screen bg-background">
-      <SEO 
-        title={settings.site_title || "Platform Streaming Video Terdepan"}
-        description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."}
-        keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia"
-        type="website"
-      />
+  return <div className="min-h-screen bg-background">
+      <SEO title={settings.site_title || "Platform Streaming Video Terdepan"} description={settings.site_description || "Nikmati ribuan video berkualitas tinggi di DINO18. Film, dokumenter, komedi, dan konten edukasi dalam satu platform streaming modern dengan Doodstream."} keywords="streaming video, doodstream, video online, film streaming, hiburan online, DINO18, platform streaming indonesia" type="website" />
       <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
       
       <main>
-        <div className="space-y-8">
-          {!user && (
-            <>
+        <div className="space-y-8 my-0 py-0 px-0 mx-0">
+          {!user && <>
               {/* Category Filter for non-logged users - positioned above CTA */}
-              <CategoryFilter
-                selectedCategoryId={selectedCategoryId}
-                onCategoryChange={setSelectedCategoryId}
-              />
+              <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />
               
               <div className="container mx-auto px-4 py-16">
                 {/* Call to Action */}
@@ -69,36 +60,18 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            </>}
           
-          {user && (
-            <CategoryFilter
-              selectedCategoryId={selectedCategoryId}
-              onCategoryChange={setSelectedCategoryId}
-            />
-          )}
+          {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
           {/* Ad Banner - Between Categories and Videos */}
-          <AdContainer 
-            position="content" 
-            size="leaderboard" 
-            placeholder={true}
-          />
+          <AdContainer position="content" size="leaderboard" placeholder={true} />
           
           {/* Video Grid - Full Width */}
-          <VideoGrid 
-            title={getVideoGridTitle()}
-            selectedHashtagId={selectedHashtagId}
-            selectedCategoryId={selectedCategoryId}
-            searchQuery={searchQuery}
-          />
+          <VideoGrid title={getVideoGridTitle()} selectedHashtagId={selectedHashtagId} selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />
           
           {/* Hashtag Filter */}
-          <HashtagFilter
-            selectedHashtagId={selectedHashtagId}
-            onHashtagChange={setSelectedHashtagId}
-          />
+          <HashtagFilter selectedHashtagId={selectedHashtagId} onHashtagChange={setSelectedHashtagId} />
         </div>
       </main>
       
@@ -131,8 +104,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
