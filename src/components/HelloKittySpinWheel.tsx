@@ -114,56 +114,48 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
           >
             {rewards.map((reward, index) => {
               const startAngle = index * segmentAngle;
-              const midAngle = startAngle + (segmentAngle / 2);
-              const radians = (midAngle * Math.PI) / 180;
-              
-              // Calculate text position - smaller radius to stay within wheel bounds
-              const radius = 55; // Optimized for 320px wheel (w-80)
-              const x = Math.cos(radians - Math.PI / 2) * radius;
-              const y = Math.sin(radians - Math.PI / 2) * radius;
               
               return (
-                <div key={reward.id}>
-                  {/* Segment background */}
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      transform: `rotate(${startAngle}deg)`,
-                      clipPath: `polygon(50% 50%, 50% 0%, ${50 + Math.tan((segmentAngle * Math.PI) / 360) * 50}% 0%)`
-                    }}
-                  >
-                    <div className={cn(
-                      "w-full h-full bg-gradient-to-r",
-                      getRarityColor(reward.rarity)
-                    )}></div>
-                  </div>
-                  
-                  {/* Text positioned absolutely within wheel bounds */}
-                  <div 
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
-                    style={{
-                      left: `calc(50% + ${x}px)`,
-                      top: `calc(50% + ${y}px)`,
-                    }}
-                  >
-                    <div className={cn(
-                      "text-center space-y-0.5 w-12",
-                      getTextColor(reward.rarity)
-                    )}>
-                      <div className="text-[10px] font-bold leading-tight break-words">
-                        {reward.name}
-                      </div>
-                      <div className="text-[11px] font-bold leading-tight">
-                        {reward.coin_amount}
-                      </div>
-                      <div className="text-[9px] leading-none">
-                        🪙
-                      </div>
-                      <div className="text-[9px] leading-none">
-                        {reward.rarity === 'legendary' && '👑'}
-                        {reward.rarity === 'epic' && '⭐'}
-                        {reward.rarity === 'rare' && '💎'}
-                        {reward.rarity === 'common' && '🌸'}
+                <div
+                  key={reward.id}
+                  className="absolute inset-0"
+                  style={{
+                    transform: `rotate(${startAngle}deg)`,
+                    clipPath: `polygon(50% 50%, 50% 0%, ${50 + Math.tan((segmentAngle * Math.PI) / 360) * 50}% 0%)`
+                  }}
+                >
+                  <div className={cn(
+                    "w-full h-full bg-gradient-to-r relative",
+                    getRarityColor(reward.rarity)
+                  )}>
+                    {/* Segment Content - text following wheel curve */}
+                    <div 
+                      className="absolute top-8 left-1/2 transform -translate-x-1/2"
+                      style={{ 
+                        transform: `rotate(${segmentAngle / 2}deg)`,
+                        transformOrigin: 'center bottom'
+                      }}
+                    >
+                      <div className={cn(
+                        "text-center space-y-1 px-2 w-20",
+                        getTextColor(reward.rarity)
+                      )}>
+                        <div className="text-sm font-bold leading-tight break-words">
+                          {reward.name}
+                        </div>
+                        <div className="text-base font-bold leading-tight">
+                          {reward.coin_amount}
+                        </div>
+                        <div className="text-sm leading-none">
+                          🪙
+                        </div>
+                        {/* Rarity indicator */}
+                        <div className="text-sm leading-none">
+                          {reward.rarity === 'legendary' && '👑'}
+                          {reward.rarity === 'epic' && '⭐'}
+                          {reward.rarity === 'rare' && '💎'}
+                          {reward.rarity === 'common' && '🌸'}
+                        </div>
                       </div>
                     </div>
                   </div>
