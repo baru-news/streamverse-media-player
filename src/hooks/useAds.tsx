@@ -76,6 +76,8 @@ export const useAds = () => {
         .upsert({
           setting_key: key,
           setting_value: value.toString(),
+        }, {
+          onConflict: 'setting_key'
         });
 
       if (error) throw error;
