@@ -478,9 +478,11 @@ const VideoDetail = () => {
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Mobile Ad - Above Video Player */}
-              <div className="lg:hidden mb-4">
-                <AdContainer position="content" size="banner" placeholder={true} />
-              </div>
+              {shouldShowAds && (
+                <div className="lg:hidden mb-4">
+                  <AdContainer position="content" size="banner" placeholder={false} adIndex={4} />
+                </div>
+              )}
               
               {/* Video Player - Doodstream Integration */}
               <DoodstreamPlayer
