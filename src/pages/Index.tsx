@@ -99,6 +99,19 @@ const Index = () => {
           
           {/* Hashtag Filter */}
           <HashtagFilter selectedHashtagId={selectedHashtagId} onHashtagChange={setSelectedHashtagId} />
+          
+          {/* Disclaimer */}
+          <div className="container mx-auto px-4 py-6">
+            <div className="text-center text-sm text-muted-foreground bg-muted/30 rounded-lg p-4 border border-border/40">
+              <p>
+                Disclaimer: I don't own any content here. If you need a video removed or credited please contact me{" "}
+                <Link to="/contact" className="text-primary hover:underline font-medium">
+                  here
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
         </div>
       </main>
       
