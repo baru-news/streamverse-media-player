@@ -151,20 +151,28 @@ export const useSpinWheel = () => {
         throw new Error('Failed to spend kitty key');
       }
 
-      // Update user coins
-      const { error: coinsError } = await supabase
+      // Update user coins with safer approach
+      const { data: existingCoins } = await supabase
         .from('user_coins')
-        .upsert({
-          user_id: user.id,
-          balance: 0, // Will be updated by the database
-          total_earned: 0 // Will be updated by the database
-        })
-        .select()
+        .select('balance, total_earned')
+        .eq('user_id', user.id)
         .single();
 
-      if (coinsError) {
-        // If user doesn't have coins record, create one
-        const { error: createError } = await supabase
+      if (existingCoins) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('user_coins')
+          .update({
+            balance: existingCoins.balance + selectedReward.coin_amount,
+            total_earned: existingCoins.total_earned + selectedReward.coin_amount,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new record for new user
+        const { error: insertError } = await supabase
           .from('user_coins')
           .insert({
             user_id: user.id,
@@ -172,24 +180,7 @@ export const useSpinWheel = () => {
             total_earned: selectedReward.coin_amount
           });
 
-        if (createError) throw createError;
-      } else {
-        // Update existing record manually
-        const { data: currentCoins } = await supabase
-          .from('user_coins')
-          .select('balance, total_earned')
-          .eq('user_id', user.id)
-          .single();
-
-        if (currentCoins) {
-          await supabase
-            .from('user_coins')
-            .update({
-              balance: currentCoins.balance + selectedReward.coin_amount,
-              total_earned: currentCoins.total_earned + selectedReward.coin_amount
-            })
-            .eq('user_id', user.id);
-        }
+        if (insertError) throw insertError;
       }
 
       // Refresh data
