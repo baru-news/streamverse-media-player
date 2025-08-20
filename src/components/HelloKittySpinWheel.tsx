@@ -77,12 +77,6 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
   return (
     <div className="flex flex-col items-center space-y-6">
-      {/* Hello Kitty Decorations */}
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-pink-600">🎀 Hello Kitty Lucky Wheel 🎀</h2>
-        <p className="text-pink-500 text-sm">Spin for magical rewards! ✨</p>
-      </div>
-
       {/* Wheel Container */}
       <div className="relative w-80 h-80 mx-auto">
         {/* Decorative Hearts */}
