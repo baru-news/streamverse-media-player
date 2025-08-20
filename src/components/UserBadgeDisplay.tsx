@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useBadges } from '@/hooks/useBadges';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 interface UserBadgeDisplayProps {
@@ -17,21 +17,44 @@ interface BadgeData {
 }
 
 export const UserBadgeDisplay = ({ userId, className, showTooltip = true }: UserBadgeDisplayProps) => {
-  const { getUserActiveBadge, getRarityColor } = useBadges();
   const [badge, setBadge] = useState<BadgeData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBadge = async () => {
       try {
-        const activeBadge = await getUserActiveBadge(userId);
-        setBadge(activeBadge ? {
-          icon: activeBadge.icon,
-          name: activeBadge.name,
-          rarity: activeBadge.rarity,
-          color: activeBadge.color,
-          image_url: activeBadge.image_url
-        } : null);
+        // Direct database query that works for anonymous users
+        const { data: userBadge, error: userBadgeError } = await supabase
+          .from('user_badges')
+          .select('badge_key')
+          .eq('user_id', userId)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (userBadgeError || !userBadge) {
+          setBadge(null);
+          return;
+        }
+
+        const { data: badgeStore, error: badgeError } = await supabase
+          .from('badge_store')
+          .select('*')
+          .eq('badge_key', userBadge.badge_key)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (badgeError || !badgeStore) {
+          setBadge(null);
+          return;
+        }
+
+        setBadge({
+          icon: badgeStore.icon,
+          name: badgeStore.name,
+          rarity: badgeStore.rarity,
+          color: badgeStore.color,
+          image_url: badgeStore.image_url
+        });
       } catch (error) {
         console.error('Error fetching user badge:', error);
         setBadge(null);
@@ -41,7 +64,17 @@ export const UserBadgeDisplay = ({ userId, className, showTooltip = true }: User
     };
 
     fetchBadge();
-  }, [userId, getUserActiveBadge]);
+  }, [userId]);
+
+  const getRarityColor = (rarity: string) => {
+    switch (rarity) {
+      case 'common': return 'text-green-500';
+      case 'rare': return 'text-blue-500';
+      case 'epic': return 'text-purple-500';
+      case 'legendary': return 'text-yellow-500';
+      default: return 'text-gray-500';
+    }
+  };
 
   if (loading) {
     return (
