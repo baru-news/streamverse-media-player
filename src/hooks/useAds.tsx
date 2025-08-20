@@ -153,6 +153,30 @@ export const useAds = () => {
     }
   };
 
+  const uploadAdImage = async (file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `ads/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('ads')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('ads')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading ad image:', error);
+      toast.error('Gagal mengupload gambar');
+      throw error;
+    }
+  };
+
   const getActiveAds = (position?: string, size?: string) => {
     return ads.filter(ad => {
       if (!ad.is_active) return false;
@@ -183,5 +207,6 @@ export const useAds = () => {
     updateAd,
     deleteAd,
     getActiveAds,
+    uploadAdImage,
   };
 };
