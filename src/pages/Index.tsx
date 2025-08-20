@@ -79,26 +79,24 @@ const Index = () => {
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
           {/* Ad Banners - Only show if ads are enabled */}
-          {shouldShowAds && (
-            <div className="container mx-auto">
+          {shouldShowAds && <div className="container mx-auto">
               <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={0} />
+                  <AdContainer position="banner" placeholder={false} adIndex={0} />
                 </div>
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={1} />
+                  <AdContainer position="banner" placeholder={false} adIndex={1} />
                 </div>
               </div>
               <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={2} />
+                  <AdContainer position="banner" placeholder={false} adIndex={2} />
                 </div>
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="banner" size="banner" placeholder={false} adIndex={3} />
+                  <AdContainer position="banner" placeholder={false} adIndex={3} />
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
           
           {/* Video Grid - Full Width */}
           <VideoGrid 

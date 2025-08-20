@@ -398,7 +398,7 @@ const VideoDetail = () => {
             <div className="lg:col-span-2">
               {/* Mobile Ad - Above Video Player */}
               {shouldShowAds && <div className="lg:hidden mb-4">
-                  <AdContainer position="content" size="banner" placeholder={false} adIndex={0} />
+                  <AdContainer position="content" placeholder={false} adIndex={0} />
                 </div>}
               
               {/* Video Player - Doodstream Integration */}
@@ -504,7 +504,7 @@ const VideoDetail = () => {
             <div className="space-y-6">
               {/* Desktop Ad - Above Recommendations */}
               {shouldShowAds && <div className="hidden lg:block">
-                  <AdContainer position="content" size="rectangle" placeholder={false} adIndex={0} />
+                  <AdContainer position="sidebar" placeholder={false} adIndex={0} />
                 </div>}
               
               <h2 className="text-xl font-bold text-foreground flex items-center gap-3">

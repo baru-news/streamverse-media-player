@@ -13,7 +13,6 @@ interface Ad {
 }
 
 interface AdBannerProps {
-  size: 'banner' | 'rectangle' | 'leaderboard' | 'skyscraper';
   className?: string;
   placeholder?: boolean;
   ad?: Ad;
@@ -27,13 +26,14 @@ const adSizes = {
 };
 
 export const AdBanner: React.FC<AdBannerProps> = ({ 
-  size, 
   className,
   placeholder = false,
   ad
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
-  const { width, height } = adSizes[size];
+  // Default size based on ad data or fallback
+  const width = 300;
+  const height = 70;
 
   useEffect(() => {
     if (!placeholder && !ad && adRef.current) {
