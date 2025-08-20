@@ -177,7 +177,7 @@ serve(async (req) => {
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: fileInfo.single_img || `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
+          thumbnail: `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
           splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
@@ -191,7 +191,7 @@ serve(async (req) => {
             upload_date: videoData.uploadDate ? new Date(videoData.uploadDate).toISOString() : new Date().toISOString(),
             file_size: videoData.size ? parseInt(videoData.size) : null,
             status: videoData.canPlay ? 'active' : 'processing',
-            thumbnail_url: videoData.thumbnail
+            thumbnail_url: `https://img.doodcdn.io/snaps/${videoData.fileCode}.jpg`
           }, { onConflict: 'file_code' });
 
           if (upsertError) {
