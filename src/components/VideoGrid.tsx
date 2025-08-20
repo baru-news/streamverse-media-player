@@ -3,6 +3,7 @@ import VideoCard from './VideoCard';
 import { SecureDoodstreamAPI } from '@/lib/supabase-doodstream';
 import { AdContainer } from './ads/AdContainer';
 import { AdCard } from './ads/AdCard';
+import { useAds } from '@/hooks/useAds';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 interface VideoGridProps {
   title: string;
@@ -23,6 +24,7 @@ const VideoGrid: React.FC<VideoGridProps> = ({
   const [totalPages, setTotalPages] = useState(1);
   const [totalVideos, setTotalVideos] = useState(0);
   const videosPerPage = 12;
+  const { getActiveAds } = useAds();
   const loadVideos = useCallback(async (page: number = currentPage) => {
     setIsLoading(true);
     setError(null);
@@ -156,45 +158,35 @@ const VideoGrid: React.FC<VideoGridProps> = ({
             </p>
           </div> : <>
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3">
-              {videos.map((video, index) => <React.Fragment key={video.id}>
-                  <VideoCard {...video} />
-                  {/* Ad Cards every 4 videos - 3 rows of ads */}
-                  {(index + 1) % 4 === 0 && <>
-                      {/* First ad row */}
+              {videos.map((video, index) => {
+                const videoGridAds = getActiveAds('video-grid');
+                return (
+                  <React.Fragment key={video.id}>
+                    <VideoCard {...video} />
+                    {/* Ad Cards every 10 videos */}
+                    {(index + 1) % 10 === 0 && (
                       <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} className="hidden sm:block" />
-                          <AdCard size="small" placeholder={true} className="hidden lg:block" />
-                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
-                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
+                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 mb-4">
+                          {Array.from({ length: 6 }).map((_, adIndex) => {
+                            const ad = videoGridAds[adIndex];
+                            const responsiveClass = `${adIndex >= 2 ? 'hidden sm:block' : ''} ${adIndex >= 3 ? 'hidden lg:block' : ''} ${adIndex >= 4 ? 'hidden xl:block' : ''}`;
+                            
+                            return (
+                              <AdCard 
+                                key={ad?.id || adIndex} 
+                                size="small" 
+                                ad={ad}
+                                className={responsiveClass}
+                                placeholder={!ad}
+                              />
+                            );
+                          })}
                         </div>
                       </div>
-                      {/* Second ad row */}
-                      <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} className="hidden sm:block" />
-                          <AdCard size="small" placeholder={true} className="hidden lg:block" />
-                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
-                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
-                        </div>
-                      </div>
-                      {/* Third ad row */}
-                      <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-6">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 mb-2">
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} />
-                          <AdCard size="small" placeholder={true} className="hidden sm:block" />
-                          <AdCard size="small" placeholder={true} className="hidden lg:block" />
-                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
-                          <AdCard size="small" placeholder={true} className="hidden xl:block" />
-                        </div>
-                      </div>
-                    </>}
-                </React.Fragment>)}
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
             
             {totalPages > 1 && <div className="flex justify-center mt-8">

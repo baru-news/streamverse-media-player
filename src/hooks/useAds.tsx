@@ -8,6 +8,7 @@ interface Ad {
   image_url: string;
   link_url?: string;
   position: string;
+  size: string;
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -37,7 +38,14 @@ export const useAds = () => {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setAds(data || []);
+      
+      // Map database results to include default size
+      const adsWithSize = (data || []).map(ad => ({
+        ...ad,
+        size: 'small' // Default size since database doesn't have this field yet
+      }));
+      
+      setAds(adsWithSize);
     } catch (error) {
       console.error('Error loading ads:', error);
       toast.error('Gagal memuat iklan');
@@ -103,7 +111,7 @@ export const useAds = () => {
 
       if (error) throw error;
 
-      setAds(prev => [...prev, data]);
+      setAds(prev => [...prev, { ...data, size: 'small' }]);
       toast.success('Iklan berhasil ditambahkan');
       return data;
     } catch (error) {
@@ -124,7 +132,7 @@ export const useAds = () => {
 
       if (error) throw error;
 
-      setAds(prev => prev.map(ad => ad.id === id ? data : ad));
+      setAds(prev => prev.map(ad => ad.id === id ? { ...data, size: 'small' } : ad));
       toast.success('Iklan berhasil diperbarui');
       return data;
     } catch (error) {
