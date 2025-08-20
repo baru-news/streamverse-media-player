@@ -8,6 +8,7 @@ import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
+import { AdContainer } from "@/components/ads/AdContainer";
 
 const Index = () => {
   const { user } = useAuth();
@@ -78,13 +79,42 @@ const Index = () => {
             />
           )}
           
-          {/* Video Grid - Always shown for everyone */}
-          <VideoGrid 
-            title={getVideoGridTitle()}
-            selectedHashtagId={selectedHashtagId}
-            selectedCategoryId={selectedCategoryId}
-            searchQuery={searchQuery}
+          {/* Ad Banner - Between Categories and Videos */}
+          <AdContainer 
+            position="content" 
+            size="leaderboard" 
+            placeholder={true}
           />
+          
+          {/* Video Grid with Sidebar - Always shown for everyone */}
+          <div className="container mx-auto px-4">
+            <div className="flex gap-8">
+              {/* Main Content */}
+              <div className="flex-1">
+                <VideoGrid 
+                  title={getVideoGridTitle()}
+                  selectedHashtagId={selectedHashtagId}
+                  selectedCategoryId={selectedCategoryId}
+                  searchQuery={searchQuery}
+                />
+              </div>
+              
+              {/* Sidebar Ads - Desktop Only */}
+              <div className="hidden lg:block">
+                <AdContainer 
+                  position="sidebar" 
+                  size="rectangle" 
+                  placeholder={true}
+                  className="mb-6"
+                />
+                <AdContainer 
+                  position="sidebar" 
+                  size="skyscraper" 
+                  placeholder={true}
+                />
+              </div>
+            </div>
+          </div>
           
           {/* Hashtag Filter */}
           <HashtagFilter

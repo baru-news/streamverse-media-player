@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './VideoCard';
 import { SecureDoodstreamAPI } from '@/lib/supabase-doodstream';
+import { AdContainer } from './ads/AdContainer';
 import {
   Pagination,
   PaginationContent,
@@ -182,8 +183,20 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selecte
         ) : (
           <>
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-              {videos.map((video) => (
-                <VideoCard key={video.id} {...video} />
+              {videos.map((video, index) => (
+                <React.Fragment key={video.id}>
+                  <VideoCard {...video} />
+                  {/* In-stream Ad every 8 videos */}
+                  {(index + 1) % 8 === 0 && (
+                    <div className="col-span-1 xs:col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-5">
+                      <AdContainer 
+                        position="content" 
+                        size="leaderboard" 
+                        placeholder={true}
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
             
