@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
 import CommentsSection from "@/components/CommentsSection";
+import { AdContainer } from "@/components/ads/AdContainer";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -447,8 +448,13 @@ const VideoDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
+              {/* Mobile Ad - Above Video Player */}
+              <div className="lg:hidden mb-4">
+                <AdContainer position="content" size="banner" placeholder={true} />
+              </div>
+              
               {/* Video Player - Doodstream Integration */}
-              <DoodstreamPlayer 
+              <DoodstreamPlayer
                 fileCode={video.fileCode || "sample-file-code"} 
                 title={video.title}
                 videoId={video.id}
@@ -589,6 +595,11 @@ const VideoDetail = () => {
 
             {/* Sidebar - Recommended Videos */}
             <div className="space-y-6">
+              {/* Desktop Ad - Above Recommendations */}
+              <div className="hidden lg:block">
+                <AdContainer position="content" size="rectangle" placeholder={true} />
+              </div>
+              
               <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                 <div className="w-1 h-6 bg-gradient-primary rounded-full" />
                 Rekomendasi Untuk Anda
