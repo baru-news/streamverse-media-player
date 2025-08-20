@@ -126,39 +126,9 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                     }}
                   >
                     <div className={cn(
-                      "w-full h-full bg-gradient-to-r relative",
+                      "w-full h-full bg-gradient-to-r",
                       getRarityColor(reward.rarity)
                     )}>
-                      {/* Segment Content - text following wheel curve */}
-                      <div 
-                        className="absolute top-8 left-1/2 transform -translate-x-1/2"
-                        style={{ 
-                          transform: `rotate(${segmentAngle / 2}deg)`,
-                          transformOrigin: 'center bottom'
-                        }}
-                      >
-                        <div className={cn(
-                          "text-center space-y-1 px-2 w-20",
-                          getTextColor(reward.rarity)
-                        )}>
-                          <div className="text-sm font-bold leading-tight break-words">
-                            {reward.name}
-                          </div>
-                          <div className="text-base font-bold leading-tight">
-                            {reward.coin_amount}
-                          </div>
-                          <div className="text-sm leading-none">
-                            🪙
-                          </div>
-                          {/* Rarity indicator */}
-                          <div className="text-sm leading-none">
-                            {reward.rarity === 'legendary' && '👑'}
-                            {reward.rarity === 'epic' && '⭐'}
-                            {reward.rarity === 'rare' && '💎'}
-                            {reward.rarity === 'common' && '🌸'}
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
@@ -170,6 +140,54 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                       transformOrigin: 'bottom center'
                     }}
                   ></div>
+                </div>
+              );
+            })}
+
+            {/* Text layer - rendered separately on top with highest z-index */}
+            {rewards.map((reward, index) => {
+              const startAngle = index * segmentAngle;
+              
+              return (
+                <div
+                  key={`text-${reward.id}`}
+                  className="absolute inset-0 pointer-events-none z-30"
+                  style={{
+                    transform: `rotate(${startAngle}deg)`
+                  }}
+                >
+                  {/* Segment text - positioned at the top layer */}
+                  <div 
+                    className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40"
+                    style={{ 
+                      transform: `rotate(${segmentAngle / 2}deg)`,
+                      transformOrigin: 'center bottom'
+                    }}
+                  >
+                    <div className={cn(
+                      "text-center space-y-1 px-2 w-20 pointer-events-none",
+                      getTextColor(reward.rarity),
+                      // Add text shadow for better visibility
+                      "drop-shadow-md"
+                    )}>
+                      <div className="text-sm font-bold leading-tight break-words drop-shadow-sm">
+                        {reward.name}
+                      </div>
+                      <div className="text-base font-bold leading-tight drop-shadow-sm">
+                        {reward.coin_amount}
+                      </div>
+                      <div className="text-sm leading-none drop-shadow-sm">
+                        🪙
+                      </div>
+                      {/* Rarity indicator */}
+                      <div className="text-sm leading-none drop-shadow-sm">
+                        {reward.rarity === 'legendary' && '👑'}
+                        {reward.rarity === 'epic' && '⭐'}
+                        {reward.rarity === 'rare' && '💎'}
+                        {reward.rarity === 'common' && '🌸'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             })}
