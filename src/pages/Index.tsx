@@ -56,18 +56,18 @@ const Index = () => {
               
               <div className="container mx-auto px-4 py-16">
                 {/* Call to Action */}
-                <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl px-8 py-2">
-                  <h2 className="text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+                <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl px-4 sm:px-8 py-8">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
                     Bergabung dengan DINO18
                   </h2>
-                  <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
+                  <p className="text-muted-foreground mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto px-2">
                     Dapatkan Berbagai Fitur Menarik Seperti Menambahkan Video Favorite dan Limited Badge!
                   </p>
-                  <div className="flex gap-4 justify-center">
-                    <Button asChild variant="hero" size="lg">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-sm sm:max-w-none mx-auto">
+                    <Button asChild variant="hero" size="default" className="w-full sm:w-auto">
                       <Link to="/register">Daftar Gratis</Link>
                     </Button>
-                    <Button asChild variant="outline" size="lg">
+                    <Button asChild variant="outline" size="default" className="w-full sm:w-auto">
                       <Link to="/login">Sudah Punya Akun?</Link>
                     </Button>
                   </div>
