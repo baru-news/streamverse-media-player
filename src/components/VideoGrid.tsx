@@ -14,10 +14,11 @@ import {
 interface VideoGridProps {
   title: string;
   selectedHashtagId?: string | null;
+  selectedCategoryId?: string | null;
   searchQuery?: string;
 }
 
-const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, searchQuery }) => {
+const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, selectedCategoryId, searchQuery }) => {
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +36,11 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, searchQ
       let totalCount: number;
       
       if (searchQuery?.trim()) {
-        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, selectedHashtagId || undefined, page, videosPerPage);
-        totalCount = await SecureDoodstreamAPI.getTotalVideosCount(searchQuery, selectedHashtagId || undefined);
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, selectedHashtagId || undefined, selectedCategoryId || undefined, page, videosPerPage);
+        totalCount = await SecureDoodstreamAPI.getTotalVideosCount(searchQuery, selectedHashtagId || undefined, selectedCategoryId || undefined);
+      } else if (selectedCategoryId) {
+        fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseByCategory(selectedCategoryId, page, videosPerPage);
+        totalCount = await SecureDoodstreamAPI.getTotalVideosCount(undefined, undefined, selectedCategoryId);
       } else if (selectedHashtagId) {
         fetchedVideos = await SecureDoodstreamAPI.getVideosFromDatabaseByHashtag(selectedHashtagId, page, videosPerPage);
         totalCount = await SecureDoodstreamAPI.getTotalVideosCount(undefined, selectedHashtagId);
@@ -74,15 +78,15 @@ const VideoGrid: React.FC<VideoGridProps> = ({ title, selectedHashtagId, searchQ
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedHashtagId, currentPage, videosPerPage]);
+  }, [searchQuery, selectedHashtagId, selectedCategoryId, currentPage, videosPerPage]);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page when search/hashtag changes
-  }, [searchQuery, selectedHashtagId]);
+    setCurrentPage(1); // Reset to first page when search/hashtag/category changes
+  }, [searchQuery, selectedHashtagId, selectedCategoryId]);
 
   useEffect(() => {
     loadVideos(currentPage);
-  }, [currentPage, searchQuery, selectedHashtagId]);
+  }, [currentPage, searchQuery, selectedHashtagId, selectedCategoryId]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

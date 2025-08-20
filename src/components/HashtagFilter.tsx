@@ -47,7 +47,7 @@ const HashtagFilter = ({ selectedHashtagId, onHashtagChange }: HashtagFilterProp
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2 mb-4">
             <Hash className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Kategori</h3>
+          <h3 className="text-lg font-semibold text-foreground">Tagar</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -64,7 +64,7 @@ const HashtagFilter = ({ selectedHashtagId, onHashtagChange }: HashtagFilterProp
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 mb-4">
           <Hash className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold text-foreground">Kategori</h3>
+          <h3 className="text-lg font-semibold text-foreground">Tagar</h3>
         </div>
         
         <div className="flex flex-wrap gap-2">

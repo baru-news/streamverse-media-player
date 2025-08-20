@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hashtags: {
         Row: {
           color: string | null
@@ -183,6 +219,7 @@ export type Database = {
       }
       videos: {
         Row: {
+          category_id: string | null
           created_at: string
           description: string | null
           description_edited: boolean | null
@@ -201,6 +238,7 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
@@ -219,6 +257,7 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
@@ -236,7 +275,15 @@ export type Database = {
           upload_date?: string | null
           views?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "videos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       website_settings: {
         Row: {

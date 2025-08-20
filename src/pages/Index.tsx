@@ -6,20 +6,25 @@ import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import Header from "@/components/Header";
 import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
+import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
 
 const Index = () => {
   const { user } = useAuth();
   const { settings } = useWebsiteSettings();
   const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const getVideoGridTitle = () => {
     if (searchQuery.trim()) {
       return `Hasil pencarian: "${searchQuery}"`;
     }
-    if (selectedHashtagId) {
+    if (selectedCategoryId) {
       return "Video Berdasarkan Kategori";
+    }
+    if (selectedHashtagId) {
+      return "Video Berdasarkan Tagar";
     }
     return "Video Terbaru";
   };
@@ -58,10 +63,17 @@ const Index = () => {
             </div>
           )}
           
+          {/* Category Filter */}
+          <CategoryFilter
+            selectedCategoryId={selectedCategoryId}
+            onCategoryChange={setSelectedCategoryId}
+          />
+          
           {/* Video Grid - Always shown for everyone */}
           <VideoGrid 
             title={getVideoGridTitle()}
             selectedHashtagId={selectedHashtagId}
+            selectedCategoryId={selectedCategoryId}
             searchQuery={searchQuery}
           />
           

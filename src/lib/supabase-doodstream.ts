@@ -224,8 +224,27 @@ export class SecureDoodstreamAPI {
     }
   }
 
+  // 9.5. Get videos from database filtered by category with pagination
+  static async getVideosFromDatabaseByCategory(categoryId: string, page: number = 1, perPage: number = 12): Promise<any[]> {
+    try {
+      const offset = (page - 1) * perPage;
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('category_id', categoryId)
+        .order('upload_date', { ascending: false })
+        .range(offset, offset + perPage - 1);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Get videos by category from database error:', error);
+      return [];
+    }
+  }
+
   // 10. Get videos from database filtered by search query with pagination
-  static async getVideosFromDatabaseBySearch(searchQuery: string, hashtagId?: string, page: number = 1, perPage: number = 12): Promise<any[]> {
+  static async getVideosFromDatabaseBySearch(searchQuery: string, hashtagId?: string, categoryId?: string, page: number = 1, perPage: number = 12): Promise<any[]> {
     try {
       const offset = (page - 1) * perPage;
       let query = supabase
@@ -250,6 +269,11 @@ export class SecureDoodstreamAPI {
       // Add hashtag filter if provided
       if (hashtagId) {
         query = query.eq('video_hashtags.hashtag_id', hashtagId);
+      }
+
+      // Add category filter if provided
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
       }
 
       const { data, error } = await query
@@ -282,7 +306,7 @@ export class SecureDoodstreamAPI {
   }
 
   // 12. Get total count of videos
-  static async getTotalVideosCount(searchQuery?: string, hashtagId?: string): Promise<number> {
+  static async getTotalVideosCount(searchQuery?: string, hashtagId?: string, categoryId?: string): Promise<number> {
     try {
       let query = supabase
         .from('videos')
@@ -296,6 +320,11 @@ export class SecureDoodstreamAPI {
       // Add hashtag filter if provided
       if (hashtagId) {
         query = query.eq('video_hashtags.hashtag_id', hashtagId);
+      }
+
+      // Add category filter if provided
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
       }
 
       const { count, error } = await query;

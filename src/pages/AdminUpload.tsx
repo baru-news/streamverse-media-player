@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, List, Settings, Globe, Hash } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import WebsiteSettings from "@/components/admin/WebsiteSettings";
 import HashtagManagement from "@/components/admin/HashtagManagement";
+import CategoryManagement from "@/components/admin/CategoryManagement";
 import QuickActions from "@/components/admin/QuickActions";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
@@ -43,9 +44,14 @@ const AdminUpload = () => {
                   <span className="hidden sm:inline">Website</span>
                   <span className="sm:hidden">Web</span>
                 </TabsTrigger>
+                <TabsTrigger value="categories" className="gap-2 whitespace-nowrap px-4 py-2" id="categories">
+                  <Folder className="w-4 h-4" />
+                  <span className="hidden sm:inline">Kategori</span>
+                  <span className="sm:hidden">Kat</span>
+                </TabsTrigger>
                 <TabsTrigger value="hashtags" className="gap-2 whitespace-nowrap px-4 py-2" id="hashtags">
                   <Hash className="w-4 h-4" />
-                  <span className="hidden sm:inline">Hashtag</span>
+                  <span className="hidden sm:inline">Tagar</span>
                   <span className="sm:hidden">Tag</span>
                 </TabsTrigger>
                 <TabsTrigger value="videos" className="gap-2 whitespace-nowrap px-4 py-2" id="videos">
@@ -69,6 +75,11 @@ const AdminUpload = () => {
             {/* Website Settings Tab */}
             <TabsContent value="website">
               <WebsiteSettings />
+            </TabsContent>
+
+            {/* Category Management Tab */}
+            <TabsContent value="categories">
+              <CategoryManagement />
             </TabsContent>
 
             {/* Hashtag Management Tab */}
