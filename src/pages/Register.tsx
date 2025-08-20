@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
 
@@ -20,6 +21,7 @@ const Register = () => {
     confirmPassword: ""
   });
   const { signUp, user } = useAuth();
+  const { settings } = useWebsiteSettings();
 
   // Redirect if already logged in
   if (user) {
@@ -64,18 +66,28 @@ const Register = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">D</span>
-            </div>
-            <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              DINO18
-            </span>
+            {settings.site_logo_url ? (
+              <img 
+                src={settings.site_logo_url} 
+                alt="Logo" 
+                className="h-12 w-auto"
+              />
+            ) : (
+              <>
+                <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xl">D</span>
+                </div>
+                <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  {settings.site_title || 'DINO18'}
+                </span>
+              </>
+            )}
           </Link>
         </div>
 
         <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-foreground">Bergabung dengan DINO18</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Bergabung dengan {settings.site_title || 'DINO18'}</CardTitle>
             <CardDescription className="text-muted-foreground">
               Buat akun baru dan mulai menikmati ribuan video berkualitas tinggi
             </CardDescription>

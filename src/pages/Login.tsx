@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import SEO from "@/components/SEO";
 
 const Login = () => {
@@ -14,6 +15,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, user } = useAuth();
+  const { settings } = useWebsiteSettings();
 
   // Redirect if already logged in
   if (user) {
@@ -44,12 +46,22 @@ const Login = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">D</span>
-            </div>
-            <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              DINO18
-            </span>
+            {settings.site_logo_url ? (
+              <img 
+                src={settings.site_logo_url} 
+                alt="Logo" 
+                className="h-12 w-auto"
+              />
+            ) : (
+              <>
+                <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xl">D</span>
+                </div>
+                <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  {settings.site_title || 'DINO18'}
+                </span>
+              </>
+            )}
           </Link>
         </div>
 
@@ -57,7 +69,7 @@ const Login = () => {
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-foreground">Masuk ke Akun Anda</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Masukkan email dan kata sandi untuk mengakses akun DINO18 Anda
+              Masukkan email dan kata sandi untuk mengakses akun {settings.site_title || 'DINO18'} Anda
             </CardDescription>
           </CardHeader>
 

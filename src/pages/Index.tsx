@@ -53,7 +53,7 @@ const Index = () => {
                 {/* Call to Action */}
                 <div className="text-center bg-gradient-primary/10 backdrop-blur-sm border border-primary/20 rounded-2xl px-4 sm:px-8 py-8">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-                    Bergabung dengan DINO18
+                    Bergabung dengan {settings.site_title || 'DINO18'}
                   </h2>
                   <p className="text-muted-foreground mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto px-2">
                     Dapatkan Berbagai Fitur Menarik Seperti Menambahkan Video Favorite dan Limited Badge!
@@ -105,15 +105,25 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">D</span>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                DINO18
-              </span>
+              {settings.site_logo_url ? (
+                <img 
+                  src={settings.site_logo_url} 
+                  alt="Logo" 
+                  className="h-8 w-auto"
+                />
+              ) : (
+                <>
+                  <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">D</span>
+                  </div>
+                  <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                    {settings.site_title || 'DINO18'}
+                  </span>
+                </>
+              )}
             </div>
             <p className="text-muted-foreground mb-4">
-              Update Video Viral Terbaru Setiap Hari
+              {settings.site_description || 'Update Video Viral Terbaru Setiap Hari'}
             </p>
             <div className="hidden justify-center gap-6 mb-4 text-sm">
               <Link to="/sitemap" className="text-muted-foreground hover:text-primary transition-colors">
@@ -124,7 +134,7 @@ const Index = () => {
               </a>
             </div>
             <div className="mt-4 text-sm text-muted-foreground">
-              © 2024 DINO18. Semua hak dilindungi.
+              © 2024 {settings.site_title || 'DINO18'}. Semua hak dilindungi.
             </div>
           </div>
         </div>
