@@ -116,49 +116,60 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
               const startAngle = index * segmentAngle;
               
               return (
-                <div
-                  key={reward.id}
-                  className="absolute inset-0"
-                  style={{
-                    transform: `rotate(${startAngle}deg)`,
-                    clipPath: `polygon(50% 50%, 50% 0%, ${50 + Math.tan((segmentAngle * Math.PI) / 360) * 50}% 0%)`
-                  }}
-                >
-                  <div className={cn(
-                    "w-full h-full bg-gradient-to-r relative",
-                    getRarityColor(reward.rarity)
-                  )}>
-                    {/* Segment Content - text following wheel curve */}
-                    <div 
-                      className="absolute top-8 left-1/2 transform -translate-x-1/2"
-                      style={{ 
-                        transform: `rotate(${segmentAngle / 2}deg)`,
-                        transformOrigin: 'center bottom'
-                      }}
-                    >
-                      <div className={cn(
-                        "text-center space-y-1 px-2 w-20",
-                        getTextColor(reward.rarity)
-                      )}>
-                        <div className="text-sm font-bold leading-tight break-words">
-                          {reward.name}
-                        </div>
-                        <div className="text-base font-bold leading-tight">
-                          {reward.coin_amount}
-                        </div>
-                        <div className="text-sm leading-none">
-                          🪙
-                        </div>
-                        {/* Rarity indicator */}
-                        <div className="text-sm leading-none">
-                          {reward.rarity === 'legendary' && '👑'}
-                          {reward.rarity === 'epic' && '⭐'}
-                          {reward.rarity === 'rare' && '💎'}
-                          {reward.rarity === 'common' && '🌸'}
+                <div key={reward.id}>
+                  {/* Segment background */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      transform: `rotate(${startAngle}deg)`,
+                      clipPath: `polygon(50% 50%, 50% 0%, ${50 + Math.tan((segmentAngle * Math.PI) / 360) * 50}% 0%)`
+                    }}
+                  >
+                    <div className={cn(
+                      "w-full h-full bg-gradient-to-r relative",
+                      getRarityColor(reward.rarity)
+                    )}>
+                      {/* Segment Content - text following wheel curve */}
+                      <div 
+                        className="absolute top-8 left-1/2 transform -translate-x-1/2"
+                        style={{ 
+                          transform: `rotate(${segmentAngle / 2}deg)`,
+                          transformOrigin: 'center bottom'
+                        }}
+                      >
+                        <div className={cn(
+                          "text-center space-y-1 px-2 w-20",
+                          getTextColor(reward.rarity)
+                        )}>
+                          <div className="text-sm font-bold leading-tight break-words">
+                            {reward.name}
+                          </div>
+                          <div className="text-base font-bold leading-tight">
+                            {reward.coin_amount}
+                          </div>
+                          <div className="text-sm leading-none">
+                            🪙
+                          </div>
+                          {/* Rarity indicator */}
+                          <div className="text-sm leading-none">
+                            {reward.rarity === 'legendary' && '👑'}
+                            {reward.rarity === 'epic' && '⭐'}
+                            {reward.rarity === 'rare' && '💎'}
+                            {reward.rarity === 'common' && '🌸'}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Separator line between segments */}
+                  <div
+                    className="absolute top-0 left-1/2 w-0.5 h-1/2 bg-white/80 origin-bottom z-10"
+                    style={{
+                      transform: `rotate(${startAngle}deg)`,
+                      transformOrigin: 'bottom center'
+                    }}
+                  ></div>
                 </div>
               );
             })}
