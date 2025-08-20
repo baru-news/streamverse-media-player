@@ -68,6 +68,14 @@ export const BadgeStore = () => {
     return coins ? coins.balance >= price : false;
   };
 
+  // Define rarity order for proper sorting
+  const rarityOrder = ['common', 'rare', 'epic', 'legendary'];
+  
+  const getRarityWeight = (rarity: string) => {
+    const index = rarityOrder.indexOf(rarity);
+    return index === -1 ? 999 : index;
+  };
+
   const groupedBadges = badges.reduce((acc, badge) => {
     if (!acc[badge.rarity]) {
       acc[badge.rarity] = [];
@@ -75,6 +83,14 @@ export const BadgeStore = () => {
     acc[badge.rarity].push(badge);
     return acc;
   }, {} as Record<string, typeof badges>);
+
+  // Sort rarity groups in proper order and sort badges within each group
+  const sortedRarityEntries = Object.entries(groupedBadges)
+    .sort(([a], [b]) => getRarityWeight(a) - getRarityWeight(b))
+    .map(([rarity, badgeList]) => [
+      rarity, 
+      badgeList.sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+    ] as [string, typeof badges]);
 
   if (loading) {
     return (
@@ -123,13 +139,16 @@ export const BadgeStore = () => {
           </TabsList>
           
           <TabsContent value="store" className="space-y-6">
-            {Object.entries(groupedBadges).map(([rarity, badgeList]) => (
+            {sortedRarityEntries.map(([rarity, badgeList]) => (
               <div key={rarity} className="space-y-3">
                 <div className="flex items-center gap-2">
                   {getRarityIcon(rarity)}
                   <h3 className={cn("text-lg font-semibold capitalize", getRarityColor(rarity))}>
                     {rarity}
                   </h3>
+                  <Badge variant="outline" className="text-xs">
+                    {badgeList.length} badge{badgeList.length !== 1 ? 's' : ''}
+                  </Badge>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -195,7 +214,10 @@ export const BadgeStore = () => {
 
           <TabsContent value="inventory" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {badges.filter(badge => badge.owned).map((badge) => (
+              {badges
+                .filter(badge => badge.owned)
+                .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
+                .map((badge) => (
                 <Card key={badge.id} className={cn(
                   "relative overflow-hidden transition-all duration-200 hover:scale-105",
                   badge.user_badge?.is_active && "ring-2 ring-yellow-500 bg-yellow-50 dark:bg-yellow-950/20"
@@ -248,7 +270,10 @@ export const BadgeStore = () => {
               ))}
             </div>
 
-            {badges.filter(badge => badge.owned).length === 0 && (
+            {badges
+              .filter(badge => badge.owned)
+              .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
+              .length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <ShoppingBag className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No badges owned yet</p>
