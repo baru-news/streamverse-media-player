@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Play, Pause, Volume2, Maximize, ThumbsUp, Share2, Download, Eye, Calendar, User } from "lucide-react";
+import { Play, Pause, Volume2, Maximize, ThumbsUp, Share2, Download, Eye, Calendar, User, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import VideoCard from "@/components/VideoCard";
@@ -26,6 +26,7 @@ const VideoDetail = () => {
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isSubscribeLoading, setIsSubscribeLoading] = useState(false);
   const [videoHashtags, setVideoHashtags] = useState<any[]>([]);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     loadVideoData();
@@ -516,11 +517,28 @@ const VideoDetail = () => {
                 {/* Description */}
                 <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                   <CardContent className="p-4 sm:p-6">
-                    <h3 className="font-semibold text-white mb-3">Deskripsi</h3>
-                    <div className="min-h-[120px] sm:min-h-[80px]">
+                    <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      Deskripsi
+                    </h3>
+                    <div className="relative">
                       <p className="text-muted-foreground leading-relaxed mb-4 whitespace-pre-wrap break-words">
-                        {video.description}
+                        {(() => {
+                          const desc = video.description || "Tidak ada deskripsi tersedia.";
+                          if (desc.length <= 200) return desc;
+                          
+                          const truncatedDesc = desc.substring(0, 200) + "...";
+                          return showFullDescription ? desc : truncatedDesc;
+                        })()}
                       </p>
+                      {video.description && video.description.length > 200 && (
+                        <button
+                          onClick={() => setShowFullDescription(!showFullDescription)}
+                          className="text-primary hover:text-primary/80 transition-colors text-sm font-medium flex items-center gap-1"
+                        >
+                          {showFullDescription ? "Lihat lebih sedikit" : "Selengkapnya"}
+                        </button>
+                      )}
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
