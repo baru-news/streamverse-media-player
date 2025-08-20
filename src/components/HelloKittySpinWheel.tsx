@@ -147,40 +147,39 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             {/* Text layer - rendered separately on top with highest z-index */}
             {rewards.map((reward, index) => {
               const startAngle = index * segmentAngle;
+              const centerAngle = startAngle + (segmentAngle / 2); // Center of the segment
               
               return (
                 <div
                   key={`text-${reward.id}`}
                   className="absolute inset-0 pointer-events-none z-30"
-                  style={{
-                    transform: `rotate(${startAngle}deg)`
-                  }}
                 >
-                  {/* Segment text - positioned at the top layer */}
+                  {/* Segment text - positioned exactly in center of segment */}
                   <div 
-                    className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40"
+                    className="absolute top-0 left-1/2 transform -translate-x-1/2 origin-bottom z-40"
                     style={{ 
-                      transform: `rotate(${segmentAngle / 2}deg)`,
-                      transformOrigin: 'center bottom'
+                      transform: `rotate(${centerAngle}deg)`,
+                      transformOrigin: 'center bottom',
+                      height: '50%' // Only use half the radius
                     }}
                   >
                     <div className={cn(
-                      "text-center space-y-1 px-2 w-20 pointer-events-none",
+                      "absolute top-4 left-1/2 transform -translate-x-1/2 text-center w-16 pointer-events-none",
                       getTextColor(reward.rarity),
                       // Add text shadow for better visibility
                       "drop-shadow-md"
                     )}>
-                      <div className="text-sm font-bold leading-tight break-words drop-shadow-sm">
+                      <div className="text-xs font-bold leading-tight break-words drop-shadow-sm mb-1">
                         {reward.name}
                       </div>
-                      <div className="text-base font-bold leading-tight drop-shadow-sm">
+                      <div className="text-sm font-bold leading-tight drop-shadow-sm mb-0.5">
                         {reward.coin_amount}
                       </div>
-                      <div className="text-sm leading-none drop-shadow-sm">
+                      <div className="text-xs leading-none drop-shadow-sm mb-0.5">
                         🪙
                       </div>
                       {/* Rarity indicator */}
-                      <div className="text-sm leading-none drop-shadow-sm">
+                      <div className="text-xs leading-none drop-shadow-sm">
                         {reward.rarity === 'legendary' && '👑'}
                         {reward.rarity === 'epic' && '⭐'}
                         {reward.rarity === 'rare' && '💎'}
