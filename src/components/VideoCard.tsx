@@ -21,7 +21,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
   const [imageError, setImageError] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
   const [currentImageSrc, setCurrentImageSrc] = useState(
-    fileCode ? `https://agsqdznjjxptiyorljtv.supabase.co/functions/v1/thumbnail-proxy?fileCode=${fileCode}` : '/placeholder.svg'
+    thumbnail || (fileCode ? `https://agsqdznjjxptiyorljtv.supabase.co/functions/v1/thumbnail-proxy?fileCode=${fileCode}` : '/placeholder.svg')
   );
   return (
     <Link to={`/video/${id}`}>
@@ -44,10 +44,22 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
               console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);
             }}
             onError={(e) => {
-              console.error(`Failed to load thumbnail via proxy: ${currentImageSrc}`);
+              console.error(`Failed to load thumbnail: ${currentImageSrc}`);
               const currentSrc = e.currentTarget.src;
               
-              if (!currentSrc.includes('placeholder.svg')) {
+              // If we're currently using the database thumbnail and it fails, try proxy
+              if (thumbnail && currentSrc === thumbnail && fileCode) {
+                const proxyUrl = `https://agsqdznjjxptiyorljtv.supabase.co/functions/v1/thumbnail-proxy?fileCode=${fileCode}`;
+                console.log(`Database thumbnail failed, trying proxy: ${proxyUrl}`);
+                setCurrentImageSrc(proxyUrl);
+                e.currentTarget.src = proxyUrl;
+              } else if (currentSrc.includes('thumbnail-proxy') && fileCode) {
+                // If proxy fails, try direct doodcdn.io URL
+                const directUrl = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
+                console.log(`Proxy failed, trying direct URL: ${directUrl}`);
+                setCurrentImageSrc(directUrl);
+                e.currentTarget.src = directUrl;
+              } else if (!currentSrc.includes('placeholder.svg')) {
                 // Final fallback to placeholder
                 console.log('Using placeholder fallback');
                 setCurrentImageSrc('/placeholder.svg');
