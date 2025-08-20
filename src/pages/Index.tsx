@@ -64,8 +64,17 @@ const Index = () => {
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
-          {/* Ad Banner - Between Categories and Videos */}
-          <AdContainer position="content" size="leaderboard" placeholder={true} />
+          {/* Ad Banners - Left and Right */}
+          <div className="container mx-auto px-4">
+            <div className="flex gap-4 justify-between">
+              <div className="flex-1">
+                <AdContainer position="content" size="banner" placeholder={true} />
+              </div>
+              <div className="flex-1">
+                <AdContainer position="content" size="banner" placeholder={true} />
+              </div>
+            </div>
+          </div>
           
           {/* Video Grid - Full Width */}
           <VideoGrid title={getVideoGridTitle()} selectedHashtagId={selectedHashtagId} selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />
