@@ -21,7 +21,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
   const [imageError, setImageError] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
   const [currentImageSrc, setCurrentImageSrc] = useState(
-    thumbnail || (fileCode ? `https://img.doodcdn.io/snaps/${fileCode}.jpg` : '/placeholder.svg')
+    fileCode ? `https://agsqdznjjxptiyorljtv.supabase.co/functions/v1/thumbnail-proxy?fileCode=${fileCode}` : '/placeholder.svg'
   );
   return (
     <Link to={`/video/${id}`}>
@@ -44,16 +44,10 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
               console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);
             }}
             onError={(e) => {
-              console.error(`Failed to load thumbnail: ${currentImageSrc}`);
+              console.error(`Failed to load thumbnail via proxy: ${currentImageSrc}`);
               const currentSrc = e.currentTarget.src;
               
-              if (currentSrc.includes('doodcdn.com') && fileCode) {
-                // Try alternative Doodstream formats
-                const newSrc = `https://img.doodcdn.co/splash/${fileCode}.jpg`;
-                console.log(`Trying alternative format: ${newSrc}`);
-                setCurrentImageSrc(newSrc);
-                e.currentTarget.src = newSrc;
-              } else if (!currentSrc.includes('placeholder.svg')) {
+              if (!currentSrc.includes('placeholder.svg')) {
                 // Final fallback to placeholder
                 console.log('Using placeholder fallback');
                 setCurrentImageSrc('/placeholder.svg');
