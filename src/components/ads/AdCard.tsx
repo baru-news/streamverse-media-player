@@ -7,7 +7,6 @@ interface Ad {
   image_url: string;
   link_url?: string;
   position: string;
-  size: string;
   is_active: boolean;
   sort_order: number;
 }

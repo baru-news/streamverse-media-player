@@ -16,7 +16,6 @@ interface AdFormData {
   image_url: string;
   link_url: string;
   position: string;
-  size: string;
   sort_order: number;
 }
 
@@ -33,7 +32,6 @@ const AdsManagement = () => {
     image_url: "",
     link_url: "",
     position: "content",
-    size: "small",
     sort_order: 0,
   });
 
@@ -100,7 +98,6 @@ const AdsManagement = () => {
       image_url: "",
       link_url: "",
       position: "content",
-      size: "small",
       sort_order: 0,
     });
     setEditingAd(null);
@@ -118,7 +115,6 @@ const AdsManagement = () => {
       image_url: ad.image_url,
       link_url: ad.link_url || "",
       position: ad.position,
-      size: ad.size || "small",
       sort_order: ad.sort_order,
     });
     setPreviewImage(ad.image_url);
@@ -305,40 +301,23 @@ const AdsManagement = () => {
                   />
                 </div>
                 
-                 <div>
-                   <Label htmlFor="position">Posisi</Label>
-                   <Select
-                     value={formData.position}
-                     onValueChange={(value) => setFormData(prev => ({ ...prev, position: value }))}
-                   >
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="content">Content</SelectItem>
-                       <SelectItem value="sidebar">Sidebar</SelectItem>
-                       <SelectItem value="banner">Banner</SelectItem>
-                       <SelectItem value="video-grid">Setiap 10 Video</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-                 
-                 <div>
-                   <Label htmlFor="size">Ukuran</Label>
-                   <Select
-                     value={formData.size}
-                     onValueChange={(value) => setFormData(prev => ({ ...prev, size: value }))}
-                   >
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="small">Kecil</SelectItem>
-                       <SelectItem value="medium">Sedang</SelectItem>
-                       <SelectItem value="large">Besar</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
+                <div>
+                  <Label htmlFor="position">Posisi</Label>
+                  <Select
+                    value={formData.position}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, position: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="content">Content</SelectItem>
+                      <SelectItem value="sidebar">Sidebar</SelectItem>
+                      <SelectItem value="banner">Banner</SelectItem>
+                      <SelectItem value="video-grid">Setiap 10 Video</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 
                 <div>
                   <Label htmlFor="sort_order">Urutan</Label>
