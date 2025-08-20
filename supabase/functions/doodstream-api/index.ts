@@ -177,7 +177,7 @@ serve(async (req) => {
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: fileInfo.single_img || `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
+          thumbnail: fileInfo.thumb_img || fileInfo.single_img || fileInfo.splash_img || `https://img.doodcdn.io/thumbnails/${fileInfo.filecode}.jpg`,
           splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: file.single_img || `https://img.doodcdn.io/snaps/${file.file_code}.jpg`,
+            thumbnail: file.thumb_img || file.single_img || file.splash_img || `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };
