@@ -11,6 +11,7 @@ import { UserBadgeDisplay } from "@/components/UserBadgeDisplay";
 import { BadgeStore } from "@/components/BadgeStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DailyTasksCard } from "@/components/DailyTasksCard";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
+  const { settings } = useWebsiteSettings();
 
   const searchQuery = externalSearchQuery ?? internalSearchQuery;
 
@@ -74,12 +76,22 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
 
           {/* Logo - Desktop left, Mobile center */}
           <Link to="/" className="flex items-center space-x-2 flex-shrink-0 md:flex-shrink-0">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">D</span>
-            </div>
-            <span className="text-xl md:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              DINO18
-            </span>
+            {settings.site_logo_url ? (
+              <img 
+                src={settings.site_logo_url} 
+                alt="Logo" 
+                className="h-8 w-auto"
+              />
+            ) : (
+              <>
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-lg">D</span>
+                </div>
+                <span className="text-xl md:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  {settings.site_title || 'DINO18'}
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Search Bar */}
