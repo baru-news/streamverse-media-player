@@ -85,7 +85,7 @@ const CommentItem = ({
   };
 
   return (
-    <div className={`space-y-3 ${level > 0 ? 'ml-6' : ''}`}>
+    <div className={`space-y-2 ${level > 0 ? 'ml-6' : ''}`}>
       <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-3">
         {/* Comment Header */}
         <div className="flex items-start justify-between mb-2">
@@ -238,7 +238,7 @@ const CommentItem = ({
 
       {/* Replies */}
       {showReplies && hasReplies && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {comment.replies!.map((reply) => (
             <CommentItem
               key={reply.id}

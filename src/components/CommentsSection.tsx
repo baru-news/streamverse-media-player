@@ -69,7 +69,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {displayedComments.map((comment) => (
               <CommentItem
                 key={comment.id}
@@ -81,7 +81,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
               />
             ))}
             {hasMoreComments && (
-              <div className="text-center pt-4">
+              <div className="text-center pt-3">
                 <Button 
                   variant="outline" 
                   onClick={() => setVisibleComments(prev => prev + 5)}
@@ -92,7 +92,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
               </div>
             )}
             {visibleComments > 3 && (
-              <div className="text-center pt-2">
+              <div className="text-center pt-1">
                 <Button 
                   variant="ghost" 
                   onClick={() => setVisibleComments(3)}
