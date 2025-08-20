@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Comment } from "@/hooks/useComments";
-import { Edit, Trash2, Reply, MoreVertical, Send, X } from "lucide-react";
+import { Edit, Trash2, Reply, MoreVertical, Send, X, ChevronDown, ChevronUp } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import CommentForm from "./CommentForm";
@@ -29,10 +29,12 @@ const CommentItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
+  const [showReplies, setShowReplies] = useState(false);
   const { user } = useAuth();
   
   const isOwner = user?.id === comment.user_id;
   const maxLevel = 3; // Maximum reply nesting level
+  const hasReplies = comment.replies && comment.replies.length > 0;
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -153,7 +155,7 @@ const CommentItem = ({
             <Textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="min-h-[80px] bg-muted/30 border-muted focus:border-primary transition-colors"
+              className="min-h-[60px] bg-muted/30 border-muted focus:border-primary transition-colors"
               disabled={isSubmitting}
             />
             <div className="flex gap-2">
@@ -182,8 +184,8 @@ const CommentItem = ({
             </p>
             
             {/* Comment Actions */}
-            {level < maxLevel && (
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              {level < maxLevel && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -193,8 +195,28 @@ const CommentItem = ({
                   <Reply className="w-3 h-3 mr-1" />
                   Balas
                 </Button>
-              </div>
-            )}
+              )}
+              {hasReplies && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowReplies(!showReplies)}
+                  className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
+                >
+                  {showReplies ? (
+                    <>
+                      <ChevronUp className="w-3 h-3 mr-1" />
+                      Sembunyikan balasan
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-3 h-3 mr-1" />
+                      Lihat {comment.replies?.length} balasan
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -213,9 +235,9 @@ const CommentItem = ({
       )}
 
       {/* Replies */}
-      {comment.replies && comment.replies.length > 0 && (
+      {showReplies && hasReplies && (
         <div className="space-y-4">
-          {comment.replies.map((reply) => (
+          {comment.replies!.map((reply) => (
             <CommentItem
               key={reply.id}
               comment={reply}

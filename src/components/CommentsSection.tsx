@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { useComments } from "@/hooks/useComments";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
@@ -18,6 +20,11 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
     editComment, 
     deleteComment 
   } = useComments({ videoId });
+  
+  const [visibleComments, setVisibleComments] = useState(3);
+  
+  const displayedComments = comments.slice(0, visibleComments);
+  const hasMoreComments = comments.length > visibleComments;
 
   const handleAddComment = async (content: string) => {
     return await addComment(content);
@@ -63,7 +70,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
           </div>
         ) : (
           <div className="space-y-6">
-            {comments.map((comment) => (
+            {displayedComments.map((comment) => (
               <CommentItem
                 key={comment.id}
                 comment={comment}
@@ -73,6 +80,17 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
                 isSubmitting={isSubmitting}
               />
             ))}
+            {hasMoreComments && (
+              <div className="text-center pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setVisibleComments(prev => prev + 5)}
+                  className="text-sm"
+                >
+                  Lihat {Math.min(5, comments.length - visibleComments)} komentar lainnya
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
