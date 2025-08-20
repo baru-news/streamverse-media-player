@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { CoinDisplay } from "@/components/CoinDisplay";
+import SpinWheelButton from "@/components/SpinWheelButton";
+import { UserBadgeDisplay } from "@/components/UserBadgeDisplay";
 import { BadgeStore } from "@/components/BadgeStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DailyTasksCard } from "@/components/DailyTasksCard";
@@ -108,6 +110,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
             {user ? (
               <>
                 <CoinDisplay />
+                <SpinWheelButton />
                 <BadgeStore />
                 <Dialog>
                   <DialogTrigger asChild>
@@ -231,6 +234,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                 </div>
                 <div className="flex flex-col gap-2">
                   <BadgeStore />
+                  <SpinWheelButton />
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="justify-start gap-2">

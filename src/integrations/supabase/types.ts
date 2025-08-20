@@ -254,6 +254,72 @@ export type Database = {
         }
         Relationships: []
       }
+      spin_wheel_rewards: {
+        Row: {
+          coin_amount: number
+          color: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          probability: number
+          rarity: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          coin_amount: number
+          color?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          probability?: number
+          rarity?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          coin_amount?: number
+          color?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          probability?: number
+          rarity?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      spin_wheel_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_type: string
+          setting_value: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_type?: string
+          setting_value: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_type?: string
+          setting_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_key: string
@@ -361,6 +427,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_spin_attempts: {
+        Row: {
+          coins_won: number
+          created_at: string
+          id: string
+          reward_id: string
+          spin_date: string
+          user_id: string
+        }
+        Insert: {
+          coins_won: number
+          created_at?: string
+          id?: string
+          reward_id: string
+          spin_date?: string
+          user_id: string
+        }
+        Update: {
+          coins_won?: number
+          created_at?: string
+          id?: string
+          reward_id?: string
+          spin_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user_spin_attempts_reward_id"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "spin_wheel_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_subscriptions: {
         Row: {
@@ -650,6 +751,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_user_spin_today: {
+        Args: { user_id_param: string }
+        Returns: boolean
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]

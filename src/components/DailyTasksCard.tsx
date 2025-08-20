@@ -4,12 +4,14 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useDailyTasks } from '@/hooks/useDailyTasks';
 import { useDailyTaskCountdown } from '@/hooks/useDailyTaskCountdown';
+import { useSpinWheel } from '@/hooks/useSpinWheel';
 import { CheckCircle, Clock, Target, Coins, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const DailyTasksCard = () => {
   const { tasks, loading, getCompletedTasksCount, getTotalTasksCount, refreshTasks } = useDailyTasks();
   const { getFormattedCountdown, getProgressPercentage, isResetting } = useDailyTaskCountdown();
+  const { canSpin, todayAttempts } = useSpinWheel();
 
   // Refresh tasks when countdown reaches zero (reset time)
   useEffect(() => {
@@ -74,6 +76,8 @@ export const DailyTasksCard = () => {
 
   const completedCount = getCompletedTasksCount();
   const totalCount = getTotalTasksCount();
+  const allTasksCompleted = totalCount > 0 && completedCount === totalCount;
+  const hasSpunToday = todayAttempts.length > 0;
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -120,6 +124,22 @@ export const DailyTasksCard = () => {
             Semua tugas akan reset pada jam 12:00 WIB
           </p>
         </div>
+
+        {/* Spin Wheel Status */}
+        {allTasksCompleted && (
+          <div className="mt-3 p-3 bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 rounded-lg">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-pink-600">🎀</span>
+              {hasSpunToday ? (
+                <span className="text-pink-700 font-medium">Lucky wheel completed today! ✨</span>
+              ) : canSpin ? (
+                <span className="text-pink-700 font-medium animate-pulse">Lucky wheel unlocked! Click the wheel button! 🎡</span>
+              ) : (
+                <span className="text-pink-600">Lucky wheel available soon... 🌸</span>
+              )}
+            </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
