@@ -8,10 +8,10 @@ interface AdBannerProps {
 }
 
 const adSizes = {
-  banner: { width: 728, height: 150 },
-  rectangle: { width: 300, height: 400 },
-  leaderboard: { width: 728, height: 150 },
-  skyscraper: { width: 160, height: 800 }
+  banner: { width: 728, height: 70 },
+  rectangle: { width: 300, height: 70 },
+  leaderboard: { width: 728, height: 70 },
+  skyscraper: { width: 160, height: 70 }
 };
 
 export const AdBanner: React.FC<AdBannerProps> = ({ 
