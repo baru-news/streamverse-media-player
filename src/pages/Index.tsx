@@ -64,13 +64,13 @@ const Index = () => {
           
           {user && <CategoryFilter selectedCategoryId={selectedCategoryId} onCategoryChange={setSelectedCategoryId} />}
           
-          {/* Ad Banners - Side by side on desktop, stacked on mobile */}
+          {/* Ad Banners - Tight columns on desktop, stacked on mobile */}
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row gap-4 justify-center md:justify-between max-w-6xl mx-auto">
-              <div className="w-full md:flex-1">
+            <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
+              <div className="w-full md:w-1/2">
                 <AdContainer position="content" size="banner" placeholder={true} />
               </div>
-              <div className="w-full md:flex-1">
+              <div className="w-full md:w-1/2">
                 <AdContainer position="content" size="banner" placeholder={true} />
               </div>
             </div>
