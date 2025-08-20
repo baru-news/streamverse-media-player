@@ -6,7 +6,7 @@ import { useAds } from '@/hooks/useAds';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AdContainerProps {
-  position: 'header' | 'content' | 'sidebar' | 'footer';
+  position: 'header' | 'content' | 'sidebar' | 'footer' | 'banner';
   size: 'banner' | 'rectangle' | 'leaderboard' | 'skyscraper';
   className?: string;
   placeholder?: boolean;
@@ -25,7 +25,8 @@ export const AdContainer: React.FC<AdContainerProps> = ({
     header: "w-full flex justify-center py-4",
     content: "w-full flex justify-center",
     sidebar: "sticky top-4",
-    footer: "w-full flex justify-center py-4"
+    footer: "w-full flex justify-center py-4",
+    banner: "w-full flex justify-center py-2"
   };
 
   // Check if ads should be displayed

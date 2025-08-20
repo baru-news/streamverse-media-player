@@ -83,18 +83,18 @@ const Index = () => {
             <div className="container mx-auto">
               <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="content" size="banner" placeholder={true} />
+                  <AdContainer position="banner" size="banner" placeholder={false} />
                 </div>
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="content" size="banner" placeholder={true} />
+                  <AdContainer position="banner" size="banner" placeholder={false} />
                 </div>
               </div>
               <div className="flex flex-col md:flex-row justify-center max-w-6xl mx-auto">
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="content" size="banner" placeholder={true} />
+                  <AdContainer position="banner" size="banner" placeholder={false} />
                 </div>
                 <div className="w-full md:w-1/2">
-                  <AdContainer position="content" size="banner" placeholder={true} />
+                  <AdContainer position="banner" size="banner" placeholder={false} />
                 </div>
               </div>
             </div>
