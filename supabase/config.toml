@@ -6,9 +6,6 @@ verify_jwt = true
 [functions.doodstream-api]
 verify_jwt = false
 
-[functions.lulustream-api]
-verify_jwt = false
-
 [functions.assign-admin]
 verify_jwt = false
 

@@ -1,7 +1,6 @@
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
-import { SecureLuluStreamAPI } from "@/lib/supabase-lulustream";
 
-export type VideoProvider = 'doodstream' | 'lulustream';
+export type VideoProvider = 'doodstream';
 
 export interface VideoProviderConfig {
   name: string;
@@ -17,18 +16,11 @@ export class VideoProviderManager {
       displayName: 'DoodStream',
       uploadSupported: true,
       directDownloadSupported: true,
-    },
-    lulustream: {
-      name: 'lulustream',
-      displayName: 'LuluStream',
-      uploadSupported: true,
-      directDownloadSupported: false,
     }
   };
 
   private static readonly apis = {
     doodstream: SecureDoodstreamAPI,
-    lulustream: SecureLuluStreamAPI,
   };
 
   /**
@@ -51,9 +43,6 @@ export class VideoProviderManager {
   static detectProvider(fileCodeOrUrl: string): VideoProvider | null {
     if (fileCodeOrUrl.includes('doodstream') || fileCodeOrUrl.includes('dood')) {
       return 'doodstream';
-    }
-    if (fileCodeOrUrl.includes('lulustream') || fileCodeOrUrl.includes('lulu')) {
-      return 'lulustream';
     }
     return 'doodstream'; // Default fallback
   }
@@ -143,24 +132,8 @@ export class VideoProviderManager {
       const api = this.apis[provider];
       return api.getVideosFromDatabaseBySearch(searchQuery, hashtagId, categoryId, page, perPage);
     } else {
-      // Search across all providers and merge results
-      const [doodstreamResults, luluStreamResults] = await Promise.allSettled([
-        SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, hashtagId, categoryId, page, perPage),
-        SecureLuluStreamAPI.getVideosFromDatabaseBySearch(searchQuery, hashtagId, categoryId, page, perPage)
-      ]);
-
-      const results: any[] = [];
-      
-      if (doodstreamResults.status === 'fulfilled') {
-        results.push(...doodstreamResults.value);
-      }
-      
-      if (luluStreamResults.status === 'fulfilled') {
-        results.push(...luluStreamResults.value);
-      }
-
-      // Sort by created_at descending
-      return results.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      // Search in DoodStream only
+      return SecureDoodstreamAPI.getVideosFromDatabaseBySearch(searchQuery, hashtagId, categoryId, page, perPage);
     }
   }
 

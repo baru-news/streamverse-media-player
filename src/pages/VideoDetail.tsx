@@ -100,7 +100,6 @@ const VideoDetail = () => {
           tags: ["Streaming", "Video", "Entertainment", "DINO18"],
           fileCode: currentVideo.file_code,
           doodstreamFileCode: currentVideo.doodstream_file_code,
-          luluStreamFileCode: currentVideo.lulustream_file_code,
           primaryProvider: currentVideo.primary_provider as VideoProvider || currentVideo.provider as VideoProvider,
           provider: currentVideo.provider as VideoProvider // Keep for compatibility
         };
@@ -110,10 +109,9 @@ const VideoDetail = () => {
         await loadLikesCount(currentVideo.id);
         await loadVideoHashtags(currentVideo.id);
 
-        // Get related videos from all providers (exclude current video)
+        // Get related videos from DoodStream only (exclude current video)
         const allVideosResults = await Promise.allSettled([
-          VideoProviderManager.getVideosFromDatabase('doodstream', 1, 25),
-          VideoProviderManager.getVideosFromDatabase('lulustream', 1, 25)
+          VideoProviderManager.getVideosFromDatabase('doodstream', 1, 25)
         ]);
 
         let allVideos: any[] = [];
@@ -344,15 +342,6 @@ const VideoDetail = () => {
       }
     }
 
-    if (!downloadLink && video?.luluStreamFileCode) {
-      try {
-        downloadLink = await VideoProviderManager.generateDirectLink('lulustream', video.luluStreamFileCode);
-        if (downloadLink) providerUsed = 'LuluStream';
-      } catch (error) {
-        console.error('Error getting LuluStream download link:', error);
-      }
-    }
-
     if (downloadLink) {
       window.open(downloadLink, '_blank');
       toast({
@@ -386,7 +375,7 @@ const VideoDetail = () => {
     return views.toString();
   };
   const getThumbnailUrl = (fileCode: string, provider: VideoProvider): string => {
-    return `https://lulustream.com/thumbs/${fileCode}.jpg`;
+    return `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`;
   };
 
   const formatDate = (dateString: string): string => {
@@ -427,13 +416,13 @@ const VideoDetail = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background">
-      <SEO title={video?.title} description={video?.description} keywords={`${video?.title}, streaming video, ${video?.provider || 'lulustream'}, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`} image={getThumbnailUrl(video?.fileCode || '', video?.provider || 'lulustream')} type="video.other" video={{
+      <SEO title={video?.title} description={video?.description} keywords={`${video?.title}, streaming video, ${video?.provider || 'doodstream'}, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`} image={getThumbnailUrl(video?.fileCode || '', video?.provider || 'doodstream')} type="video.other" video={{
       title: video?.title || '',
       description: video?.description || '',
-      thumbnail: getThumbnailUrl(video?.fileCode || '', video?.provider || 'lulustream'),
+      thumbnail: getThumbnailUrl(video?.fileCode || '', video?.provider || 'doodstream'),
       duration: video?.duration ? parseInt(video.duration.split(':')[0]) * 60 + parseInt(video.duration.split(':')[1]) : undefined,
       uploadDate: new Date().toISOString(),
-      embedUrl: VideoProviderManager.generateEmbedURL(video?.provider || 'lulustream', video?.fileCode || '')
+      embedUrl: VideoProviderManager.generateEmbedURL(video?.provider || 'doodstream', video?.fileCode || '')
     }} />
       <Header />
       
@@ -451,7 +440,6 @@ const VideoDetail = () => {
               {/* Dual Stream Player - Support for Stream 1 & Stream 2 */}
               <DualStreamPlayer
                 doodstreamFileCode={video.doodstreamFileCode}
-                luluStreamFileCode={video.luluStreamFileCode}
                 primaryProvider={video.primaryProvider}
                 title={video.title}
                 videoId={video.id}

@@ -97,38 +97,24 @@ const EnhancedVideoManager = () => {
   const syncVideos = async () => {
     setIsSyncing(true);
     try {
-      // Sync both providers in parallel
-      const [doodResult, luluResult] = await Promise.allSettled([
-        VideoProviderManager.syncVideos('doodstream'),
-        VideoProviderManager.syncVideos('lulustream')
-      ]);
+      // Sync DoodStream only
+      const doodResult = await VideoProviderManager.syncVideos('doodstream');
       
       let successCount = 0;
       let errors = [];
       
-      if (doodResult.status === 'fulfilled') {
+      if (doodResult) {
         successCount++;
-      } else {
-        errors.push('Doodstream');
-      }
-      
-      if (luluResult.status === 'fulfilled') {
-        successCount++;
-      } else {
-        errors.push('LuluStream');
-      }
-
-      await loadVideos();
-      
-      if (successCount > 0) {
+        await loadVideos();
         toast({
           title: "Berhasil",
-          description: `Video berhasil disinkronkan dari ${successCount} provider${errors.length > 0 ? ` (${errors.join(', ')} gagal)` : ''}`,
+          description: "Video berhasil disinkronkan dari DoodStream",
         });
       } else {
+        errors.push('Doodstream');
         toast({
           title: "Error",
-          description: "Gagal sinkronisasi dari semua provider",
+          description: "Gagal sinkronisasi dari DoodStream",
           variant: "destructive",
         });
       }
@@ -516,9 +502,9 @@ const EnhancedVideoManager = () => {
                           const img = e.currentTarget;
                           const currentSrc = img.src;
                           
-                          // Fallback to LuluStream thumbnail format
-                          if (!currentSrc.includes('lulustream.com/thumbs/')) {
-                            img.src = `https://lulustream.com/thumbs/${video.file_code}.jpg`;
+                          // Fallback to DoodStream thumbnail format
+                          if (!currentSrc.includes('img.doodcdn.io/thumbnails/')) {
+                            img.src = `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`;
                             return;
                           }
                           

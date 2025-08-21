@@ -1,5 +1,4 @@
 import DoodstreamPlayer from "./DoodstreamPlayer";
-import { LuluStreamPlayer } from "./LuluStreamPlayer";
 import type { VideoProvider } from "@/lib/video-provider-manager";
 
 interface UniversalVideoPlayerProps {
@@ -27,18 +26,6 @@ export function UniversalVideoPlayer({
     case 'doodstream':
       return (
         <DoodstreamPlayer
-          fileCode={fileCode}
-          title={title}
-          videoId={videoId}
-          width={width}
-          height={height}
-          autoplay={autoplay}
-          className={className}
-        />
-      );
-    case 'lulustream':
-      return (
-        <LuluStreamPlayer
           fileCode={fileCode}
           title={title}
           videoId={videoId}

@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: `https://lulustream.com/thumbs/${file.file_code}.jpg`,
+            thumbnail: file.single_img || `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };

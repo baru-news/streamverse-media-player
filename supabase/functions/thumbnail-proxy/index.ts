@@ -25,11 +25,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`Fetching LuluStream thumbnail for file code: ${fileCode}`);
-    
-    // Use LuluStream thumbnail URL
-    const thumbnailUrl = `https://lulustream.com/thumbs/${fileCode}.jpg`;
-    console.log(`Trying LuluStream URL: ${thumbnailUrl}`);
+    // Use DoodStream thumbnail URL
+    const thumbnailUrl = `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`;
+    console.log(`Trying DoodStream URL: ${thumbnailUrl}`);
     
     const response = await fetch(thumbnailUrl);
     
@@ -43,7 +41,7 @@ Deno.serve(async (req) => {
         }
       });
     } else {
-      console.log(`LuluStream thumbnail not found for file code: ${fileCode}`);
+      console.log(`DoodStream thumbnail not found for file code: ${fileCode}`);
       return new Response(null, {
         status: 404,
         headers: corsHeaders
