@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Refresh Thumbnails</title>
+</head>
+<body>
+    <script>
+        // Test refresh thumbnails function
+        fetch('https://agsqdznjjxptiyorljtv.supabase.co/functions/v1/refresh-thumbnails', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnc3Fkem5qanhwdGl5b3JsanR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MTAyMTcsImV4cCI6MjA3MTE4NjIxN30.P1KxrXpAB_Qr8vFdsw_dAT2__qgXEKWmqJur7k1NLL4'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Refresh thumbnails result:', data);
+            document.body.innerHTML = '<h1>Refresh Thumbnails Complete</h1><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.body.innerHTML = '<h1>Error</h1><pre>' + error.message + '</pre>';
+        });
+    </script>
+</body>
+</html>
