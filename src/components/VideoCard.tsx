@@ -36,11 +36,19 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             loading="lazy"
+            crossOrigin="anonymous"
             onLoad={() => {
               setImageLoaded(true);
             }}
             onError={(e) => {
-              // Simple fallback to placeholder image
+              console.log(`CORS/Network error for thumbnail: ${thumbnail}`);
+              // Try fallback to direct DoodStream URL if proxy failed
+              if (thumbnail.includes('thumbnail-proxy') && fileCode) {
+                e.currentTarget.src = `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`;
+                e.currentTarget.crossOrigin = "anonymous";
+                return;
+              }
+              // Final fallback to placeholder
               e.currentTarget.src = '/placeholder.svg';
               setImageError(true);
               setImageLoaded(true);

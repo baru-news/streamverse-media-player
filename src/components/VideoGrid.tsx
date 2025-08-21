@@ -49,13 +49,8 @@ const VideoGrid: React.FC<VideoGridProps> = ({
       if (fetchedVideos && fetchedVideos.length > 0) {
         // Transform database videos to match VideoCard props
         const transformedVideos = fetchedVideos.map(video => {
-          // Ensure proper DoodStream thumbnail URL
-          let thumbnailUrl = `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`;
-          
-          // Validate existing thumbnail_url - only use if it's from DoodStream
-          if (video.thumbnail_url && video.thumbnail_url.includes('img.doodcdn.io')) {
-            thumbnailUrl = video.thumbnail_url;
-          }
+          // Use thumbnail-proxy function for proper CORS handling
+          const thumbnailUrl = `/functions/v1/thumbnail-proxy?fileCode=${video.file_code}`;
           
           return {
             id: video.file_code || video.id,
