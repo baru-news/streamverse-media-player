@@ -19,11 +19,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+import { VideoProviderManager } from "@/lib/video-provider-manager";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
 const QuickActions = () => {
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncingDood, setIsSyncingDood] = useState(false);
+  const [isSyncingLulu, setIsSyncingLulu] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const { toast } = useToast();
@@ -31,11 +34,41 @@ const QuickActions = () => {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await SecureDoodstreamAPI.syncVideos();
-      toast({
-        title: "Berhasil",
-        description: "Video berhasil disinkronisasi dari Doodstream",
-      });
+      // Sync both providers in parallel
+      const [doodResult, luluResult] = await Promise.allSettled([
+        VideoProviderManager.syncVideos('doodstream'),
+        VideoProviderManager.syncVideos('lulustream')
+      ]);
+      
+      let successCount = 0;
+      let errors = [];
+      
+      if (doodResult.status === 'fulfilled') {
+        successCount++;
+        console.log('Doodstream sync result:', doodResult.value);
+      } else {
+        errors.push('Doodstream: ' + doodResult.reason?.message);
+      }
+      
+      if (luluResult.status === 'fulfilled') {
+        successCount++;
+        console.log('LuluStream sync result:', luluResult.value);
+      } else {
+        errors.push('LuluStream: ' + luluResult.reason?.message);
+      }
+
+      if (successCount > 0) {
+        toast({
+          title: "Berhasil",
+          description: `Video berhasil disinkronisasi dari ${successCount} provider${errors.length > 0 ? ` (${errors.length} error)` : ''}`,
+        });
+      } else {
+        toast({
+          title: "Error", 
+          description: "Gagal melakukan sinkronisasi dari semua provider",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -47,19 +80,86 @@ const QuickActions = () => {
     }
   };
 
+  const handleSyncDoodstream = async () => {
+    setIsSyncingDood(true);
+    try {
+      await VideoProviderManager.syncVideos('doodstream');
+      toast({
+        title: "Berhasil",
+        description: "Video berhasil disinkronisasi dari Doodstream",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Gagal sinkronisasi Doodstream",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncingDood(false);
+    }
+  };
+
+  const handleSyncLuluStream = async () => {
+    setIsSyncingLulu(true);
+    try {
+      await VideoProviderManager.syncVideos('lulustream');
+      toast({
+        title: "Berhasil", 
+        description: "Video berhasil disinkronisasi dari LuluStream",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Gagal sinkronisasi LuluStream",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncingLulu(false);
+    }
+  };
+
   const loadStats = async () => {
     setIsLoadingStats(true);
     try {
-      const [videoCount, accountInfo] = await Promise.all([
-        supabase.from('videos').select('id', { count: 'exact' }),
-        SecureDoodstreamAPI.getAccountInfo()
+      const [videoCount, doodAccountInfo, luluAccountInfo] = await Promise.allSettled([
+        supabase.from('videos').select('id, provider', { count: 'exact' }),
+        VideoProviderManager.getAccountInfo('doodstream'),
+        VideoProviderManager.getAccountInfo('lulustream')
       ]);
 
+      let totalVideos = 0;
+      let doodVideos = 0; 
+      let luluVideos = 0;
+      let accountData: any = {};
+
+      if (videoCount.status === 'fulfilled') {
+        totalVideos = videoCount.value.count || 0;
+        const videos = videoCount.value.data || [];
+        doodVideos = videos.filter(v => v.provider === 'doodstream').length;
+        luluVideos = videos.filter(v => v.provider === 'lulustream').length;
+      }
+
+      if (doodAccountInfo.status === 'fulfilled') {
+        accountData.doodstream = {
+          storageUsed: doodAccountInfo.value.result?.storage_used || '0',
+          storageLeft: doodAccountInfo.value.result?.storage_left || '0', 
+          balance: doodAccountInfo.value.result?.balance || '0'
+        };
+      }
+
+      if (luluAccountInfo.status === 'fulfilled') {
+        accountData.lulustream = {
+          storageUsed: luluAccountInfo.value.result?.storage_used || '0',
+          storageLeft: luluAccountInfo.value.result?.storage_left || '0',
+          balance: luluAccountInfo.value.result?.balance || '0' 
+        };
+      }
+
       setStats({
-        totalVideos: videoCount.count || 0,
-        storageUsed: accountInfo.storage_used || '0 GB',
-        storageLeft: accountInfo.storage_left || '0 GB',
-        balance: accountInfo.balance || '0'
+        totalVideos,
+        doodVideos,
+        luluVideos,
+        ...accountData
       });
     } catch (error) {
       console.error('Failed to load stats:', error);
@@ -70,13 +170,31 @@ const QuickActions = () => {
 
   const quickActions = [
     {
-      title: "Sync Video",
-      description: "Sinkronkan video dari Doodstream",
+      title: "Sync Multi-Provider",
+      description: "Sinkronkan semua provider sekaligus",
       icon: RefreshCw,
       action: handleSync,
       loading: isSyncing,
       variant: "default" as const,
       color: "text-blue-500"
+    },
+    {
+      title: "Sync Doodstream",
+      description: "Sinkronkan dari Doodstream saja", 
+      icon: RefreshCw,
+      action: handleSyncDoodstream,
+      loading: isSyncingDood,
+      variant: "outline" as const,
+      color: "text-blue-400"
+    },
+    {
+      title: "Sync LuluStream",
+      description: "Sinkronkan dari LuluStream saja",
+      icon: RefreshCw, 
+      action: handleSyncLuluStream,
+      loading: isSyncingLulu,
+      variant: "outline" as const,
+      color: "text-green-400"
     },
     {
       title: "Kelola Video", 
@@ -85,6 +203,14 @@ const QuickActions = () => {
       href: "#videos",
       variant: "outline" as const,
       color: "text-green-500"
+    },
+    {
+      title: "Upload Video",
+      description: "Upload ke provider pilihan", 
+      icon: Upload,
+      href: "#upload",
+      variant: "outline" as const,
+      color: "text-purple-500"
     },
     {
       title: "Pengaturan Web",
@@ -112,8 +238,8 @@ const QuickActions = () => {
       color: "text-red-500"
     },
     {
-      title: "Pengaturan Doodstream",
-      description: "Konfigurasi API",
+      title: "Pengaturan Provider",
+      description: "Konfigurasi Multi-Provider",
       icon: Settings,
       href: "#settings",
       variant: "outline" as const,
@@ -148,25 +274,27 @@ const QuickActions = () => {
           
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-4 text-center">
-              <Activity className="w-6 h-6 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">${stats.balance}</div>
+              <div className="w-6 h-6 text-blue-400 mx-auto mb-2 font-bold">D</div>
+              <div className="text-2xl font-bold text-foreground">{stats.doodVideos}</div>
+              <div className="text-xs text-muted-foreground">Doodstream</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-4 text-center">
+              <div className="w-6 h-6 text-green-400 mx-auto mb-2 font-bold">L</div>
+              <div className="text-2xl font-bold text-foreground">{stats.luluVideos}</div>
+              <div className="text-xs text-muted-foreground">LuluStream</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-4 text-center">
+              <Activity className="w-6 h-6 text-purple-500 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">
+                ${stats.doodstream?.balance || stats.lulustream?.balance || '0'}
+              </div>
               <div className="text-xs text-muted-foreground">Balance</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4 text-center">
-              <Download className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{stats.storageUsed}</div>
-              <div className="text-xs text-muted-foreground">Storage Used</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardContent className="p-4 text-center">
-              <Upload className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{stats.storageLeft}</div>
-              <div className="text-xs text-muted-foreground">Storage Left</div>
             </CardContent>
           </Card>
         </div>
@@ -238,9 +366,15 @@ const QuickActions = () => {
             </div>
             
             <div className="flex items-center gap-3 p-3 bg-background/30 rounded-lg">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span className="text-muted-foreground">Panel admin siap digunakan</span>
-              <Badge variant="outline" className="ml-auto">Siap</Badge>
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-muted-foreground">Koneksi LuluStream tersedia</span>
+              <Badge variant="outline" className="ml-auto">Online</Badge>
+            </div>
+            
+            <div className="flex items-center gap-3 p-3 bg-background/30 rounded-lg">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span className="text-muted-foreground">Multi-Provider System aktif</span>
+              <Badge variant="outline" className="ml-auto">Ready</Badge>
             </div>
           </div>
         </CardContent>

@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+import { VideoProviderManager } from "@/lib/video-provider-manager";
 import VideoHashtagSelector from "@/components/VideoHashtagSelector";
 import VideoCategorySelector from "@/components/VideoCategorySelector";
 import { generateSEOTitle, generateSlug, generateMetaDescription } from "@/lib/seo-utils";
@@ -33,6 +34,7 @@ interface VideoData {
   upload_date?: string;
   file_size?: number;
   status?: string;
+  provider?: 'doodstream' | 'lulustream';
   thumbnail_url?: string;
   title_edited?: boolean;
   description_edited?: boolean;
@@ -86,12 +88,41 @@ const EnhancedVideoManager = () => {
   const syncVideos = async () => {
     setIsSyncing(true);
     try {
-      await SecureDoodstreamAPI.syncVideos();
+      // Sync both providers in parallel
+      const [doodResult, luluResult] = await Promise.allSettled([
+        VideoProviderManager.syncVideos('doodstream'),
+        VideoProviderManager.syncVideos('lulustream')
+      ]);
+      
+      let successCount = 0;
+      let errors = [];
+      
+      if (doodResult.status === 'fulfilled') {
+        successCount++;
+      } else {
+        errors.push('Doodstream');
+      }
+      
+      if (luluResult.status === 'fulfilled') {
+        successCount++;
+      } else {
+        errors.push('LuluStream');
+      }
+
       await loadVideos();
-      toast({
-        title: "Berhasil",
-        description: "Video berhasil disinkronkan dari Doodstream.",
-      });
+      
+      if (successCount > 0) {
+        toast({
+          title: "Berhasil",
+          description: `Video berhasil disinkronkan dari ${successCount} provider${errors.length > 0 ? ` (${errors.join(', ')} gagal)` : ''}`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Gagal sinkronisasi dari semua provider",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Failed to sync videos:", error);
       toast({
@@ -279,7 +310,7 @@ const EnhancedVideoManager = () => {
             className="gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? "Syncing..." : "Sync Doodstream"}
+            {isSyncing ? "Syncing..." : "Sync Multi-Provider"}
           </Button>
           <Button
             onClick={() => exportVideosData(videos)}
@@ -601,6 +632,16 @@ const EnhancedVideoManager = () => {
                             )}
                             {video.status || 'processing'}
                           </div>
+                          {video.provider && (
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs px-2 py-0 ${
+                                video.provider === 'doodstream' ? 'text-blue-400 border-blue-400' : 'text-green-400 border-green-400'
+                              }`}
+                            >
+                              {video.provider === 'doodstream' ? 'Dood' : 'Lulu'}
+                            </Badge>
+                          )}
                           {video.views && (
                             <span>{video.views.toLocaleString()} views</span>
                           )}
@@ -617,7 +658,10 @@ const EnhancedVideoManager = () => {
                           size="sm" 
                           className="flex-1 gap-1"
                           onClick={() => {
-                            const embedUrl = `https://dood.re/e/${video.file_code}`;
+                            // Generate embed URL based on provider
+                            const embedUrl = video.provider === 'lulustream' 
+                              ? `https://lulustream.com/e/${video.file_code}`
+                              : `https://dood.re/e/${video.file_code}`;
                             navigator.clipboard.writeText(embedUrl);
                             toast({
                               title: "Link disalin",
