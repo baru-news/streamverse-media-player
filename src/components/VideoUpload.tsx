@@ -125,7 +125,15 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
           reason: luluResult.status === 'rejected' ? luluResult.reason : 'Unknown',
           message: luluResult.status === 'rejected' ? luluResult.reason?.message : 'Upload failed'
         });
-        errors.push('LuluStream: ' + (luluResult.status === 'rejected' ? luluResult.reason?.message || luluResult.reason : 'Upload failed'));
+        
+        const errorMessage = luluResult.status === 'rejected' ? luluResult.reason?.message || luluResult.reason : 'Upload failed';
+        
+        // Special handling for video too short error
+        if (errorMessage?.includes('Video terlalu pendek')) {
+          errors.push(`LuluStream: ${errorMessage}`);
+        } else {
+          errors.push('LuluStream: ' + errorMessage);
+        }
       }
 
       if (doodFileCode || luluFileCode) {
@@ -157,19 +165,33 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         }
 
         const successCount = (doodFileCode ? 1 : 0) + (luluFileCode ? 1 : 0);
+        const hasVideoTooShortError = errors.some(error => error.includes('Video terlalu pendek'));
+        
+        let message = `Upload berhasil ke ${successCount}/2 provider`;
+        if (hasVideoTooShortError) {
+          message += ` (LuluStream memerlukan video yang lebih panjang)`;
+        } else if (errors.length > 0) {
+          message += ` (${errors.length} error)`;
+        }
+        
         const result = {
           success: true,
           file_code: doodFileCode || luluFileCode,
           doodstream_file_code: doodFileCode,
           lulustream_file_code: luluFileCode,
-          message: `Upload berhasil ke ${successCount}/2 provider${errors.length > 0 ? ` (${errors.length} error)` : ''}`
+          message,
+          errors: errors
         };
 
         setUploadResult(result);
         
+        const toastDescription = hasVideoTooShortError 
+          ? `Video berhasil diupload ke Doodstream. LuluStream memerlukan video minimal 15-20 detik.`
+          : `Video berhasil diupload ke ${successCount} dari 2 provider`;
+        
         toast({
           title: "Upload Berhasil!",
-          description: `Video berhasil diupload ke ${successCount} dari 2 provider`,
+          description: toastDescription,
         });
         
         onUploadComplete?.(doodFileCode || luluFileCode, result, doodFileCode ? 'doodstream' : 'lulustream');

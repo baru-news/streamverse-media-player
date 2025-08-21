@@ -124,6 +124,14 @@ export class SecureLuluStreamAPI {
       };
     } catch (error) {
       console.error("LuluStream upload error:", error);
+      
+      // Check if this is a video too short error
+      if (error.message && error.message.includes('Video terlalu pendek')) {
+        const shortVideoError = new Error(error.message);
+        shortVideoError.name = 'VideoTooShortError';
+        throw shortVideoError;
+      }
+      
       throw error;
     }
   }

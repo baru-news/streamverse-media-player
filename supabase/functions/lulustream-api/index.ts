@@ -209,13 +209,24 @@ async function uploadVideo(uploadUrl: string, fileData: number[], fileName: stri
     
     // According to API docs, response format is:
     // { "msg": "OK", "status": 200, "files": [{"filecode": "...", "filename": "...", "status": "OK"}] }
-    if (!data.files || !data.files[0] || !data.files[0].filecode) {
-      throw new Error('Invalid response format: missing filecode');
+    if (!data.files || !data.files[0]) {
+      throw new Error('Invalid response format: missing files array');
+    }
+    
+    const fileInfo = data.files[0];
+    
+    // Check if filecode is empty and there's a status indicating video is too short
+    if (!fileInfo.filecode || fileInfo.filecode === '') {
+      // Check if the status field indicates video is too short
+      if (fileInfo.status && fileInfo.status.includes('video is too short')) {
+        throw new Error('Video terlalu pendek untuk LuluStream (minimum durasi diperlukan). Gunakan video yang lebih panjang (minimal 15-20 detik).');
+      }
+      throw new Error(`Upload gagal: ${fileInfo.status || 'File code tidak ditemukan'}`);
     }
     
     return {
       success: true,
-      file_code: data.files[0].filecode,
+      file_code: fileInfo.filecode,
       status: 200,
       msg: data.msg,
       result: data.files
