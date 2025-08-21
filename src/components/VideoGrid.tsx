@@ -48,18 +48,28 @@ const VideoGrid: React.FC<VideoGridProps> = ({
       setTotalPages(Math.ceil(totalCount / videosPerPage));
       if (fetchedVideos && fetchedVideos.length > 0) {
         // Transform database videos to match VideoCard props
-        const transformedVideos = fetchedVideos.map(video => ({
-          id: video.file_code || video.id,
-          // Use file_code as id for proper routing
-          title: video.title,
-          thumbnail: video.thumbnail_url || `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`,
-          duration: formatDuration(video.duration || 0),
-          views: formatViews(video.views || 0),
-          creator: 'DINO18',
-          category: 'Video',
-          fileCode: video.file_code,
-          videoId: video.id // Pass database ID for favorites
-        }));
+        const transformedVideos = fetchedVideos.map(video => {
+          // Ensure proper DoodStream thumbnail URL
+          let thumbnailUrl = `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`;
+          
+          // Validate existing thumbnail_url - only use if it's from DoodStream
+          if (video.thumbnail_url && video.thumbnail_url.includes('img.doodcdn.io')) {
+            thumbnailUrl = video.thumbnail_url;
+          }
+          
+          return {
+            id: video.file_code || video.id,
+            // Use file_code as id for proper routing
+            title: video.title,
+            thumbnail: thumbnailUrl,
+            duration: formatDuration(video.duration || 0),
+            views: formatViews(video.views || 0),
+            creator: 'DINO18',
+            category: 'Video',
+            fileCode: video.file_code,
+            videoId: video.id // Pass database ID for favorites
+          };
+        });
         setVideos(transformedVideos);
       } else {
         // If no videos in database, show message
