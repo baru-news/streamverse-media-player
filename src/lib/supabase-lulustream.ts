@@ -72,16 +72,19 @@ export class SecureLuluStreamAPI {
     const serverResponse = await this.getUploadServer();
     const uploadUrl = serverResponse.result;
 
-    // Prepare form data
-    const formData: Record<string, string> = {
-      file_title: title || file.name
-    };
+    // Convert file to base64 for transmission to edge function
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const fileData = Array.from(uint8Array);
 
     const { data, error } = await supabase.functions.invoke('lulustream-api', {
       body: { 
         action: 'uploadVideo',
         uploadUrl,
-        formData
+        fileData: fileData,
+        fileName: file.name,
+        fileType: file.type,
+        fileTitle: title || file.name
       }
     });
 

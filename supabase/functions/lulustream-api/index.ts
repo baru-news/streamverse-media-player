@@ -41,7 +41,7 @@ serve(async (req) => {
         result = await getUploadServer();
         break;
       case 'uploadVideo':
-        result = await uploadVideo(params.uploadUrl, params.formData);
+        result = await uploadVideo(params.uploadUrl, params.fileData, params.fileName, params.fileType, params.fileTitle);
         break;
       case 'syncVideos':
         result = await syncVideos();
@@ -147,27 +147,35 @@ async function getUploadServer() {
   return data;
 }
 
-async function uploadVideo(uploadUrl: string, formData: any) {
-  const form = new FormData();
-  form.append('key', luluStreamApiKey);
-  
-  // Add all form data
-  for (const [key, value] of Object.entries(formData)) {
-    form.append(key, value as string);
-  }
+async function uploadVideo(uploadUrl: string, fileData: number[], fileName: string, fileType: string, fileTitle: string) {
+  try {
+    // Recreate the file from the data
+    const uint8Array = new Uint8Array(fileData);
+    const blob = new Blob([uint8Array], { type: fileType });
+    
+    const form = new FormData();
+    form.append('key', luluStreamApiKey);
+    form.append('file', blob, fileName);
+    form.append('file_title', fileTitle);
 
-  const response = await fetch(uploadUrl, {
-    method: 'POST',
-    body: form
-  });
-  
-  const data = await response.json();
-  
-  if (data.status !== 200) {
-    throw new Error(data.msg || 'Upload failed');
+    console.log(`Uploading file to LuluStream: ${uploadUrl}`);
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: form
+    });
+    
+    const data = await response.json();
+    console.log('LuluStream upload response:', data);
+    
+    if (data.status !== 200) {
+      throw new Error(data.msg || 'Upload failed');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('LuluStream upload error:', error);
+    throw error;
   }
-  
-  return data;
 }
 
 async function generateDirectLink(fileCode: string) {
