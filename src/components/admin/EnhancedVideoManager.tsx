@@ -516,9 +516,9 @@ const EnhancedVideoManager = () => {
                           const img = e.currentTarget;
                           const currentSrc = img.src;
                           
-                          // First fallback: if postercdn.com URL, try doodcdn.io
-                          if (currentSrc.includes('postercdn.com')) {
-                            img.src = `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`;
+                          // Fallback to LuluStream thumbnail format
+                          if (!currentSrc.includes('lulustream.com/thumbs/')) {
+                            img.src = `https://lulustream.com/thumbs/${video.file_code}.jpg`;
                             return;
                           }
                           

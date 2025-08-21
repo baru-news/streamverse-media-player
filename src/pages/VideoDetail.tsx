@@ -386,14 +386,7 @@ const VideoDetail = () => {
     return views.toString();
   };
   const getThumbnailUrl = (fileCode: string, provider: VideoProvider): string => {
-    switch (provider) {
-      case 'doodstream':
-        return `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
-      case 'lulustream':
-        return `https://img.lulustream.com/${fileCode}_t.jpg`;
-      default:
-        return `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
-    }
+    return `https://lulustream.com/thumbs/${fileCode}.jpg`;
   };
 
   const formatDate = (dateString: string): string => {
@@ -434,13 +427,13 @@ const VideoDetail = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background">
-      <SEO title={video?.title} description={video?.description} keywords={`${video?.title}, streaming video, ${video?.provider || 'doodstream'}, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`} image={getThumbnailUrl(video?.fileCode || '', video?.provider || 'doodstream')} type="video.other" video={{
+      <SEO title={video?.title} description={video?.description} keywords={`${video?.title}, streaming video, ${video?.provider || 'lulustream'}, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`} image={getThumbnailUrl(video?.fileCode || '', video?.provider || 'lulustream')} type="video.other" video={{
       title: video?.title || '',
       description: video?.description || '',
-      thumbnail: getThumbnailUrl(video?.fileCode || '', video?.provider || 'doodstream'),
+      thumbnail: getThumbnailUrl(video?.fileCode || '', video?.provider || 'lulustream'),
       duration: video?.duration ? parseInt(video.duration.split(':')[0]) * 60 + parseInt(video.duration.split(':')[1]) : undefined,
       uploadDate: new Date().toISOString(),
-      embedUrl: VideoProviderManager.generateEmbedURL(video?.provider || 'doodstream', video?.fileCode || '')
+      embedUrl: VideoProviderManager.generateEmbedURL(video?.provider || 'lulustream', video?.fileCode || '')
     }} />
       <Header />
       

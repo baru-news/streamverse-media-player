@@ -25,27 +25,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`Fetching thumbnail for file code: ${fileCode}`);
+    console.log(`Fetching LuluStream thumbnail for file code: ${fileCode}`);
     
-    // Try primary thumbnail URL (thumbnails endpoint is usually best quality)
-    const primaryUrl = `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`;
-    console.log(`Trying primary URL: ${primaryUrl}`);
+    // Use LuluStream thumbnail URL
+    const thumbnailUrl = `https://lulustream.com/thumbs/${fileCode}.jpg`;
+    console.log(`Trying LuluStream URL: ${thumbnailUrl}`);
     
-    let response = await fetch(primaryUrl);
-    
-    if (!response.ok) {
-      // Try snaps URL as fallback
-      const snapsUrl = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
-      console.log(`Primary failed, trying snaps: ${snapsUrl}`);
-      response = await fetch(snapsUrl);
-      
-      if (!response.ok) {
-        // Try splash URL as final fallback
-        const splashUrl = `https://img.doodcdn.io/splash/${fileCode}.jpg`;
-        console.log(`Snaps failed, trying splash: ${splashUrl}`);
-        response = await fetch(splashUrl);
-      }
-    }
+    const response = await fetch(thumbnailUrl);
     
     if (response.ok) {
       const imageBuffer = await response.arrayBuffer();
@@ -57,7 +43,7 @@ Deno.serve(async (req) => {
         }
       });
     } else {
-      console.log(`All thumbnail URLs failed for file code: ${fileCode}`);
+      console.log(`LuluStream thumbnail not found for file code: ${fileCode}`);
       return new Response(null, {
         status: 404,
         headers: corsHeaders

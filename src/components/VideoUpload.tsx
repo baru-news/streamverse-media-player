@@ -137,11 +137,9 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       }
 
       if (doodFileCode || luluFileCode) {
-        // Prioritize LuluStream thumbnail if available
-        const thumbnailUrl = luluFileCode 
-          ? `https://lulustream.com/thumbs/${luluFileCode}.jpg`
-          : doodFileCode 
-          ? `https://img.doodcdn.io/thumbnails/${doodFileCode}.jpg`
+        // Use LuluStream thumbnail format for all videos
+        const thumbnailUrl = (luluFileCode || doodFileCode) 
+          ? `https://lulustream.com/thumbs/${luluFileCode || doodFileCode}.jpg`
           : null;
 
         // Create single video record with both file codes
