@@ -19,11 +19,17 @@ serve(async (req) => {
   }
 
   try {
+    console.log('LuluStream API request received:', req.method, req.url);
+    
     const { action, ...params } = await req.json();
+    console.log('Action requested:', action, 'with params:', Object.keys(params));
 
     if (!luluStreamApiKey) {
+      console.error('LuluStream API key not configured');
       throw new Error('LuluStream API key not configured');
     }
+
+    console.log('LuluStream API key available:', !!luluStreamApiKey);
 
     let result;
     
@@ -38,9 +44,11 @@ serve(async (req) => {
         result = await getVideoList(params.page, params.perPage);
         break;
       case 'getUploadServer':
+        console.log('Getting upload server...');
         result = await getUploadServer();
         break;
       case 'uploadVideo':
+        console.log('Processing file upload action');
         result = await uploadVideo(params.uploadUrl, params.fileData, params.fileName, params.fileType, params.fileTitle);
         break;
       case 'syncVideos':
@@ -53,12 +61,18 @@ serve(async (req) => {
         throw new Error(`Unknown action: ${action}`);
     }
 
+    console.log('LuluStream API operation completed successfully');
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in lulustream-api function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('Error stack:', error.stack);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: error.stack,
+      timestamp: new Date().toISOString()
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -137,14 +151,26 @@ async function getVideoList(page = 1, perPage = 50) {
 }
 
 async function getUploadServer() {
-  const response = await fetch(`https://lulustream.com/api/upload/server?key=${luluStreamApiKey}`);
-  const data = await response.json();
-  
-  if (data.status !== 200) {
-    throw new Error(data.msg || 'Failed to get upload server');
+  try {
+    console.log('Requesting upload server from LuluStream...');
+    const response = await fetch(`https://lulustream.com/api/upload/server?key=${luluStreamApiKey}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('Upload server response:', data);
+    
+    if (data.status !== 200) {
+      throw new Error(data.msg || 'Failed to get upload server');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error getting upload server:', error);
+    throw error;
   }
-  
-  return data;
 }
 
 async function uploadVideo(uploadUrl: string, fileData: number[], fileName: string, fileType: string, fileTitle: string) {
