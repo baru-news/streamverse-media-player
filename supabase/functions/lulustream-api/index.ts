@@ -271,15 +271,15 @@ async function syncVideos() {
         file_code: video.file_code,
         lulustream_file_code: video.file_code, // Store LuluStream file code in the dedicated column
         provider: 'lulustream',
-        primary_provider: 'lulustream',
+        primary_provider: 'lulustream', 
         title: video.title || video.file_code,
         original_title: video.title || video.file_code,
-        description: '',
+        description: null,
         thumbnail_url: `https://lulustream.com/thumbs/${video.file_code}.jpg`,
         duration: video.length ? parseInt(video.length) : null,
         views: video.views ? parseInt(video.views) : 0,
         status: video.canplay === 1 ? 'active' : 'processing',
-        upload_date: video.uploaded || new Date().toISOString(),
+        upload_date: video.uploaded ? new Date(video.uploaded).toISOString() : new Date().toISOString(),
         provider_data: {
           public: video.public,
           fld_id: video.fld_id,
@@ -287,20 +287,43 @@ async function syncVideos() {
         }
       }));
 
-      // Use upsert with file_code as the conflict resolution since each video should have unique file_code
-      const { error } = await supabase
-        .from('videos')
-        .upsert(videoInserts, {
-          onConflict: 'file_code',
-          ignoreDuplicates: false
-        });
+      console.log(`Attempting to insert ${videoInserts.length} videos:`, videoInserts.map(v => ({ file_code: v.file_code, title: v.title })));
 
-      if (error) {
-        console.error('Error inserting videos:', error);
-      } else {
-        totalSynced += videos.length;
+      // Try individual inserts to identify which records are causing issues
+      let insertedCount = 0;
+      for (const video of videoInserts) {
+        try {
+          const { error } = await supabase
+            .from('videos')
+            .insert(video);
+            
+          if (error) {
+            console.error(`Error inserting video ${video.file_code}:`, error);
+            
+            // Try upsert instead 
+            const { error: upsertError } = await supabase
+              .from('videos')
+              .upsert(video, {
+                onConflict: 'file_code'
+              });
+              
+            if (upsertError) {
+              console.error(`Error upserting video ${video.file_code}:`, upsertError);
+            } else {
+              insertedCount++;
+              console.log(`Successfully upserted video: ${video.title} (${video.file_code})`);
+            }
+          } else {
+            insertedCount++;
+            console.log(`Successfully inserted video: ${video.title} (${video.file_code})`);
+          }
+        } catch (err) {
+          console.error(`Exception inserting video ${video.file_code}:`, err);
+        }
       }
-
+      
+      totalSynced += insertedCount;
+      
       page++;
       
       // Check if we have more pages
@@ -314,6 +337,7 @@ async function syncVideos() {
     }
   }
 
+  console.log(`Sync completed. Total videos synced: ${totalSynced}`);
   return {
     success: true,
     totalSynced,
