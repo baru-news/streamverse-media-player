@@ -120,8 +120,12 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         luluFileCode = luluResult.value.file_code;
         console.log("LuluStream success:", luluFileCode);
       } else {
-        console.error("LuluStream failed:", luluResult.status === 'rejected' ? luluResult.reason : 'Unknown error');
-        errors.push('LuluStream: ' + (luluResult.status === 'rejected' ? luluResult.reason?.message : 'Upload failed'));
+        console.error("LuluStream detailed error:", {
+          status: luluResult.status,
+          reason: luluResult.status === 'rejected' ? luluResult.reason : 'Unknown',
+          message: luluResult.status === 'rejected' ? luluResult.reason?.message : 'Upload failed'
+        });
+        errors.push('LuluStream: ' + (luluResult.status === 'rejected' ? luluResult.reason?.message || luluResult.reason : 'Upload failed'));
       }
 
       if (doodFileCode || luluFileCode) {

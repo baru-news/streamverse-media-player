@@ -68,28 +68,64 @@ export class SecureLuluStreamAPI {
    * Upload video to LuluStream
    */
   static async uploadVideo(file: File, title?: string): Promise<any> {
-    // First get upload server
-    const serverResponse = await this.getUploadServer();
-    const uploadUrl = serverResponse.result;
+    try {
+      console.log("Starting LuluStream upload for:", file.name);
+      
+      // First get upload server
+      const serverResponse = await this.getUploadServer();
+      console.log("LuluStream upload server response:", serverResponse);
+      
+      if (!serverResponse.result) {
+        throw new Error('No upload URL received from LuluStream server');
+      }
+      
+      const uploadUrl = serverResponse.result;
 
-    // Convert file to base64 for transmission to edge function
-    const arrayBuffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    const fileData = Array.from(uint8Array);
+      // Convert file to base64 for transmission to edge function
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const fileData = Array.from(uint8Array);
 
-    const { data, error } = await supabase.functions.invoke('lulustream-api', {
-      body: { 
-        action: 'uploadVideo',
+      console.log("Calling LuluStream edge function with:", {
         uploadUrl,
-        fileData: fileData,
         fileName: file.name,
         fileType: file.type,
-        fileTitle: title || file.name
-      }
-    });
+        fileTitle: title || file.name,
+        fileSize: fileData.length
+      });
 
-    if (error) throw error;
-    return data;
+      const { data, error } = await supabase.functions.invoke('lulustream-api', {
+        body: { 
+          action: 'uploadVideo',
+          uploadUrl,
+          fileData: fileData,
+          fileName: file.name,
+          fileType: file.type,
+          fileTitle: title || file.name
+        }
+      });
+
+      console.log("LuluStream edge function response:", { data, error });
+
+      if (error) {
+        console.error("LuluStream edge function error:", error);
+        throw new Error(`Edge function error: ${error.message}`);
+      }
+      
+      if (!data) {
+        throw new Error('No response data from LuluStream upload');
+      }
+
+      return {
+        success: true,
+        file_code: data.result?.[0]?.filecode || data.filecode,
+        provider: 'lulustream',
+        ...data
+      };
+    } catch (error) {
+      console.error("LuluStream upload error:", error);
+      throw error;
+    }
   }
 
   /**
