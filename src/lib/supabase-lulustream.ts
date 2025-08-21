@@ -160,12 +160,23 @@ export class SecureLuluStreamAPI {
    * Sync videos from LuluStream to database
    */
   static async syncVideos(): Promise<any> {
-    const { data, error } = await supabase.functions.invoke('lulustream-api', {
-      body: { action: 'syncVideos' }
-    });
+    try {
+      console.log('Starting LuluStream sync...');
+      const { data, error } = await supabase.functions.invoke('lulustream-api', {
+        body: { action: 'syncVideos' }
+      });
 
-    if (error) throw error;
-    return data;
+      if (error) {
+        console.error('LuluStream sync error:', error);
+        throw new Error(error.message || 'Failed to sync LuluStream videos');
+      }
+
+      console.log('LuluStream sync completed:', data);
+      return data;
+    } catch (error) {
+      console.error("LuluStream sync failed:", error);
+      throw error;
+    }
   }
 
   /**

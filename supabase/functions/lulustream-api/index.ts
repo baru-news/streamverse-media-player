@@ -266,14 +266,16 @@ async function syncVideos() {
         break;
       }
 
-      // Process videos in batches
+      // Process videos in batches - Create individual records for each LuluStream video
       const videoInserts = videos.map((video: any) => ({
         file_code: video.file_code,
+        lulustream_file_code: video.file_code, // Store LuluStream file code in the dedicated column
         provider: 'lulustream',
+        primary_provider: 'lulustream',
         title: video.title || video.file_code,
         original_title: video.title || video.file_code,
         description: '',
-        thumbnail_url: video.thumbnail || null,
+        thumbnail_url: `https://lulustream.com/thumbs/${video.file_code}.jpg`,
         duration: video.length ? parseInt(video.length) : null,
         views: video.views ? parseInt(video.views) : 0,
         status: video.canplay === 1 ? 'active' : 'processing',
@@ -285,10 +287,11 @@ async function syncVideos() {
         }
       }));
 
+      // Use upsert with file_code as the conflict resolution since each video should have unique file_code
       const { error } = await supabase
         .from('videos')
         .upsert(videoInserts, {
-          onConflict: 'file_code,provider',
+          onConflict: 'file_code',
           ignoreDuplicates: false
         });
 
