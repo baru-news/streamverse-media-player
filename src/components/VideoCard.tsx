@@ -20,8 +20,22 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
+  // Create proper thumbnail URL with fallback logic
+  const getThumbnailUrl = (url?: string, code?: string) => {
+    // If thumbnail URL contains postercdn (old URL), convert to doodcdn
+    if (url && url.includes('postercdn.com')) {
+      return `https://img.doodcdn.io/snaps/${code}.jpg`;
+    }
+    // If we have a valid thumbnail URL, use it
+    if (url && url.startsWith('https://img.doodcdn.io/')) {
+      return url;
+    }
+    // Default fallback based on file code
+    return code ? `https://img.doodcdn.io/thumbnails/${code}.jpg` : '/placeholder.svg';
+  };
+
   const [currentImageSrc, setCurrentImageSrc] = useState(
-    thumbnail || (fileCode ? `https://img.doodcdn.io/thumbnails/${fileCode}.jpg` : '/placeholder.svg')
+    getThumbnailUrl(thumbnail, fileCode)
   );
   return (
     <Link to={`/video/${id}`}>
@@ -43,16 +57,22 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
               setImageLoaded(true);
             }}
             onError={(e) => {
-              console.error(`Failed to load thumbnail: ${currentImageSrc}`);
               const currentSrc = e.currentTarget.src;
+              console.error(`Failed to load thumbnail: ${currentSrc}`);
               
-              if (currentSrc.includes('thumbnails') && fileCode) {
-                // Try snaps format as fallback
+              // Enhanced fallback chain for better reliability
+              if (currentSrc.includes('postercdn.com') && fileCode) {
+                // Convert old postercdn URLs immediately to doodcdn
+                const newSrc = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
+                setCurrentImageSrc(newSrc);
+                e.currentTarget.src = newSrc;
+              } else if (currentSrc.includes('thumbnails') && fileCode) {
+                // Try snaps format as first fallback
                 const newSrc = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
                 setCurrentImageSrc(newSrc);
                 e.currentTarget.src = newSrc;
               } else if (currentSrc.includes('snaps') && fileCode) {
-                // Try splash format as final fallback
+                // Try splash format as second fallback
                 const newSrc = `https://img.doodcdn.io/splash/${fileCode}.jpg`;
                 setCurrentImageSrc(newSrc);
                 e.currentTarget.src = newSrc;
