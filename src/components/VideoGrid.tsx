@@ -49,8 +49,8 @@ const VideoGrid: React.FC<VideoGridProps> = ({
       if (fetchedVideos && fetchedVideos.length > 0) {
         // Transform database videos to match VideoCard props
         const transformedVideos = fetchedVideos.map(video => {
-          // Use thumbnail-proxy function for proper CORS handling
-          const thumbnailUrl = `/functions/v1/thumbnail-proxy?fileCode=${video.file_code}`;
+          // Use thumbnail-proxy function with full URL for proper CORS handling
+          const thumbnailUrl = `https://agsqdznjjxptiyorljtv.supabase.co/functions/v1/thumbnail-proxy?fileCode=${video.file_code}`;
           
           return {
             id: video.file_code || video.id,
