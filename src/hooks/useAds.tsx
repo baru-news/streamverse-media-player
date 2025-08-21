@@ -186,7 +186,7 @@ export const useAds = () => {
       const filePath = `banners/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('banners')
+        .from('ads')
         .upload(filePath, file);
 
       if (uploadError) {
@@ -195,7 +195,7 @@ export const useAds = () => {
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('banners')
+        .from('ads')
         .getPublicUrl(filePath);
 
       // Verify the uploaded image can be loaded
