@@ -113,6 +113,13 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       }
 
       if (doodFileCode || luluFileCode) {
+        // Prioritize LuluStream thumbnail if available
+        const thumbnailUrl = luluFileCode 
+          ? `https://lulustream.com/thumbs/${luluFileCode}.jpg`
+          : doodFileCode 
+          ? `https://img.doodcdn.io/thumbnails/${doodFileCode}.jpg`
+          : null;
+
         // Create single video record with both file codes
         const { error } = await supabase
           .from('videos')
@@ -121,9 +128,10 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
             description: '',
             doodstream_file_code: doodFileCode,
             lulustream_file_code: luluFileCode,
-            primary_provider: doodFileCode ? 'doodstream' : 'lulustream',
-            file_code: doodFileCode || luluFileCode, // Keep for compatibility
-            provider: doodFileCode ? 'doodstream' : 'lulustream', // Keep for compatibility
+            primary_provider: luluFileCode ? 'lulustream' : 'doodstream', // Prioritize LuluStream
+            file_code: luluFileCode || doodFileCode, // Prioritize LuluStream
+            provider: luluFileCode ? 'lulustream' : 'doodstream', // Prioritize LuluStream
+            thumbnail_url: thumbnailUrl,
             status: 'processing',
             views: 0
           });
@@ -220,13 +228,11 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               onChange={handleFileSelect}
               className="hidden"
               id="video-upload"
-              disabled={!currentProviderConfig.uploadSupported}
             />
             <Label htmlFor="video-upload">
               <Button 
                 variant="hero" 
                 className="cursor-pointer"
-                disabled={!currentProviderConfig.uploadSupported}
               >
                 Pilih File
               </Button>
