@@ -16,7 +16,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
-import { VideoProviderManager } from "@/lib/video-provider-manager";
 import VideoHashtagSelector from "@/components/VideoHashtagSelector";
 import VideoCategorySelector from "@/components/VideoCategorySelector";
 import { generateSEOTitle, generateSlug, generateMetaDescription } from "@/lib/seo-utils";
@@ -34,7 +33,6 @@ interface VideoData {
   upload_date?: string;
   file_size?: number;
   status?: string;
-  provider?: 'doodstream';
   thumbnail_url?: string;
   title_edited?: boolean;
   description_edited?: boolean;
@@ -64,23 +62,14 @@ const EnhancedVideoManager = () => {
   const loadVideos = async () => {
     setIsLoading(true);
     try {
-      // Load videos from all providers with proper ordering
+      // For admin panel, we want to see ALL videos including hidden ones
       const { data: videoList, error } = await supabase
         .from('videos')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(200); // Increased limit to show more videos
+        .order('upload_date', { ascending: false })
+        .limit(100);
 
       if (error) throw error;
-      
-      console.log(`Loaded ${videoList?.length || 0} videos from database`);
-      console.log('Provider breakdown:', 
-        videoList?.reduce((acc, v) => {
-          acc[v.provider] = (acc[v.provider] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>)
-      );
-      
       setVideos(videoList || []);
     } catch (error) {
       console.error("Failed to load videos:", error);
@@ -97,27 +86,12 @@ const EnhancedVideoManager = () => {
   const syncVideos = async () => {
     setIsSyncing(true);
     try {
-      // Sync DoodStream only
-      const doodResult = await VideoProviderManager.syncVideos('doodstream');
-      
-      let successCount = 0;
-      let errors = [];
-      
-      if (doodResult) {
-        successCount++;
-        await loadVideos();
-        toast({
-          title: "Berhasil",
-          description: "Video berhasil disinkronkan dari DoodStream",
-        });
-      } else {
-        errors.push('Doodstream');
-        toast({
-          title: "Error",
-          description: "Gagal sinkronisasi dari DoodStream",
-          variant: "destructive",
-        });
-      }
+      await SecureDoodstreamAPI.syncVideos();
+      await loadVideos();
+      toast({
+        title: "Berhasil",
+        description: "Video berhasil disinkronkan dari Doodstream.",
+      });
     } catch (error) {
       console.error("Failed to sync videos:", error);
       toast({
@@ -305,7 +279,7 @@ const EnhancedVideoManager = () => {
             className="gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? "Syncing..." : "Sync Multi-Provider"}
+            {isSyncing ? "Syncing..." : "Sync Doodstream"}
           </Button>
           <Button
             onClick={() => exportVideosData(videos)}
@@ -498,21 +472,6 @@ const EnhancedVideoManager = () => {
                         src={video.thumbnail_url} 
                         alt={video.title}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const img = e.currentTarget;
-                          const currentSrc = img.src;
-                          
-                          // Fallback to DoodStream thumbnail format
-                          if (!currentSrc.includes('img.doodcdn.io/thumbnails/')) {
-                            img.src = `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`;
-                            return;
-                          }
-                          
-                          // Final fallback: placeholder image
-                          if (!currentSrc.includes('placeholder.svg')) {
-                            img.src = '/placeholder.svg';
-                          }
-                        }}
                       />
                     </div>
                   )}
@@ -627,16 +586,6 @@ const EnhancedVideoManager = () => {
                             )}
                             {video.status || 'processing'}
                           </div>
-                          {video.provider && (
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs px-2 py-0 ${
-                                video.provider === 'doodstream' ? 'text-blue-400 border-blue-400' : 'text-green-400 border-green-400'
-                              }`}
-                            >
-                              Dood
-                            </Badge>
-                          )}
                           {video.views && (
                             <span>{video.views.toLocaleString()} views</span>
                           )}
@@ -653,7 +602,6 @@ const EnhancedVideoManager = () => {
                           size="sm" 
                           className="flex-1 gap-1"
                           onClick={() => {
-                            // Generate embed URL based on provider
                             const embedUrl = `https://dood.re/e/${video.file_code}`;
                             navigator.clipboard.writeText(embedUrl);
                             toast({

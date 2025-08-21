@@ -14,66 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      ads: {
-        Row: {
-          created_at: string
-          id: string
-          image_url: string
-          is_active: boolean
-          link_url: string | null
-          position: string
-          sort_order: number
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          image_url: string
-          is_active?: boolean
-          link_url?: string | null
-          position?: string
-          sort_order?: number
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          image_url?: string
-          is_active?: boolean
-          link_url?: string | null
-          position?: string
-          sort_order?: number
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      ads_settings: {
-        Row: {
-          created_at: string
-          id: string
-          setting_key: string
-          setting_value: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          setting_key: string
-          setting_value?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          setting_key?: string
-          setting_value?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       badge_store: {
         Row: {
           badge_key: string
@@ -151,39 +91,6 @@ export type Database = {
           name?: string
           slug?: string
           sort_order?: number | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      contact_messages: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          is_read: boolean
-          message: string
-          name: string
-          subject: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          is_read?: boolean
-          message: string
-          name: string
-          subject: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          is_read?: boolean
-          message?: string
-          name?: string
-          subject?: string
           updated_at?: string
         }
         Relationships: []
@@ -287,72 +194,6 @@ export type Database = {
         }
         Relationships: []
       }
-      spin_wheel_rewards: {
-        Row: {
-          coin_amount: number
-          color: string
-          created_at: string
-          id: string
-          is_active: boolean
-          name: string
-          probability: number
-          rarity: string
-          sort_order: number
-          updated_at: string
-        }
-        Insert: {
-          coin_amount: number
-          color?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name: string
-          probability?: number
-          rarity?: string
-          sort_order?: number
-          updated_at?: string
-        }
-        Update: {
-          coin_amount?: number
-          color?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name?: string
-          probability?: number
-          rarity?: string
-          sort_order?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      spin_wheel_settings: {
-        Row: {
-          created_at: string
-          id: string
-          setting_key: string
-          setting_type: string
-          setting_value: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          setting_key: string
-          setting_type?: string
-          setting_value: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          setting_key?: string
-          setting_type?: string
-          setting_value?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       user_badges: {
         Row: {
           badge_key: string
@@ -440,36 +281,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_kitty_keys: {
-        Row: {
-          balance: number
-          created_at: string
-          id: string
-          total_earned: number
-          total_spent: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          balance?: number
-          created_at?: string
-          id?: string
-          total_earned?: number
-          total_spent?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          balance?: number
-          created_at?: string
-          id?: string
-          total_earned?: number
-          total_spent?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_roles: {
         Row: {
           created_at: string
@@ -490,41 +301,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      user_spin_attempts: {
-        Row: {
-          coins_won: number
-          created_at: string
-          id: string
-          reward_id: string
-          spin_date: string
-          user_id: string
-        }
-        Insert: {
-          coins_won: number
-          created_at?: string
-          id?: string
-          reward_id: string
-          spin_date?: string
-          user_id: string
-        }
-        Update: {
-          coins_won?: number
-          created_at?: string
-          id?: string
-          reward_id?: string
-          spin_date?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_user_spin_attempts_reward_id"
-            columns: ["reward_id"]
-            isOneToOne: false
-            referencedRelation: "spin_wheel_rewards"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_subscriptions: {
         Row: {
@@ -720,15 +496,11 @@ export type Database = {
           created_at: string
           description: string | null
           description_edited: boolean | null
-          doodstream_file_code: string | null
           duration: number | null
           file_code: string
           file_size: number | null
           id: string
           original_title: string | null
-          primary_provider: Database["public"]["Enums"]["video_provider"] | null
-          provider: Database["public"]["Enums"]["video_provider"]
-          provider_data: Json | null
           slug: string | null
           status: string | null
           thumbnail_url: string | null
@@ -743,17 +515,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
-          doodstream_file_code?: string | null
           duration?: number | null
           file_code: string
           file_size?: number | null
           id?: string
           original_title?: string | null
-          primary_provider?:
-            | Database["public"]["Enums"]["video_provider"]
-            | null
-          provider?: Database["public"]["Enums"]["video_provider"]
-          provider_data?: Json | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -768,17 +534,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
-          doodstream_file_code?: string | null
           duration?: number | null
           file_code?: string
           file_size?: number | null
           id?: string
           original_title?: string | null
-          primary_provider?:
-            | Database["public"]["Enums"]["video_provider"]
-            | null
-          provider?: Database["public"]["Enums"]["video_provider"]
-          provider_data?: Json | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -830,14 +590,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_user_claim_kitty_key_today: {
-        Args: { user_id_param: string }
-        Returns: boolean
-      }
-      claim_kitty_key: {
-        Args: { user_id_param: string }
-        Returns: boolean
-      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
@@ -864,7 +616,6 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
-      video_provider: "doodstream"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -993,7 +744,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
-      video_provider: ["doodstream"],
     },
   },
 } as const

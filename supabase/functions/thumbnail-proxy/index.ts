@@ -25,11 +25,20 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use DoodStream thumbnail URL
-    const thumbnailUrl = `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`;
-    console.log(`Trying DoodStream URL: ${thumbnailUrl}`);
+    console.log(`Fetching thumbnail for file code: ${fileCode}`);
     
-    const response = await fetch(thumbnailUrl);
+    // Try primary thumbnail URL
+    const primaryUrl = `https://img.doodcdn.io/snaps/${fileCode}.jpg`;
+    console.log(`Trying primary URL: ${primaryUrl}`);
+    
+    let response = await fetch(primaryUrl);
+    
+    if (!response.ok) {
+      // Try alternative URL
+      const alternativeUrl = `https://img.doodcdn.co/splash/${fileCode}.jpg`;
+      console.log(`Primary failed, trying alternative: ${alternativeUrl}`);
+      response = await fetch(alternativeUrl);
+    }
     
     if (response.ok) {
       const imageBuffer = await response.arrayBuffer();
@@ -41,7 +50,7 @@ Deno.serve(async (req) => {
         }
       });
     } else {
-      console.log(`DoodStream thumbnail not found for file code: ${fileCode}`);
+      console.log(`All thumbnail URLs failed for file code: ${fileCode}`);
       return new Response(null, {
         status: 404,
         headers: corsHeaders
