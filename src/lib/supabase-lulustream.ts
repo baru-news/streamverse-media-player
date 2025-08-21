@@ -118,7 +118,7 @@ export class SecureLuluStreamAPI {
 
       return {
         success: true,
-        file_code: data.result?.[0]?.filecode || data.filecode,
+        file_code: data.file_code || data.files?.[0]?.filecode,
         provider: 'lulustream',
         ...data
       };

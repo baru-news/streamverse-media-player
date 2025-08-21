@@ -154,15 +154,25 @@ async function uploadVideo(uploadUrl: string, fileData: number[], fileName: stri
     const blob = new Blob([uint8Array], { type: fileType });
     
     const form = new FormData();
-    form.append('key', luluStreamApiKey);
+    form.append('key', luluStreamApiKey!);
     form.append('file', blob, fileName);
-    form.append('file_title', fileTitle);
+    if (fileTitle) {
+      form.append('file_title', fileTitle);
+    }
+    // Make file public by default
+    form.append('file_public', '1');
 
     console.log(`Uploading file to LuluStream: ${uploadUrl}`);
+    console.log(`File name: ${fileName}, size: ${blob.size} bytes`);
+    
     const response = await fetch(uploadUrl, {
       method: 'POST',
       body: form
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     const data = await response.json();
     console.log('LuluStream upload response:', data);
@@ -171,7 +181,19 @@ async function uploadVideo(uploadUrl: string, fileData: number[], fileName: stri
       throw new Error(data.msg || 'Upload failed');
     }
     
-    return data;
+    // According to API docs, response format is:
+    // { "msg": "OK", "status": 200, "files": [{"filecode": "...", "filename": "...", "status": "OK"}] }
+    if (!data.files || !data.files[0] || !data.files[0].filecode) {
+      throw new Error('Invalid response format: missing filecode');
+    }
+    
+    return {
+      success: true,
+      file_code: data.files[0].filecode,
+      status: 200,
+      msg: data.msg,
+      result: data.files
+    };
   } catch (error) {
     console.error('LuluStream upload error:', error);
     throw error;
