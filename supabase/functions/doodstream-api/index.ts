@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
+            thumbnail: `https://lulustream.com/thumbs/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };
@@ -249,22 +249,25 @@ serve(async (req) => {
             .eq('file_code', video.fileCode)
             .single();
 
-          // Prepare record for database - preserve edited content
-          const record = {
-            file_code: video.fileCode,
-            title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
-            description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
-            original_title: video.title, // Always store original from Doodstream
-            duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-            views: video.views || 0,
-            upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-            file_size: video.size ? parseInt(video.size) : null,
-            status: video.canPlay ? 'active' : 'processing',
-            thumbnail_url: video.thumbnail,
-            // Preserve edit flags
-            title_edited: existingVideo?.title_edited || false,
-            description_edited: existingVideo?.description_edited || false
-          };
+           // Prepare record for database - preserve edited content
+           const record = {
+             file_code: video.fileCode,
+             doodstream_file_code: video.fileCode, // Store DoodStream file code
+             provider: 'doodstream',
+             primary_provider: 'doodstream',
+             title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
+             description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
+             original_title: video.title, // Always store original from Doodstream
+             duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+             views: video.views || 0,
+             upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+             file_size: video.size ? parseInt(video.size) : null,
+             status: video.canPlay ? 'active' : 'processing',
+             thumbnail_url: video.thumbnail,
+             // Preserve edit flags
+             title_edited: existingVideo?.title_edited || false,
+             description_edited: existingVideo?.description_edited || false
+           };
           
           console.log('Prepared record:', record);
           return record;
@@ -293,29 +296,30 @@ serve(async (req) => {
             }
           }
           
-          // Remove videos from database that no longer exist in Doodstream
+          // Remove DoodStream videos from database that no longer exist in Doodstream
           if (doodstreamFileCodes.length > 0) {
             const { data: deletedVideos, error: deleteError } = await supabase
               .from('videos')
               .delete()
+              .eq('provider', 'doodstream')
               .not('file_code', 'in', `(${doodstreamFileCodes.map(code => `"${code}"`).join(',')})`);
 
             if (deleteError) {
-              console.error('Error deleting removed videos:', deleteError);
+              console.error('Error deleting removed DoodStream videos:', deleteError);
             } else {
-              console.log('Successfully removed deleted videos from database');
+              console.log('Successfully removed deleted DoodStream videos from database');
             }
           } else {
-            // If no videos from Doodstream, delete all videos from database
+            // If no videos from Doodstream, delete all DoodStream videos from database
             const { error: deleteAllError } = await supabase
               .from('videos')
               .delete()
-              .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+              .eq('provider', 'doodstream');
 
             if (deleteAllError) {
-              console.error('Error deleting all videos:', deleteAllError);
+              console.error('Error deleting all DoodStream videos:', deleteAllError);
             } else {
-              console.log('No videos in Doodstream - removed all videos from database');
+              console.log('No videos in Doodstream - removed all DoodStream videos from database');
             }
           }
         }
