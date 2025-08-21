@@ -14,6 +14,3 @@ verify_jwt = false
 
 [functions.dynamic-sitemap]
 verify_jwt = false
-
-[functions.refresh-thumbnails]
-verify_jwt = false

@@ -34,7 +34,7 @@ interface VideoData {
   upload_date?: string;
   file_size?: number;
   status?: string;
-  provider?: 'doodstream' | 'lulustream';
+  provider?: 'doodstream';
   thumbnail_url?: string;
   title_edited?: boolean;
   description_edited?: boolean;
@@ -634,7 +634,7 @@ const EnhancedVideoManager = () => {
                                 video.provider === 'doodstream' ? 'text-blue-400 border-blue-400' : 'text-green-400 border-green-400'
                               }`}
                             >
-                              {video.provider === 'doodstream' ? 'Dood' : 'Lulu'}
+                              Dood
                             </Badge>
                           )}
                           {video.views && (
@@ -654,9 +654,7 @@ const EnhancedVideoManager = () => {
                           className="flex-1 gap-1"
                           onClick={() => {
                             // Generate embed URL based on provider
-                            const embedUrl = video.provider === 'lulustream' 
-                              ? `https://lulustream.com/e/${video.file_code}`
-                              : `https://dood.re/e/${video.file_code}`;
+                            const embedUrl = `https://dood.re/e/${video.file_code}`;
                             navigator.clipboard.writeText(embedUrl);
                             toast({
                               title: "Link disalin",

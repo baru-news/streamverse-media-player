@@ -161,7 +161,7 @@ const AdminUpload = () => {
                 <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6">
                   <h3 className="text-foreground text-lg font-semibold mb-4">Upload Video Multi-Provider</h3>
                   <p className="text-muted-foreground mb-6">
-                    Upload video ke provider pilihan Anda - Doodstream atau LuluStream
+                    Upload video ke DoodStream provider
                   </p>
                   <VideoUpload 
                     onUploadComplete={(fileCode, videoData, provider) => {
@@ -184,34 +184,17 @@ const AdminUpload = () => {
             <TabsContent value="settings">
               <div className="space-y-6">
                 <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6">
-                  <h3 className="text-foreground text-lg font-semibold mb-4">Pengaturan Multi-Provider</h3>
+                  <h3 className="text-foreground text-lg font-semibold mb-4">Pengaturan DoodStream</h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Doodstream Settings */}
-                    <div className="bg-blue-900/20 border border-blue-500/50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-300 mb-2">🎥 Doodstream Provider</h4>
-                      <p className="text-blue-200 text-sm mb-4">
-                        Provider utama untuk streaming video dengan fitur lengkap.
-                      </p>
-                      <div className="space-y-2 text-sm text-blue-200">
-                        <p>✅ Upload support</p>
-                        <p>✅ Direct download</p>
-                        <p>✅ Thumbnail otomatis</p>
+                  <div className="grid grid-cols-1 gap-6">
+                    {/* DoodStream Settings */}
+                    <div className="bg-blue-950/30 border border-blue-500/20 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-300 mb-2">🎥 DoodStream Provider</h4>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p>• Upload otomatis ke DoodStream</p>
+                        <p>• Thumbnail otomatis dari DoodStream CDN</p>
+                        <p>• Sinkronisasi metadata video</p>
                         <p>✅ API key: DOODSTREAM_API_KEY</p>
-                      </div>
-                    </div>
-
-                    {/* LuluStream Settings */}
-                    <div className="bg-green-900/20 border border-green-500/50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-300 mb-2">🚀 LuluStream Provider</h4>
-                      <p className="text-green-200 text-sm mb-4">
-                        Provider alternatif untuk backup dan diversifikasi konten.
-                      </p>
-                      <div className="space-y-2 text-sm text-green-200">
-                        <p>✅ Upload support</p>
-                        <p>⚠️ Direct download terbatas</p>
-                        <p>✅ Thumbnail otomatis</p>
-                        <p>✅ API key: LULUSTREAM_API_KEY</p>
                       </div>
                     </div>
                   </div>
@@ -220,11 +203,11 @@ const AdminUpload = () => {
                   <div className="bg-yellow-900/20 border border-yellow-500/50 p-4 rounded-lg mt-6">
                     <h4 className="font-medium text-yellow-300 mb-2">⚙️ Konfigurasi API Keys</h4>
                     <p className="text-yellow-200 text-sm mb-4">
-                      Untuk menggunakan fitur multi-provider, pastikan kedua API key sudah dikonfigurasi di Supabase secrets.
+                      Untuk menggunakan DoodStream, pastikan API key sudah dikonfigurasi di Supabase secrets.
                     </p>
                     <div className="space-y-2 text-sm text-yellow-200">
-                      <p>1. Dapatkan API key dari dashboard masing-masing provider</p>
-                      <p>2. Simpan di Supabase secrets: "DOODSTREAM_API_KEY" dan "LULUSTREAM_API_KEY"</p>
+                      <p>1. Dapatkan API key dari dashboard DoodStream</p>
+                      <p>2. Simpan di Supabase secrets: "DOODSTREAM_API_KEY"</p>
                       <p>3. Restart edge functions untuk memuat konfigurasi baru</p>
                       <p>4. Test upload di tab "Upload Video" untuk memverifikasi koneksi</p>
                     </div>
