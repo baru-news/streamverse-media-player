@@ -6,8 +6,17 @@ verify_jwt = true
 [functions.doodstream-api]
 verify_jwt = false
 
+[functions.lulustream-api]
+verify_jwt = false
+
 [functions.assign-admin]
 verify_jwt = false
 
 [functions.thumbnail-proxy]
+verify_jwt = false
+
+[functions.dynamic-sitemap]
+verify_jwt = false
+
+[functions.refresh-thumbnails]
 verify_jwt = false

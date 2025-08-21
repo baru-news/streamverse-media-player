@@ -725,6 +725,8 @@ export type Database = {
           file_size: number | null
           id: string
           original_title: string | null
+          provider: Database["public"]["Enums"]["video_provider"]
+          provider_data: Json | null
           slug: string | null
           status: string | null
           thumbnail_url: string | null
@@ -744,6 +746,8 @@ export type Database = {
           file_size?: number | null
           id?: string
           original_title?: string | null
+          provider?: Database["public"]["Enums"]["video_provider"]
+          provider_data?: Json | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -763,6 +767,8 @@ export type Database = {
           file_size?: number | null
           id?: string
           original_title?: string | null
+          provider?: Database["public"]["Enums"]["video_provider"]
+          provider_data?: Json | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -848,6 +854,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      video_provider: "doodstream" | "lulustream"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -976,6 +983,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      video_provider: ["doodstream", "lulustream"],
     },
   },
 } as const

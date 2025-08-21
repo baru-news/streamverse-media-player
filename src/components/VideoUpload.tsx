@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+import { VideoProviderManager, type VideoProvider } from "@/lib/video-provider-manager";
 
 interface UploadResponse {
   success: boolean;
@@ -16,7 +17,7 @@ interface UploadResponse {
 }
 
 interface VideoUploadProps {
-  onUploadComplete?: (fileCode: string, videoData: any) => void;
+  onUploadComplete?: (fileCode: string, videoData: any, provider: VideoProvider) => void;
 }
 
 const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
@@ -25,7 +26,11 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<VideoProvider>('doodstream');
   const { toast } = useToast();
+  
+  const providers = VideoProviderManager.getAllProviders();
+  const currentProviderConfig = VideoProviderManager.getProviderConfig(selectedProvider);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -62,6 +67,15 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
   const handleUpload = async () => {
     if (!file) return;
 
+    if (!currentProviderConfig.uploadSupported) {
+      toast({
+        title: "Upload tidak didukung",
+        description: `Provider ${currentProviderConfig.displayName} tidak mendukung upload`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(0);
     setUploadResult(null);
@@ -78,8 +92,8 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         });
       }, 500);
 
-      // Upload menggunakan SecureDoodstreamAPI (melalui edge function)
-      const result = await SecureDoodstreamAPI.uploadVideo(file, title);
+      // Upload menggunakan VideoProviderManager
+      const result = await VideoProviderManager.uploadVideo(selectedProvider, file, title);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -88,16 +102,16 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       if (result.success && result.file_code) {
         toast({
           title: "Upload berhasil!",
-          description: "Video telah berhasil diunggah ke Doodstream",
+          description: `Video telah berhasil diunggah ke ${currentProviderConfig.displayName}`,
         });
         
         // Dapatkan info video yang baru diunggah
         try {
-          const videoInfo = await SecureDoodstreamAPI.getVideoInfo(result.file_code, true);
-          onUploadComplete?.(result.file_code, videoInfo);
+          const videoInfo = await VideoProviderManager.getVideoInfo(selectedProvider, result.file_code, true);
+          onUploadComplete?.(result.file_code, videoInfo, selectedProvider);
         } catch (error) {
           console.error("Error getting video info:", error);
-          onUploadComplete?.(result.file_code, null);
+          onUploadComplete?.(result.file_code, null, selectedProvider);
         }
       } else {
         throw new Error(result.error || "Upload gagal");
@@ -131,11 +145,38 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Video className="w-5 h-5" />
-          Upload Video ke Doodstream
+          Upload Video ke {currentProviderConfig.displayName}
         </CardTitle>
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {/* Provider Selection */}
+        <div className="space-y-2">
+          <Label className="text-foreground">Video Provider</Label>
+          <Select value={selectedProvider} onValueChange={(value: VideoProvider) => setSelectedProvider(value)}>
+            <SelectTrigger className="bg-muted/30 border-muted">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {providers.map(provider => (
+                <SelectItem key={provider.name} value={provider.name}>
+                  <div className="flex items-center gap-2">
+                    {provider.displayName}
+                    {!provider.uploadSupported && (
+                      <span className="text-xs text-muted-foreground">(Upload tidak tersedia)</span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!currentProviderConfig.uploadSupported && (
+            <p className="text-sm text-yellow-600">
+              ⚠️ Provider ini tidak mendukung upload langsung
+            </p>
+          )}
+        </div>
+
         {!file ? (
           // File Selection
           <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
@@ -152,9 +193,14 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               onChange={handleFileSelect}
               className="hidden"
               id="video-upload"
+              disabled={!currentProviderConfig.uploadSupported}
             />
             <Label htmlFor="video-upload">
-              <Button variant="hero" className="cursor-pointer">
+              <Button 
+                variant="hero" 
+                className="cursor-pointer"
+                disabled={!currentProviderConfig.uploadSupported}
+              >
                 Pilih File
               </Button>
             </Label>
@@ -202,7 +248,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
             {isUploading && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-foreground">Mengupload...</span>
+                  <span className="text-foreground">Mengupload ke {currentProviderConfig.displayName}...</span>
                   <span className="text-muted-foreground">{uploadProgress}%</span>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
@@ -228,7 +274,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
                 </div>
                 {uploadResult.success && uploadResult.file_code && (
                   <p className="text-sm mt-2 text-muted-foreground">
-                    File Code: {uploadResult.file_code}
+                    File Code: {uploadResult.file_code} ({currentProviderConfig.displayName})
                   </p>
                 )}
                 {uploadResult.error && (
@@ -242,7 +288,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
             {/* Upload Button */}
             <Button 
               onClick={handleUpload}
-              disabled={!title.trim() || isUploading}
+              disabled={!title.trim() || isUploading || !currentProviderConfig.uploadSupported}
               variant="hero"
               className="w-full"
               size="lg"
@@ -255,7 +301,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload ke Doodstream
+                  Upload ke {currentProviderConfig.displayName}
                 </>
               )}
             </Button>
@@ -266,10 +312,15 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         <div className="bg-muted/20 p-4 rounded-lg">
           <h4 className="font-medium text-foreground mb-2">Informasi Upload</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Video akan diproses otomatis setelah upload</li>
+            <li>• Video akan diproses otomatis setelah upload ke {currentProviderConfig.displayName}</li>
             <li>• Embed link akan tersedia setelah pemrosesan selesai</li>
             <li>• Proses upload dapat memakan waktu tergantung ukuran file</li>
             <li>• Pastikan koneksi internet stabil selama upload</li>
+            {currentProviderConfig.directDownloadSupported ? (
+              <li>• Provider ini mendukung direct download</li>
+            ) : (
+              <li>• Provider ini tidak mendukung direct download</li>
+            )}
           </ul>
         </div>
       </CardContent>
