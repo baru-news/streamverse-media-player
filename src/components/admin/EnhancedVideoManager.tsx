@@ -472,6 +472,21 @@ const EnhancedVideoManager = () => {
                         src={video.thumbnail_url} 
                         alt={video.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          const currentSrc = img.src;
+                          
+                          // First fallback: if postercdn.com URL, try doodcdn.io
+                          if (currentSrc.includes('postercdn.com')) {
+                            img.src = `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`;
+                            return;
+                          }
+                          
+                          // Final fallback: placeholder image
+                          if (!currentSrc.includes('placeholder.svg')) {
+                            img.src = '/placeholder.svg';
+                          }
+                        }}
                       />
                     </div>
                   )}
