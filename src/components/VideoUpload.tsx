@@ -1,221 +1,182 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Upload, Video, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, AlertCircle, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner";
-import { VideoProviderManager } from "@/lib/video-provider-manager";
-import { supabase } from "@/integrations/supabase/client";
-import type { VideoProvider } from "@/lib/video-provider-manager";
+import { useToast } from "@/hooks/use-toast";
+import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 
 interface UploadResponse {
   success: boolean;
   file_code?: string;
-  doodstream_file_code?: string;
   message?: string;
   error?: string;
 }
 
 interface VideoUploadProps {
-  onUploadComplete?: (fileCode: string, videoData: any, provider: VideoProvider) => void;
+  onUploadComplete?: (fileCode: string, videoData: any) => void;
 }
 
-export default function VideoUpload({ onUploadComplete }: VideoUploadProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [videoTitle, setVideoTitle] = useState("");
+const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
+  const [file, setFile] = useState<File | null>(null);
+  const [title, setTitle] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadResults, setUploadResults] = useState<{
-    doodstream?: UploadResponse;
-  } | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
+  const { toast } = useToast();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['video/mp4', 'video/avi', 'video/mkv', 'video/mov', 'video/wmv'];
-      if (!validTypes.includes(file.type)) {
-        toast.error("Format file tidak didukung. Silakan pilih file video (MP4, AVI, MKV, MOV, WMV)");
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      // Validasi file
+      const maxSize = 2 * 1024 * 1024 * 1024; // 2GB
+      const allowedTypes = ['video/mp4', 'video/avi', 'video/mkv', 'video/mov'];
+      
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast({
+          title: "Format file tidak didukung",
+          description: "Hanya mendukung MP4, AVI, MKV, dan MOV",
+          variant: "destructive"
+        });
         return;
       }
-
-      // Validate file size (max 2GB)
-      const maxSize = 2 * 1024 * 1024 * 1024; // 2GB in bytes
-      if (file.size > maxSize) {
-        toast.error("Ukuran file terlalu besar. Maksimal 2GB");
+      
+      if (selectedFile.size > maxSize) {
+        toast({
+          title: "File terlalu besar",
+          description: "Maksimal ukuran file adalah 2GB",
+          variant: "destructive"
+        });
         return;
       }
-
-      setSelectedFile(file);
-      setVideoTitle(file.name.replace(/\.[^/.]+$/, "")); // Remove extension
+      
+      setFile(selectedFile);
+      if (!title) {
+        setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
+      }
     }
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !videoTitle) {
-      toast.error("Silakan pilih file dan masukkan judul video");
-      return;
-    }
+    if (!file) return;
 
     setIsUploading(true);
     setUploadProgress(0);
-    setUploadError(null);
-    setUploadResults(null);
+    setUploadResult(null);
 
     try {
-      // Progress simulation
+      // Simulasi progress (karena upload berjalan di background)
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return prev;
           }
-          return prev + 5;
+          return prev + 10;
         });
-      }, 800);
+      }, 500);
 
-      // Upload to DoodStream only
-      const doodResult = await VideoProviderManager.uploadVideo('doodstream', selectedFile, videoTitle);
-
-      console.log("Doodstream result:", doodResult);
-
+      // Upload menggunakan SecureDoodstreamAPI (melalui edge function)
+      const result = await SecureDoodstreamAPI.uploadVideo(file, title);
+      
       clearInterval(progressInterval);
       setUploadProgress(100);
+      setUploadResult(result);
 
-      // Process results
-      let doodFileCode = null;
-      let errors = [];
-
-      if (doodResult.success && doodResult.result?.file_code) {
-        doodFileCode = doodResult.result.file_code;
-      } else {
-        errors.push(`DoodStream: ${doodResult.error || 'Upload gagal'}`);
-      }
-
-      if (errors.length > 0) {
-        setUploadError(`Upload gagal: ${errors.join(', ')}`);
-        toast.error("Upload gagal. Silakan coba lagi.");
-        return;
-      }
-
-      // If DoodStream upload successful, save to database
-      if (doodFileCode) {
-        // Use DoodStream thumbnail format
-        const thumbnailUrl = `https://img.doodcdn.io/thumbnails/${doodFileCode}.jpg`;
-
-        // Create single video record
-        const { error } = await supabase
-          .from('videos')
-          .insert({
-            file_code: doodFileCode,
-            title: videoTitle,
-            doodstream_file_code: doodFileCode,
-            provider: 'doodstream',
-            primary_provider: 'doodstream',
-            thumbnail_url: thumbnailUrl,
-            status: 'processing',
-            views: 0
-          });
-
-        if (error) {
-          console.error("Database insert error:", error);
-          toast.error("Video berhasil diupload tapi gagal menyimpan ke database");
-        } else {
-          console.log("Video successfully saved to database");
-        }
-
-        setUploadResults({
-          doodstream: { success: true, file_code: doodFileCode }
+      if (result.success && result.file_code) {
+        toast({
+          title: "Upload berhasil!",
+          description: "Video telah berhasil diunggah ke Doodstream",
         });
-
-        toast.success("Video berhasil diupload ke DoodStream!");
-
-        if (onUploadComplete) {
-          onUploadComplete(doodFileCode, {
-            title: videoTitle,
-            file_code: doodFileCode,
-            doodstream_file_code: doodFileCode,
-            provider: 'doodstream'
-          }, 'doodstream');
+        
+        // Dapatkan info video yang baru diunggah
+        try {
+          const videoInfo = await SecureDoodstreamAPI.getVideoInfo(result.file_code, true);
+          onUploadComplete?.(result.file_code, videoInfo);
+        } catch (error) {
+          console.error("Error getting video info:", error);
+          onUploadComplete?.(result.file_code, null);
         }
+      } else {
+        throw new Error(result.error || "Upload gagal");
       }
 
     } catch (error) {
       console.error("Upload error:", error);
-      setUploadError(`Upload gagal: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      toast.error("Terjadi kesalahan saat upload");
+      toast({
+        title: "Upload gagal",
+        description: error instanceof Error ? error.message : "Terjadi kesalahan saat upload",
+        variant: "destructive"
+      });
+      setUploadResult({
+        success: false,
+        error: error instanceof Error ? error.message : "Upload gagal"
+      });
     } finally {
       setIsUploading(false);
     }
   };
 
   const resetUpload = () => {
-    setSelectedFile(null);
-    setVideoTitle("");
+    setFile(null);
+    setTitle("");
     setUploadProgress(0);
-    setUploadResults(null);
-    setUploadError(null);
+    setUploadResult(null);
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="w-5 h-5" />
-          Upload Video ke DoodStream
+        <CardTitle className="flex items-center gap-2 text-foreground">
+          <Video className="w-5 h-5" />
+          Upload Video ke Doodstream
         </CardTitle>
       </CardHeader>
+      
       <CardContent className="space-y-6">
-        {/* Upload Info */}
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Upload video Anda ke platform DoodStream. Video akan otomatis tersimpan dalam database.
-          </AlertDescription>
-        </Alert>
-
-        {!selectedFile ? (
-          /* File Selection */
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="video-file">Pilih File Video</Label>
-              <Input
-                id="video-file"
-                type="file"
-                accept="video/*"
-                onChange={handleFileSelect}
-                className="mt-1"
-              />
-            </div>
+        {!file ? (
+          // File Selection
+          <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+            <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-lg font-medium text-foreground mb-2">
+              Pilih video untuk diunggah
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Mendukung MP4, AVI, MKV, MOV (maksimal 2GB)
+            </p>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="video-upload"
+            />
+            <Label htmlFor="video-upload">
+              <Button variant="hero" className="cursor-pointer">
+                Pilih File
+              </Button>
+            </Label>
           </div>
         ) : (
-          /* Upload Form */
-          <div className="space-y-6">
+          // Upload Form
+          <div className="space-y-4">
             {/* File Info */}
-            <div className="p-4 bg-muted/30 rounded-lg">
+            <div className="bg-muted/30 p-4 rounded-lg">
               <div className="flex items-center gap-3">
+                <Video className="w-8 h-8 text-primary" />
                 <div className="flex-1">
-                  <p className="font-medium">{selectedFile.name}</p>
+                  <p className="font-medium text-foreground">{file.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {formatFileSize(selectedFile.size)} • {selectedFile.type}
+                    {(file.size / (1024 * 1024)).toFixed(1)} MB
                   </p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedFile(null)}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={resetUpload}
+                  disabled={isUploading}
                 >
                   Ganti
                 </Button>
@@ -223,14 +184,17 @@ export default function VideoUpload({ onUploadComplete }: VideoUploadProps) {
             </div>
 
             {/* Title Input */}
-            <div>
-              <Label htmlFor="video-title">Judul Video</Label>
+            <div className="space-y-2">
+              <Label htmlFor="video-title" className="text-foreground">
+                Judul Video
+              </Label>
               <Input
                 id="video-title"
-                value={videoTitle}
-                onChange={(e) => setVideoTitle(e.target.value)}
-                placeholder="Masukkan judul video..."
-                className="mt-1"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Masukkan judul video"
+                className="bg-muted/30 border-muted"
+                disabled={isUploading}
               />
             </div>
 
@@ -238,70 +202,79 @@ export default function VideoUpload({ onUploadComplete }: VideoUploadProps) {
             {isUploading && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Mengupload ke DoodStream...</span>
-                  <span>{uploadProgress}%</span>
+                  <span className="text-foreground">Mengupload...</span>
+                  <span className="text-muted-foreground">{uploadProgress}%</span>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
               </div>
             )}
 
-            {/* Upload Results */}
-            {uploadResults && (
-              <div className="space-y-3">
-                <h3 className="font-medium">Hasil Upload:</h3>
-                {uploadResults.doodstream && (
-                  <Alert>
-                    <CheckCircle2 className="h-4 w-4" />
-                    <AlertDescription>
-                      <div className="flex justify-between">
-                        <span>DoodStream: Berhasil</span>
-                        <span className="text-xs text-muted-foreground">
-                          {uploadResults.doodstream.file_code}
-                        </span>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
+            {/* Upload Result */}
+            {uploadResult && (
+              <div className={`p-4 rounded-lg border ${
+                uploadResult.success 
+                  ? 'bg-green-900/20 border-green-500/50 text-green-300' 
+                  : 'bg-red-900/20 border-red-500/50 text-red-300'
+              }`}>
+                <div className="flex items-center gap-2">
+                  {uploadResult.success ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5" />
+                  )}
+                  <span className="font-medium">
+                    {uploadResult.success ? 'Upload Berhasil!' : 'Upload Gagal'}
+                  </span>
+                </div>
+                {uploadResult.success && uploadResult.file_code && (
+                  <p className="text-sm mt-2 text-muted-foreground">
+                    File Code: {uploadResult.file_code}
+                  </p>
+                )}
+                {uploadResult.error && (
+                  <p className="text-sm mt-2">
+                    Error: {uploadResult.error}
+                  </p>
                 )}
               </div>
             )}
 
-            {/* Upload Error */}
-            {uploadError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{uploadError}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button
-                onClick={handleUpload}
-                disabled={isUploading || !videoTitle}
-                className="flex-1"
-              >
-                {isUploading ? "Mengupload..." : "Upload Video"}
-              </Button>
-              
-              {(uploadResults || uploadError) && (
-                <Button variant="outline" onClick={resetUpload}>
-                  Reset
-                </Button>
+            {/* Upload Button */}
+            <Button 
+              onClick={handleUpload}
+              disabled={!title.trim() || isUploading}
+              variant="hero"
+              className="w-full"
+              size="lg"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Mengupload...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload ke Doodstream
+                </>
               )}
-            </div>
-
-            {/* Info */}
-            <div className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-lg">
-              <p className="font-medium mb-1">Informasi Upload:</p>
-              <ul className="space-y-1 text-xs">
-                <li>• Video akan diupload ke DoodStream</li>
-                <li>• Proses mungkin memakan waktu beberapa menit</li>
-                <li>• Thumbnail akan otomatis dibuat</li>
-              </ul>
-            </div>
+            </Button>
           </div>
         )}
+
+        {/* Info */}
+        <div className="bg-muted/20 p-4 rounded-lg">
+          <h4 className="font-medium text-foreground mb-2">Informasi Upload</h4>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• Video akan diproses otomatis setelah upload</li>
+            <li>• Embed link akan tersedia setelah pemrosesan selesai</li>
+            <li>• Proses upload dapat memakan waktu tergantung ukuran file</li>
+            <li>• Pastikan koneksi internet stabil selama upload</li>
+          </ul>
+        </div>
       </CardContent>
     </Card>
   );
-}
+};
+
+export default VideoUpload;

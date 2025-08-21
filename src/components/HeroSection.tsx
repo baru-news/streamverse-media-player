@@ -1,0 +1,238 @@
+import React, { useState, useEffect } from "react";
+import { Play, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import heroBg from "@/assets/hero-bg.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
+import { useAuth } from "@/hooks/useAuth";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+
+const HeroSection = () => {
+  const { user } = useAuth();
+  const { settings } = useWebsiteSettings();
+  const [featuredVideo, setFeaturedVideo] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load featured video for everyone (authenticated or not)
+    loadFeaturedVideo();
+  }, [settings]);
+
+  const loadFeaturedVideo = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Get the most popular video from database (now public access)
+      const { data: popularVideo, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('status', 'active')
+        .order('views', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (popularVideo) {
+        setFeaturedVideo({
+          id: popularVideo.file_code,
+          title: popularVideo.title,
+          description: popularVideo.description || "Video populer dari Doodstream dengan jutaan penonton di seluruh dunia. Nikmati konten berkualitas tinggi yang telah menjadi favorit banyak orang.",
+          duration: formatDuration(popularVideo.duration || 0),
+          views: formatViews(popularVideo.views || 0),
+          uploadDate: new Date(popularVideo.upload_date).getFullYear().toString(),
+          thumbnail: popularVideo.thumbnail_url || `https://img.doodcdn.io/snaps/${popularVideo.file_code}.jpg`,
+          fileCode: popularVideo.file_code
+        });
+      } else {
+        // Fallback to default content if no videos available
+        setFeaturedVideo({
+          id: "default",
+          title: settings.hero_title || "Selamat Datang di DINO18",
+          description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream. Bergabunglah dengan kami untuk pengalaman streaming yang luar biasa.",
+          duration: "∞",
+          views: "0",
+          uploadDate: "2024",
+          thumbnail: heroBg,
+          fileCode: null
+        });
+      }
+    } catch (err) {
+      console.error('Error loading featured video:', err);
+      // Use default content on error
+      setFeaturedVideo({
+        id: "default",
+        title: settings.hero_title || "Selamat Datang di DINO18",
+        description: settings.hero_description || "Platform streaming terbaik untuk menonton video berkualitas tinggi dari Doodstream.",
+        duration: "∞",
+        views: "0",
+        uploadDate: "2024",
+        thumbnail: heroBg,
+        fileCode: null
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDuration = (seconds: number): string => {
+    if (!seconds) return '0m';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+      return `${hours}j ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
+  const formatViews = (views: number): string => {
+    if (views >= 1000000) {
+      return `${(views / 1000000).toFixed(1)}M`;
+    } else if (views >= 1000) {
+      return `${(views / 1000).toFixed(1)}K`;
+    }
+    return views.toString();
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <section className="relative h-screen w-full overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={heroBg}
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-hero" />
+        </div>
+        <div className="relative z-10 container mx-auto px-4 h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-foreground text-lg">Memuat video unggulan...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className="relative h-screen w-full overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={heroBg}
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-hero" />
+        </div>
+        <div className="relative z-10 container mx-auto px-4 h-full flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-400 text-lg mb-4">{error}</p>
+            <Button onClick={loadFeaturedVideo} variant="outline" className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20">
+              Coba Lagi
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="relative h-screen w-full overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <img
+          src={featuredVideo?.thumbnail || heroBg}
+          alt={`${featuredVideo?.title || 'Featured Video'} - Platform Streaming Video DINO18`}
+          className="w-full h-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-hero" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+        <div className="max-w-2xl animate-fade-in">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm border border-primary/30 rounded-full px-4 py-2 mb-6">
+            <div className="w-2 h-2 bg-primary rounded-full animate-glow-pulse" />
+            <span className="text-primary font-medium text-sm">
+              {featuredVideo?.fileCode ? 'Video Terpopuler' : 'Video Unggulan'}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+            {featuredVideo?.title}
+          </h1>
+
+          {/* Metadata */}
+          <div className="flex items-center gap-4 text-muted-foreground mb-6">
+            <span className="text-primary font-semibold">👁 {featuredVideo?.views} views</span>
+            <span>{featuredVideo?.uploadDate}</span>
+            <span>{featuredVideo?.duration}</span>
+            <span className="bg-primary/20 px-3 py-1 rounded-full text-primary text-sm font-medium">
+              HD
+            </span>
+          </div>
+
+          {/* Description */}
+          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+            {featuredVideo?.description}
+          </p>
+
+          {/* Actions */}
+          <div className="flex items-center gap-4">
+            {featuredVideo?.fileCode ? (
+              <Link to={`/video/${featuredVideo.fileCode}`}>
+                <Button variant="play" size="lg" className="gap-3">
+                  <Play className="w-5 h-5" fill="currentColor" />
+                  Tonton Sekarang
+                </Button>
+              </Link>
+            ) : (
+              <Button 
+                variant="play" 
+                size="lg" 
+                className="gap-3" 
+                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+              >
+                <Play className="w-5 h-5" fill="currentColor" />
+                Lihat Video
+              </Button>
+            )}
+            
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="gap-3 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
+              onClick={loadFeaturedVideo}
+            >
+              <Info className="w-5 h-5" />
+              Refresh
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-muted-foreground animate-bounce">
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-sm">Scroll untuk melihat lebih banyak</span>
+          <div className="w-px h-8 bg-gradient-to-b from-muted-foreground to-transparent" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroSection;

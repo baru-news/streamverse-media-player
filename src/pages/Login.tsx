@@ -6,9 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import SEO from "@/components/SEO";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +14,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, user } = useAuth();
-  const { settings, isLoading } = useWebsiteSettings();
 
   // Redirect if already logged in
   if (user) {
@@ -37,7 +34,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50/30 via-background to-pink-100/20 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <SEO 
         title="Masuk ke Akun DINO18"
         description="Masuk ke akun DINO18 Anda untuk mengakses ribuan video streaming berkualitas tinggi. Platform streaming video terbaik dengan konten dari Doodstream."
@@ -47,35 +44,20 @@ const Login = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            {isLoading ? (
-              <div className="flex items-center space-x-2">
-                <Skeleton className="h-12 w-12 rounded-lg" />
-                <Skeleton className="h-8 w-24" />
-              </div>
-            ) : settings.site_logo_url ? (
-              <img 
-                src={settings.site_logo_url} 
-                alt="Logo" 
-                className="h-12 w-auto"
-              />
-            ) : (
-              <>
-                <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-xl">D</span>
-                </div>
-                <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  {settings.site_title || 'DINO18'}
-                </span>
-              </>
-            )}
+            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xl">D</span>
+            </div>
+            <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              DINO18
+            </span>
           </Link>
         </div>
 
-        <Card className="bg-pink-50/10 backdrop-blur-xl border-pink-200/30 shadow-xl shadow-pink-500/10">
+        <Card className="bg-card/50 backdrop-blur-xl border-border/50 shadow-xl">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-foreground">Masuk ke Akun Anda</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Masukkan email dan kata sandi untuk mengakses akun {settings.site_title || 'DINO18'} Anda
+              Masukkan email dan kata sandi untuk mengakses akun DINO18 Anda
             </CardDescription>
           </CardHeader>
 
@@ -92,7 +74,7 @@ const Login = () => {
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
+                    className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
                     required
                   />
                 </div>
@@ -109,7 +91,7 @@ const Login = () => {
                     placeholder="Masukkan kata sandi"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
+                    className="pl-10 pr-10 bg-muted/30 border-muted focus:border-primary transition-colors"
                     required
                   />
                   <button

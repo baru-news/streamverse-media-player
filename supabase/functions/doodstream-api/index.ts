@@ -52,7 +52,7 @@ serve(async (req) => {
       }
 
       // Step 1: Get upload server
-      const uploadServerResponse = await fetch(`https://doodapi.com/api/upload/server?key=${apiKey}`);
+      const uploadServerResponse = await fetch(`https://doodapi.co/api/upload/server?key=${apiKey}`);
       const uploadServerData = await uploadServerResponse.json();
       
       if (uploadServerData.status !== 200) {
@@ -116,21 +116,21 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        apiUrl = `https://doodapi.com/api/file/info?${params}&file_code=${fileCode}`;
+        apiUrl = `https://doodapi.co/api/file/info?${params}&file_code=${fileCode}`;
         break;
       
       case 'getVideoList':
         params.append('page', page.toString());
         params.append('per_page', perPage.toString());
-        apiUrl = `https://doodapi.com/api/file/list?${params}`;
+        apiUrl = `https://doodapi.co/api/file/list?${params}`;
         break;
       
       case 'getAccountInfo':
-        apiUrl = `https://doodapi.com/api/account/info?${params}`;
+        apiUrl = `https://doodapi.co/api/account/info?${params}`;
         break;
       
       case 'getUploadServer':
-        apiUrl = `https://doodapi.com/api/upload/server?${params}`;
+        apiUrl = `https://doodapi.co/api/upload/server?${params}`;
         break;
       
       case 'generateDirectLink':
@@ -140,12 +140,12 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        apiUrl = `https://doodapi.com/api/file/direct_link?${params}&file_code=${fileCode}`;
+        apiUrl = `https://doodapi.co/api/file/direct_link?${params}&file_code=${fileCode}`;
         break;
 
       case 'syncVideos':
         // Special action to sync all videos from Doodstream to database
-        apiUrl = `https://doodapi.com/api/file/list?${params}&per_page=100`;
+        apiUrl = `https://doodapi.co/api/file/list?${params}&per_page=100`;
         break;
       
       default:
@@ -177,7 +177,7 @@ serve(async (req) => {
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: `https://img.doodcdn.io/thumbnails/${fileInfo.filecode}.jpg`,
+          thumbnail: fileInfo.single_img || `https://img.doodcdn.io/snaps/${fileInfo.filecode}.jpg`,
           splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: file.single_img || `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
+            thumbnail: file.single_img || `https://img.doodcdn.io/snaps/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };
@@ -249,25 +249,22 @@ serve(async (req) => {
             .eq('file_code', video.fileCode)
             .single();
 
-           // Prepare record for database - preserve edited content
-           const record = {
-             file_code: video.fileCode,
-             doodstream_file_code: video.fileCode, // Store DoodStream file code
-             provider: 'doodstream',
-             primary_provider: 'doodstream',
-             title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
-             description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
-             original_title: video.title, // Always store original from Doodstream
-             duration: video.length ? Math.floor(parseFloat(video.length)) : null,
-             views: video.views || 0,
-             upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
-             file_size: video.size ? parseInt(video.size) : null,
-             status: video.canPlay ? 'active' : 'processing',
-             thumbnail_url: video.thumbnail,
-             // Preserve edit flags
-             title_edited: existingVideo?.title_edited || false,
-             description_edited: existingVideo?.description_edited || false
-           };
+          // Prepare record for database - preserve edited content
+          const record = {
+            file_code: video.fileCode,
+            title: (existingVideo?.title_edited && existingVideo?.title) ? existingVideo.title : video.title,
+            description: (existingVideo?.description_edited && existingVideo?.description) ? existingVideo.description : null,
+            original_title: video.title, // Always store original from Doodstream
+            duration: video.length ? Math.floor(parseFloat(video.length)) : null,
+            views: video.views || 0,
+            upload_date: video.uploadDate ? new Date(video.uploadDate).toISOString() : new Date().toISOString(),
+            file_size: video.size ? parseInt(video.size) : null,
+            status: video.canPlay ? 'active' : 'processing',
+            thumbnail_url: video.thumbnail,
+            // Preserve edit flags
+            title_edited: existingVideo?.title_edited || false,
+            description_edited: existingVideo?.description_edited || false
+          };
           
           console.log('Prepared record:', record);
           return record;
@@ -296,30 +293,29 @@ serve(async (req) => {
             }
           }
           
-          // Remove DoodStream videos from database that no longer exist in Doodstream
+          // Remove videos from database that no longer exist in Doodstream
           if (doodstreamFileCodes.length > 0) {
             const { data: deletedVideos, error: deleteError } = await supabase
               .from('videos')
               .delete()
-              .eq('provider', 'doodstream')
               .not('file_code', 'in', `(${doodstreamFileCodes.map(code => `"${code}"`).join(',')})`);
 
             if (deleteError) {
-              console.error('Error deleting removed DoodStream videos:', deleteError);
+              console.error('Error deleting removed videos:', deleteError);
             } else {
-              console.log('Successfully removed deleted DoodStream videos from database');
+              console.log('Successfully removed deleted videos from database');
             }
           } else {
-            // If no videos from Doodstream, delete all DoodStream videos from database
+            // If no videos from Doodstream, delete all videos from database
             const { error: deleteAllError } = await supabase
               .from('videos')
               .delete()
-              .eq('provider', 'doodstream');
+              .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
 
             if (deleteAllError) {
-              console.error('Error deleting all DoodStream videos:', deleteAllError);
+              console.error('Error deleting all videos:', deleteAllError);
             } else {
-              console.log('No videos in Doodstream - removed all DoodStream videos from database');
+              console.log('No videos in Doodstream - removed all videos from database');
             }
           }
         }

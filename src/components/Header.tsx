@@ -5,14 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { CoinDisplay } from "@/components/CoinDisplay";
-import KittyKeyDisplay from "@/components/KittyKeyDisplay";
-import SpinWheelButton from "@/components/SpinWheelButton";
-import { UserBadgeDisplay } from "@/components/UserBadgeDisplay";
 import { BadgeStore } from "@/components/BadgeStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DailyTasksCard } from "@/components/DailyTasksCard";
-import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +26,6 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
-  const { settings, isLoading } = useWebsiteSettings();
 
   const searchQuery = externalSearchQuery ?? internalSearchQuery;
 
@@ -60,7 +54,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-footer-bg backdrop-blur-md border-b border-border/50">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-nav-bg backdrop-blur-md border-b border-border/50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between md:justify-between">
           {/* Mobile Search Toggle - Left Side */}
@@ -77,27 +71,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
 
           {/* Logo - Desktop left, Mobile center */}
           <Link to="/" className="flex items-center space-x-2 flex-shrink-0 md:flex-shrink-0">
-            {isLoading ? (
-              <div className="flex items-center space-x-2">
-                <Skeleton className="h-8 w-8 rounded-lg" />
-                <Skeleton className="h-6 w-20" />
-              </div>
-            ) : settings.site_logo_url ? (
-              <img 
-                src={settings.site_logo_url} 
-                alt="Logo" 
-                className="h-8 w-auto"
-              />
-            ) : (
-              <>
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">D</span>
-                </div>
-                <span className="text-xl md:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  {settings.site_title || 'DINO18'}
-                </span>
-              </>
-            )}
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-lg">D</span>
+            </div>
+            <span className="text-xl md:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              DINO18
+            </span>
           </Link>
 
           {/* Desktop Search Bar */}
@@ -129,19 +108,17 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
             {user ? (
               <>
                 <CoinDisplay />
-                <KittyKeyDisplay />
-                <SpinWheelButton />
                 <BadgeStore />
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="ghost" size="sm" className="gap-2">
                       <Target className="w-4 h-4" />
-                      Tugas
+                      Tasks
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Tugas Harian</DialogTitle>
+                      <DialogTitle>Daily Tasks</DialogTitle>
                     </DialogHeader>
                     <DailyTasksCard />
                   </DialogContent>
@@ -172,7 +149,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                       <DropdownMenuItem asChild>
                         <Link to="/admin/upload" className="flex items-center">
                           <Shield className="mr-2 h-4 w-4" />
-                          <span>Dashboard Admin</span>
+                          <span>Admin Dashboard</span>
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -248,24 +225,22 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                   <span className="text-xs text-muted-foreground">
                     {isAdmin ? "Administrator" : "User"}
                   </span>
-                  <div className="mt-2 space-y-2">
+                  <div className="mt-2">
                     <CoinDisplay />
-                    <KittyKeyDisplay />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <BadgeStore />
-                  <SpinWheelButton />
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="justify-start gap-2">
                         <Target className="w-4 h-4" />
-                        Tugas Harian
+                        Daily Tasks
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Tugas Harian</DialogTitle>
+                        <DialogTitle>Daily Tasks</DialogTitle>
                       </DialogHeader>
                       <DailyTasksCard />
                     </DialogContent>
@@ -286,7 +261,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Shield className="mr-3 h-4 w-4" />
-                    <span>Dashboard Admin</span>
+                    <span>Admin Dashboard</span>
                   </Link>
                 )}
                 <button
