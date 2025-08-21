@@ -36,7 +36,9 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
   const currentProviderConfig = VideoProviderManager.getProviderConfig(selectedProvider);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File input triggered", event);
     const selectedFile = event.target.files?.[0];
+    console.log("Selected file:", selectedFile);
     if (selectedFile) {
       // Validasi file
       const maxSize = 2 * 1024 * 1024 * 1024; // 2GB
@@ -227,12 +229,17 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               accept="video/*"
               onChange={handleFileSelect}
               className="hidden"
-              id="video-upload"
+              id="video-upload-input"
             />
-            <Label htmlFor="video-upload">
+            <Label 
+              htmlFor="video-upload-input" 
+              className="cursor-pointer"
+              onClick={() => console.log("Label clicked")}
+            >
               <Button 
                 variant="hero" 
-                className="cursor-pointer"
+                type="button"
+                className="cursor-pointer w-full"
               >
                 Pilih File
               </Button>
