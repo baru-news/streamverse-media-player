@@ -225,25 +225,30 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               Mendukung MP4, AVI, MKV, MOV (maksimal 2GB)
             </p>
             <input
+              ref={(input) => {
+                if (input) {
+                  console.log("File input ref assigned:", input);
+                }
+              }}
               type="file"
               accept="video/*"
               onChange={handleFileSelect}
               className="hidden"
               id="video-upload-input"
             />
-            <Label 
-              htmlFor="video-upload-input" 
-              className="cursor-pointer"
-              onClick={() => console.log("Label clicked")}
+            <Button 
+              variant="hero" 
+              type="button"
+              className="cursor-pointer w-full"
+              onClick={() => {
+                console.log("Button clicked, triggering file input");
+                const input = document.getElementById('video-upload-input') as HTMLInputElement;
+                console.log("Input element found:", input);
+                input?.click();
+              }}
             >
-              <Button 
-                variant="hero" 
-                type="button"
-                className="cursor-pointer w-full"
-              >
-                Pilih File
-              </Button>
-            </Label>
+              Pilih File
+            </Button>
           </div>
         ) : (
           // Upload Form
