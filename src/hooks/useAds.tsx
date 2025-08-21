@@ -156,16 +156,16 @@ export const useAds = () => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `ads/${fileName}`;
+      const filePath = `banners/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('ads')
+        .from('banners')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('ads')
+        .from('banners')
         .getPublicUrl(filePath);
 
       return publicUrl;
