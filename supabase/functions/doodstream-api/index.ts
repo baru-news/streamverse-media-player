@@ -52,7 +52,7 @@ serve(async (req) => {
       }
 
       // Step 1: Get upload server
-      const uploadServerResponse = await fetch(`https://doodapi.co/api/upload/server?key=${apiKey}`);
+      const uploadServerResponse = await fetch(`https://doodapi.com/api/upload/server?key=${apiKey}`);
       const uploadServerData = await uploadServerResponse.json();
       
       if (uploadServerData.status !== 200) {
@@ -116,21 +116,21 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        apiUrl = `https://doodapi.co/api/file/info?${params}&file_code=${fileCode}`;
+        apiUrl = `https://doodapi.com/api/file/info?${params}&file_code=${fileCode}`;
         break;
       
       case 'getVideoList':
         params.append('page', page.toString());
         params.append('per_page', perPage.toString());
-        apiUrl = `https://doodapi.co/api/file/list?${params}`;
+        apiUrl = `https://doodapi.com/api/file/list?${params}`;
         break;
       
       case 'getAccountInfo':
-        apiUrl = `https://doodapi.co/api/account/info?${params}`;
+        apiUrl = `https://doodapi.com/api/account/info?${params}`;
         break;
       
       case 'getUploadServer':
-        apiUrl = `https://doodapi.co/api/upload/server?${params}`;
+        apiUrl = `https://doodapi.com/api/upload/server?${params}`;
         break;
       
       case 'generateDirectLink':
@@ -140,12 +140,12 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        apiUrl = `https://doodapi.co/api/file/direct_link?${params}&file_code=${fileCode}`;
+        apiUrl = `https://doodapi.com/api/file/direct_link?${params}&file_code=${fileCode}`;
         break;
 
       case 'syncVideos':
         // Special action to sync all videos from Doodstream to database
-        apiUrl = `https://doodapi.co/api/file/list?${params}&per_page=100`;
+        apiUrl = `https://doodapi.com/api/file/list?${params}&per_page=100`;
         break;
       
       default:
@@ -177,7 +177,7 @@ serve(async (req) => {
           uploadDate: fileInfo.uploaded,
           canPlay: fileInfo.canplay,
           size: fileInfo.size,
-          thumbnail: fileInfo.thumb_img || fileInfo.single_img || fileInfo.splash_img || `https://img.doodcdn.io/thumbnails/${fileInfo.filecode}.jpg`,
+          thumbnail: `https://img.doodcdn.io/thumbnails/${fileInfo.filecode}.jpg`,
           splashImg: fileInfo.splash_img || `https://img.doodcdn.io/splash/${fileInfo.filecode}.jpg`
         };
 
@@ -220,7 +220,7 @@ serve(async (req) => {
             canPlay: file.canplay !== undefined ? file.canplay : 1, // Default to playable
             size: file.size,
             downloadUrl: file.download_url,
-            thumbnail: file.thumb_img || file.single_img || file.splash_img || `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
+            thumbnail: `https://img.doodcdn.io/thumbnails/${file.file_code}.jpg`,
             publicStatus: file.public,
             folderId: file.fld_id
           };
