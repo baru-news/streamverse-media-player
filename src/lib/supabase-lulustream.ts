@@ -203,55 +203,6 @@ export class SecureLuluStreamAPI {
     return data || [];
   }
 
-  /**
-   * Get videos by hashtag from database
-   */
-  static async getVideosFromDatabaseByHashtag(hashtagId: string, page = 1, perPage = 50): Promise<any[]> {
-    const offset = (page - 1) * perPage;
-    
-    const { data, error } = await supabase
-      .from('videos')
-      .select(`
-        *,
-        categories:category_id (id, name, color),
-        video_hashtags!inner (
-          hashtag_id,
-          hashtags (id, name, color)
-        )
-      `)
-      .eq('provider', 'lulustream')
-      .eq('video_hashtags.hashtag_id', hashtagId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + perPage - 1);
-
-    if (error) throw error;
-    return data || [];
-  }
-
-  /**
-   * Get videos by category from database
-   */
-  static async getVideosFromDatabaseByCategory(categoryId: string, page = 1, perPage = 50): Promise<any[]> {
-    const offset = (page - 1) * perPage;
-    
-    const { data, error } = await supabase
-      .from('videos')
-      .select(`
-        *,
-        categories:category_id (id, name, color),
-        video_hashtags (
-          hashtag_id,
-          hashtags (id, name, color)
-        )
-      `)
-      .eq('provider', 'lulustream')
-      .eq('category_id', categoryId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + perPage - 1);
-
-    if (error) throw error;
-    return data || [];
-  }
 
   /**
    * Search videos with filters from database
@@ -297,58 +248,6 @@ export class SecureLuluStreamAPI {
     return data || [];
   }
 
-  /**
-   * Get single video by file code from database
-   */
-  static async getVideoByFileCode(fileCode: string): Promise<any | null> {
-    const { data, error } = await supabase
-      .from('videos')
-      .select(`
-        *,
-        categories:category_id (id, name, color),
-        video_hashtags (
-          hashtag_id,
-          hashtags (id, name, color)
-        )
-      `)
-      .eq('provider', 'lulustream')
-      .eq('file_code', fileCode)
-      .maybeSingle();
-
-    if (error) throw error;
-    return data;
-  }
-
-  /**
-   * Get total count of LuluStream videos in database
-   */
-  static async getTotalVideosCount(
-    searchQuery?: string,
-    hashtagId?: string,
-    categoryId?: string
-  ): Promise<number> {
-    let query = supabase
-      .from('videos')
-      .select('*', { count: 'exact', head: true })
-      .eq('provider', 'lulustream');
-
-    if (searchQuery) {
-      query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-    }
-
-    if (categoryId) {
-      query = query.eq('category_id', categoryId);
-    }
-
-    if (hashtagId) {
-      query = query.eq('video_hashtags.hashtag_id', hashtagId);
-    }
-
-    const { count, error } = await query;
-
-    if (error) throw error;
-    return count || 0;
-  }
 
   /**
    * Generate embed HTML for LuluStream video

@@ -64,14 +64,23 @@ const EnhancedVideoManager = () => {
   const loadVideos = async () => {
     setIsLoading(true);
     try {
-      // For admin panel, we want to see ALL videos including hidden ones
+      // Load videos from all providers with proper ordering
       const { data: videoList, error } = await supabase
         .from('videos')
         .select('*')
-        .order('upload_date', { ascending: false })
-        .limit(100);
+        .order('created_at', { ascending: false })
+        .limit(200); // Increased limit to show more videos
 
       if (error) throw error;
+      
+      console.log(`Loaded ${videoList?.length || 0} videos from database`);
+      console.log('Provider breakdown:', 
+        videoList?.reduce((acc, v) => {
+          acc[v.provider] = (acc[v.provider] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      );
+      
       setVideos(videoList || []);
     } catch (error) {
       console.error("Failed to load videos:", error);

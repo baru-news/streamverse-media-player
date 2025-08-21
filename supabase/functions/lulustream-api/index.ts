@@ -289,45 +289,28 @@ async function syncVideos() {
 
       console.log(`Attempting to insert ${videoInserts.length} videos:`, videoInserts.map(v => ({ file_code: v.file_code, title: v.title })));
 
-      // Try individual inserts to identify which records are causing issues
-      let insertedCount = 0;
-      for (const video of videoInserts) {
-        try {
-          const { error } = await supabase
-            .from('videos')
-            .insert(video);
-            
-          if (error) {
-            console.error(`Error inserting video ${video.file_code}:`, error);
-            
-            // Try upsert instead 
-            const { error: upsertError } = await supabase
-              .from('videos')
-              .upsert(video, {
-                onConflict: 'file_code'
-              });
-              
-            if (upsertError) {
-              console.error(`Error upserting video ${video.file_code}:`, upsertError);
-            } else {
-              insertedCount++;
-              console.log(`Successfully upserted video: ${video.title} (${video.file_code})`);
-            }
-          } else {
-            insertedCount++;
-            console.log(`Successfully inserted video: ${video.title} (${video.file_code})`);
-          }
-        } catch (err) {
-          console.error(`Exception inserting video ${video.file_code}:`, err);
-        }
+      // Use batch upsert for better performance and reliability
+      const { data: insertedData, error } = await supabase
+        .from('videos')
+        .upsert(videoInserts, {
+          onConflict: 'file_code',
+          ignoreDuplicates: false
+        })
+        .select('file_code');
+
+      if (error) {
+        console.error('Error inserting videos:', error);
+        // Continue processing instead of breaking
+      } else {
+        const insertedCount = insertedData?.length || 0;
+        console.log(`Successfully processed ${insertedCount} videos from page ${page}`);
+        totalSynced += insertedCount;
       }
-      
-      totalSynced += insertedCount;
       
       page++;
       
-      // Check if we have more pages
-      if (page > (data.result?.pages || 1)) {
+      // Check if we have more pages or reached the limit
+      if (videos.length < perPage || page > (data.result?.pages || 1)) {
         hasMore = false;
       }
       
