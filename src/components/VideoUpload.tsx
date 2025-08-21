@@ -91,8 +91,14 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       // Upload to BOTH providers simultaneously
       const [doodResult, luluResult] = await Promise.allSettled([
         VideoProviderManager.uploadVideo('doodstream', file, title),
-        VideoProviderManager.uploadVideo('lulustream', file, title)
+        VideoProviderManager.uploadVideo('lulustream', file, title).catch(error => {
+          console.error("LuluStream upload failed:", error);
+          throw error;
+        })
       ]);
+
+      console.log("Doodstream result:", doodResult);
+      console.log("LuluStream result:", luluResult);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -104,13 +110,17 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
 
       if (doodResult.status === 'fulfilled' && doodResult.value?.success) {
         doodFileCode = doodResult.value.file_code;
+        console.log("Doodstream success:", doodFileCode);
       } else {
+        console.error("Doodstream failed:", doodResult.status === 'rejected' ? doodResult.reason : 'Unknown error');
         errors.push('Doodstream: ' + (doodResult.status === 'rejected' ? doodResult.reason?.message : 'Upload failed'));
       }
 
       if (luluResult.status === 'fulfilled' && luluResult.value?.success) {
         luluFileCode = luluResult.value.file_code;
+        console.log("LuluStream success:", luluFileCode);
       } else {
+        console.error("LuluStream failed:", luluResult.status === 'rejected' ? luluResult.reason : 'Unknown error');
         errors.push('LuluStream: ' + (luluResult.status === 'rejected' ? luluResult.reason?.message : 'Upload failed'));
       }
 
