@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +15,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, user, isAdmin } = useAuth();
+  const { settings, isLoading } = useWebsiteSettings();
 
   // Redirect if already logged in as admin
   if (user && isAdmin) {
@@ -44,12 +47,27 @@ const AdminLogin = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">D</span>
-            </div>
-            <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              DINO18
-            </span>
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-12 w-12 rounded-lg" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+            ) : settings.site_logo_url ? (
+              <img 
+                src={settings.site_logo_url} 
+                alt="Logo" 
+                className="h-12 w-auto"
+              />
+            ) : (
+              <>
+                <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xl">D</span>
+                </div>
+                <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  {settings.site_title || 'DINO18'}
+                </span>
+              </>
+            )}
           </Link>
         </div>
 
@@ -62,7 +80,7 @@ const AdminLogin = () => {
             </div>
             <CardTitle className="text-2xl font-bold text-foreground">Admin Login</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Masuk sebagai administrator untuk mengelola website DINO18
+              Masuk sebagai administrator untuk mengelola website {settings.site_title || 'DINO18'}
             </CardDescription>
           </CardHeader>
 
@@ -76,7 +94,7 @@ const AdminLogin = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@dino18.com"
+                    placeholder="admin@website.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 bg-muted/30 border-muted focus:border-primary transition-colors"
@@ -137,7 +155,7 @@ const AdminLogin = () => {
             <span className="font-medium">Akses Terbatas</span>
           </div>
           <p className="text-yellow-200 text-sm">
-            Halaman ini hanya untuk administrator yang memiliki akses khusus ke panel kontrol DINO18.
+            Halaman ini hanya untuk administrator yang memiliki akses khusus ke panel kontrol {settings.site_title || 'DINO18'}.
           </p>
         </div>
       </div>

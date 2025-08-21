@@ -91,7 +91,7 @@ const Sitemap = () => {
                   <CardHeader className="pb-4">
                     <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
                       <img 
-                        src={video.thumbnail_url || `https://img.doodcdn.io/snaps/${video.file_code}.jpg`}
+                        src={video.thumbnail_url || `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`}
                         alt={video.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
