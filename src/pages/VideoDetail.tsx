@@ -7,6 +7,7 @@ import VideoCard from "@/components/VideoCard";
 import Header from "@/components/Header";
 import DoodstreamPlayer from "@/components/DoodstreamPlayer";
 import { UniversalVideoPlayer } from "@/components/UniversalVideoPlayer";
+import { DualStreamPlayer } from "@/components/DualStreamPlayer";
 import FavoriteButton from "@/components/FavoriteButton";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { VideoProviderManager, type VideoProvider } from "@/lib/video-provider-manager";
@@ -63,7 +64,7 @@ const VideoDetail = () => {
       setIsLoading(true);
       console.log('Loading video with ID:', id);
 
-      // Try to get video from database (any provider)
+      // Try to get video from database (with dual provider support)
       const { data: videos, error } = await supabase
         .from('videos')
         .select(`
@@ -85,7 +86,7 @@ const VideoDetail = () => {
       console.log('Found video:', currentVideo);
       
       if (currentVideo) {
-        // Format current video data with provider info
+        // Format current video data with dual provider support
         const videoData = {
           id: currentVideo.id,
           title: currentVideo.title,
@@ -98,7 +99,10 @@ const VideoDetail = () => {
           rating: "9.2",
           tags: ["Streaming", "Video", "Entertainment", "DINO18"],
           fileCode: currentVideo.file_code,
-          provider: currentVideo.provider as VideoProvider
+          doodstreamFileCode: currentVideo.doodstream_file_code,
+          luluStreamFileCode: currentVideo.lulustream_file_code,
+          primaryProvider: currentVideo.primary_provider as VideoProvider || currentVideo.provider as VideoProvider,
+          provider: currentVideo.provider as VideoProvider // Keep for compatibility
         };
         setVideo(videoData);
 
@@ -326,35 +330,39 @@ const VideoDetail = () => {
       navigate('/login');
       return;
     }
-    if (video?.fileCode && video?.provider) {
+    
+    // Try both providers for download
+    let downloadLink = null;
+    let providerUsed = '';
+
+    if (video?.doodstreamFileCode) {
       try {
-        // Use the VideoProviderManager to generate direct link based on provider
-        const downloadLink = await VideoProviderManager.generateDirectLink(video.provider, video.fileCode);
-        if (downloadLink) {
-          window.open(downloadLink, '_blank');
-          toast({
-            title: "Download Dimulai",
-            description: "Video akan segera diunduh"
-          });
-        } else {
-          toast({
-            title: "Error", 
-            description: `Download tidak didukung untuk provider ${VideoProviderManager.getProviderConfig(video.provider).displayName}`,
-            variant: "destructive"
-          });
-        }
+        downloadLink = await VideoProviderManager.generateDirectLink('doodstream', video.doodstreamFileCode);
+        if (downloadLink) providerUsed = 'Doodstream';
       } catch (error) {
-        console.error('Error getting download link:', error);
-        toast({
-          title: "Error",
-          description: "Terjadi kesalahan saat mendapatkan link download",
-          variant: "destructive"
-        });
+        console.error('Error getting Doodstream download link:', error);
       }
+    }
+
+    if (!downloadLink && video?.luluStreamFileCode) {
+      try {
+        downloadLink = await VideoProviderManager.generateDirectLink('lulustream', video.luluStreamFileCode);
+        if (downloadLink) providerUsed = 'LuluStream';
+      } catch (error) {
+        console.error('Error getting LuluStream download link:', error);
+      }
+    }
+
+    if (downloadLink) {
+      window.open(downloadLink, '_blank');
+      toast({
+        title: "Download Dimulai",
+        description: `Video akan segera diunduh via ${providerUsed}`
+      });
     } else {
       toast({
-        title: "Error",
-        description: "File code atau provider tidak tersedia",
+        title: "Error", 
+        description: "Download tidak tersedia untuk video ini",
         variant: "destructive"
       });
     }
@@ -447,15 +455,16 @@ const VideoDetail = () => {
                   <AdContainer position="content" placeholder={false} adIndex={0} />
                 </div>}
               
-              {/* Video Player - Universal Provider Support */}
-              <UniversalVideoPlayer 
-                fileCode={video.fileCode || "sample-file-code"} 
-                provider={video.provider || 'doodstream'}
-                title={video.title} 
-                videoId={video.id} 
-                width={800} 
-                height={450} 
-                className="mb-6" 
+              {/* Dual Stream Player - Support for Stream 1 & Stream 2 */}
+              <DualStreamPlayer
+                doodstreamFileCode={video.doodstreamFileCode}
+                luluStreamFileCode={video.luluStreamFileCode}
+                primaryProvider={video.primaryProvider}
+                title={video.title}
+                videoId={video.id}
+                width={800}
+                height={450}
+                className="mb-6"
               />
 
               {/* Video Info */}

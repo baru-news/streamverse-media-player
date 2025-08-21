@@ -8,10 +8,13 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { VideoProviderManager, type VideoProvider } from "@/lib/video-provider-manager";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UploadResponse {
   success: boolean;
   file_code?: string;
+  doodstream_file_code?: string;
+  lulustream_file_code?: string;
   message?: string;
   error?: string;
 }
@@ -67,54 +70,87 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
   const handleUpload = async () => {
     if (!file) return;
 
-    if (!currentProviderConfig.uploadSupported) {
-      toast({
-        title: "Upload tidak didukung",
-        description: `Provider ${currentProviderConfig.displayName} tidak mendukung upload`,
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsUploading(true);
     setUploadProgress(0);
     setUploadResult(null);
 
     try {
-      // Simulasi progress (karena upload berjalan di background)
+      // Progress simulation
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return prev;
           }
-          return prev + 10;
+          return prev + 5; // Slower progress for dual upload
         });
-      }, 500);
+      }, 800);
 
-      // Upload menggunakan VideoProviderManager
-      const result = await VideoProviderManager.uploadVideo(selectedProvider, file, title);
-      
+      // Upload to BOTH providers simultaneously
+      const [doodResult, luluResult] = await Promise.allSettled([
+        VideoProviderManager.uploadVideo('doodstream', file, title),
+        VideoProviderManager.uploadVideo('lulustream', file, title)
+      ]);
+
       clearInterval(progressInterval);
       setUploadProgress(100);
-      setUploadResult(result);
 
-      if (result.success && result.file_code) {
+      // Process results
+      let doodFileCode = null;
+      let luluFileCode = null;
+      let errors = [];
+
+      if (doodResult.status === 'fulfilled' && doodResult.value?.success) {
+        doodFileCode = doodResult.value.file_code;
+      } else {
+        errors.push('Doodstream: ' + (doodResult.status === 'rejected' ? doodResult.reason?.message : 'Upload failed'));
+      }
+
+      if (luluResult.status === 'fulfilled' && luluResult.value?.success) {
+        luluFileCode = luluResult.value.file_code;
+      } else {
+        errors.push('LuluStream: ' + (luluResult.status === 'rejected' ? luluResult.reason?.message : 'Upload failed'));
+      }
+
+      if (doodFileCode || luluFileCode) {
+        // Create single video record with both file codes
+        const { error } = await supabase
+          .from('videos')
+          .insert({
+            title: title,
+            description: '',
+            doodstream_file_code: doodFileCode,
+            lulustream_file_code: luluFileCode,
+            primary_provider: doodFileCode ? 'doodstream' : 'lulustream',
+            file_code: doodFileCode || luluFileCode, // Keep for compatibility
+            provider: doodFileCode ? 'doodstream' : 'lulustream', // Keep for compatibility
+            status: 'processing',
+            views: 0
+          });
+
+        if (error) {
+          console.error('Error saving to database:', error);
+        }
+
+        const successCount = (doodFileCode ? 1 : 0) + (luluFileCode ? 1 : 0);
+        const result = {
+          success: true,
+          file_code: doodFileCode || luluFileCode,
+          doodstream_file_code: doodFileCode,
+          lulustream_file_code: luluFileCode,
+          message: `Upload berhasil ke ${successCount}/2 provider${errors.length > 0 ? ` (${errors.length} error)` : ''}`
+        };
+
+        setUploadResult(result);
+        
         toast({
-          title: "Upload berhasil!",
-          description: `Video telah berhasil diunggah ke ${currentProviderConfig.displayName}`,
+          title: "Upload Berhasil!",
+          description: `Video berhasil diupload ke ${successCount} dari 2 provider`,
         });
         
-        // Dapatkan info video yang baru diunggah
-        try {
-          const videoInfo = await VideoProviderManager.getVideoInfo(selectedProvider, result.file_code, true);
-          onUploadComplete?.(result.file_code, videoInfo, selectedProvider);
-        } catch (error) {
-          console.error("Error getting video info:", error);
-          onUploadComplete?.(result.file_code, null, selectedProvider);
-        }
+        onUploadComplete?.(doodFileCode || luluFileCode, result, doodFileCode ? 'doodstream' : 'lulustream');
       } else {
-        throw new Error(result.error || "Upload gagal");
+        throw new Error('Upload gagal ke semua provider: ' + errors.join(', '));
       }
 
     } catch (error) {
@@ -145,36 +181,27 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Video className="w-5 h-5" />
-          Upload Video ke {currentProviderConfig.displayName}
+          Upload Video ke Dual Provider
         </CardTitle>
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Provider Selection */}
-        <div className="space-y-2">
-          <Label className="text-foreground">Video Provider</Label>
-          <Select value={selectedProvider} onValueChange={(value: VideoProvider) => setSelectedProvider(value)}>
-            <SelectTrigger className="bg-muted/30 border-muted">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {providers.map(provider => (
-                <SelectItem key={provider.name} value={provider.name}>
-                  <div className="flex items-center gap-2">
-                    {provider.displayName}
-                    {!provider.uploadSupported && (
-                      <span className="text-xs text-muted-foreground">(Upload tidak tersedia)</span>
-                    )}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {!currentProviderConfig.uploadSupported && (
-            <p className="text-sm text-yellow-600">
-              ⚠️ Provider ini tidak mendukung upload langsung
-            </p>
-          )}
+        {/* Provider Selection - Remove since we upload to both */}
+        <div className="bg-gradient-to-r from-blue-900/20 to-green-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
+          <h4 className="font-medium text-blue-300 mb-2">🚀 Dual Provider Upload</h4>
+          <p className="text-blue-200 text-sm">
+            Video akan diupload otomatis ke KEDUA provider sekaligus untuk redundansi maksimal.
+          </p>
+          <div className="flex gap-4 mt-3 text-xs">
+            <div className="flex items-center gap-1 text-blue-400">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <span>Doodstream</span>
+            </div>
+            <div className="flex items-center gap-1 text-green-400">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span>LuluStream</span>
+            </div>
+          </div>
         </div>
 
         {!file ? (
@@ -248,7 +275,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
             {isUploading && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-foreground">Mengupload ke {currentProviderConfig.displayName}...</span>
+                  <span className="text-foreground">Mengupload ke Kedua Provider...</span>
                   <span className="text-muted-foreground">{uploadProgress}%</span>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
@@ -272,10 +299,19 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
                     {uploadResult.success ? 'Upload Berhasil!' : 'Upload Gagal'}
                   </span>
                 </div>
-                {uploadResult.success && uploadResult.file_code && (
-                  <p className="text-sm mt-2 text-muted-foreground">
-                    File Code: {uploadResult.file_code} ({currentProviderConfig.displayName})
-                  </p>
+                {uploadResult.success && (
+                  <>
+                    {uploadResult.doodstream_file_code && (
+                      <p className="text-sm mt-2 text-muted-foreground">
+                        Doodstream: {uploadResult.doodstream_file_code}
+                      </p>
+                    )}
+                    {uploadResult.lulustream_file_code && (
+                      <p className="text-sm mt-2 text-muted-foreground">
+                        LuluStream: {uploadResult.lulustream_file_code}
+                      </p>
+                    )}
+                  </>
                 )}
                 {uploadResult.error && (
                   <p className="text-sm mt-2">
@@ -288,7 +324,7 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
             {/* Upload Button */}
             <Button 
               onClick={handleUpload}
-              disabled={!title.trim() || isUploading || !currentProviderConfig.uploadSupported}
+              disabled={!title.trim() || isUploading}
               variant="hero"
               className="w-full"
               size="lg"
@@ -296,12 +332,12 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
               {isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Mengupload...
+                  Mengupload ke Kedua Provider...
                 </>
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload ke {currentProviderConfig.displayName}
+                  Upload ke Dual Provider
                 </>
               )}
             </Button>
@@ -312,15 +348,11 @@ const VideoUpload = ({ onUploadComplete }: VideoUploadProps) => {
         <div className="bg-muted/20 p-4 rounded-lg">
           <h4 className="font-medium text-foreground mb-2">Informasi Upload</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Video akan diproses otomatis setelah upload ke {currentProviderConfig.displayName}</li>
-            <li>• Embed link akan tersedia setelah pemrosesan selesai</li>
+            <li>• Video akan diupload ke KEDUA provider sekaligus</li>
+            <li>• Doodstream & LuluStream untuk redundansi maksimal</li>
+            <li>• User nanti bisa pilih Stream 1 atau Stream 2</li>
             <li>• Proses upload dapat memakan waktu tergantung ukuran file</li>
             <li>• Pastikan koneksi internet stabil selama upload</li>
-            {currentProviderConfig.directDownloadSupported ? (
-              <li>• Provider ini mendukung direct download</li>
-            ) : (
-              <li>• Provider ini tidak mendukung direct download</li>
-            )}
           </ul>
         </div>
       </CardContent>

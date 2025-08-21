@@ -720,11 +720,14 @@ export type Database = {
           created_at: string
           description: string | null
           description_edited: boolean | null
+          doodstream_file_code: string | null
           duration: number | null
           file_code: string
           file_size: number | null
           id: string
+          lulustream_file_code: string | null
           original_title: string | null
+          primary_provider: Database["public"]["Enums"]["video_provider"] | null
           provider: Database["public"]["Enums"]["video_provider"]
           provider_data: Json | null
           slug: string | null
@@ -741,11 +744,16 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
+          doodstream_file_code?: string | null
           duration?: number | null
           file_code: string
           file_size?: number | null
           id?: string
+          lulustream_file_code?: string | null
           original_title?: string | null
+          primary_provider?:
+            | Database["public"]["Enums"]["video_provider"]
+            | null
           provider?: Database["public"]["Enums"]["video_provider"]
           provider_data?: Json | null
           slug?: string | null
@@ -762,11 +770,16 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
+          doodstream_file_code?: string | null
           duration?: number | null
           file_code?: string
           file_size?: number | null
           id?: string
+          lulustream_file_code?: string | null
           original_title?: string | null
+          primary_provider?:
+            | Database["public"]["Enums"]["video_provider"]
+            | null
           provider?: Database["public"]["Enums"]["video_provider"]
           provider_data?: Json | null
           slug?: string | null
