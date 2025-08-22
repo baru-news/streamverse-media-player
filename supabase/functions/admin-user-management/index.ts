@@ -1,19 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 };
-
-const handler = async (req) => {
+const handler = async (req)=>{
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: corsHeaders
     });
   }
-
   try {
     // Initialize Supabase Admin client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -24,7 +21,6 @@ const handler = async (req) => {
         persistSession: false
       }
     });
-
     // Get the authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -38,7 +34,6 @@ const handler = async (req) => {
         }
       });
     }
-
     // Verify the user is authenticated and is admin
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
@@ -54,7 +49,6 @@ const handler = async (req) => {
         }
       });
     }
-    
     // Check if user is admin
     const { data: roleData, error: roleError } = await supabaseAdmin.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').single();
     if (roleError || !roleData) {
@@ -69,20 +63,13 @@ const handler = async (req) => {
         }
       });
     }
-    
-    // --- Perbaikan Utama di Sini ---
-    const { action, email, redirect_to_origin } = await req.json();
-    // --- Perbaikan Selesai ---
-
+    const { action, email } = await req.json();
     switch(action){
       case 'reset_password':
-        // Buat URL pengalihan yang dinamis dengan fallback
-        const finalRedirectUrl = redirect_to_origin || Deno.env.get('SUPABASE_URL');
-        
+        // Send password reset email
         const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-          redirectTo: `${finalRedirectUrl}/reset-password`
+          redirectTo: `${new URL(req.url).origin}/reset-password`
         });
-
         if (resetError) {
           console.error('Password reset error:', resetError);
           return new Response(JSON.stringify({
@@ -96,7 +83,7 @@ const handler = async (req) => {
             }
           });
         }
-        
+        // Log admin activity
         console.log(`Admin ${user.email} initiated password reset for user ${email}`);
         return new Response(JSON.stringify({
           success: true,
@@ -108,7 +95,6 @@ const handler = async (req) => {
             ...corsHeaders
           }
         });
-
       default:
         return new Response(JSON.stringify({
           error: 'Invalid action'
@@ -134,5 +120,4 @@ const handler = async (req) => {
     });
   }
 };
-
 serve(handler);

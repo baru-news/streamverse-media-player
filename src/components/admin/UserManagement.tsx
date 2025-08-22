@@ -34,17 +34,10 @@ const UserManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch profiles with watch time data
+      // Perbaikan: Gunakan string kueri satu baris untuk menghindari error parser
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          email,
-          username,
-          avatar_url,
-          created_at,
-          age_verified
-        `)
+        .select('id, email, username, avatar_url, created_at, age_verified')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -83,12 +76,11 @@ const UserManagement = () => {
 
   const handlePasswordReset = async (email: string) => {
     try {
-      // MENGIRIMKAN ORIGIN SAAT INI KE EDGE FUNCTION
       const { data, error } = await supabase.functions.invoke('admin-user-management', {
         body: {
           action: 'reset_password',
           email,
-          redirect_to_origin: window.location.origin // BARIS YANG DITAMBAHKAN
+          redirect_to_origin: window.location.origin
         }
       });
 
