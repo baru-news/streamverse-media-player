@@ -41,7 +41,7 @@ export const useDailyTasks = () => {
     if (user) {
       fetchTasks();
       checkClaimEligibility();
-      
+
       // Subscribe to progress updates
       const channel = supabase
         .channel('task_progress_changes')
@@ -68,11 +68,11 @@ export const useDailyTasks = () => {
 
   const getWIBDate = (): string => {
     const now = new Date();
-    
+
     // Convert current time to WIB (UTC+7) - consistent with countdown
     const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
     const wibTime = new Date(utcTime + (7 * 60 * 60 * 1000));
-    
+
     // Return date in YYYY-MM-DD format
     return wibTime.toISOString().split('T')[0];
   };
@@ -82,7 +82,7 @@ export const useDailyTasks = () => {
 
     try {
       console.log('Fetching daily tasks for date:', getWIBDate());
-      
+
       // Fetch all active daily tasks
       const { data: dailyTasks, error: tasksError } = await supabase
         .from('daily_tasks')
@@ -96,12 +96,12 @@ export const useDailyTasks = () => {
       // Fetch today's progress for the user (using WIB timezone)
       const today = getWIBDate();
       console.log('Fetching progress for today:', today);
-      
+
       const { data: progress, error: progressError } = await supabase
         .from('user_daily_progress')
         .select('*')
         .eq('user_id', user.id)
-        .eq('task_date', today);
+        .eq('task_key', today);
 
       if (progressError) throw progressError;
 
@@ -156,7 +156,7 @@ export const useDailyTasks = () => {
       const newProgress = Math.min(currentProgress + progressValue, task.target_value);
       const isCompleted = newProgress >= task.target_value;
       const wasAlreadyCompleted = existingProgress?.is_completed || false;
-      
+
       const { error } = await supabase
         .from('user_daily_progress')
         .upsert({
@@ -172,12 +172,12 @@ export const useDailyTasks = () => {
         console.error('Error updating task progress:', error);
         return;
       }
-      
+
       // Show completion message only if task was just completed (not already completed)
       if (isCompleted && !wasAlreadyCompleted) {
         toast.success(`Task completed! +${task.reward_coins} coins!`);
       }
-      
+
       // Refresh tasks to get updated progress
       await fetchTasks();
     } catch (error) {
@@ -204,7 +204,7 @@ export const useDailyTasks = () => {
         });
 
       if (error) throw error;
-      
+
       toast.success(`Task completed! +${task.reward_coins} coins!`);
       await fetchTasks();
     } catch (error) {
