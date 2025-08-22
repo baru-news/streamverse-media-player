@@ -21,24 +21,32 @@ serve(async (req) => {
     // Initialize Supabase client with service role for database operations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    
+    console.log('Supabase URL available:', !!supabaseUrl);
+    console.log('Supabase Service Role Key available:', !!supabaseKey);
+    
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Get the API key from environment variables
     const apiKey = Deno.env.get('DOODSTREAM_API_KEY');
-    console.log('Environment variables available:', Object.keys(Deno.env.toObject()));
+    const allEnvKeys = Object.keys(Deno.env.toObject());
+    console.log('All environment variables:', allEnvKeys);
     console.log('DOODSTREAM_API_KEY exists:', !!apiKey);
+    console.log('DOODSTREAM_API_KEY length:', apiKey?.length || 0);
     
-    if (!apiKey) {
-      console.error('DOODSTREAM_API_KEY not found in environment');
-      console.error('Available env vars:', Object.keys(Deno.env.toObject()));
+    if (!apiKey || apiKey.trim() === '') {
+      console.error('DOODSTREAM_API_KEY not found or empty in environment');
+      console.error('Available env vars:', allEnvKeys);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'API key not configured',
+          error: 'DOODSTREAM_API_KEY is not configured or empty',
           debug: {
-            envVarsCount: Object.keys(Deno.env.toObject()).length,
-            hasSupabaseUrl: !!Deno.env.get('SUPABASE_URL'),
-            hasSupabaseKey: !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+            envVarsCount: allEnvKeys.length,
+            hasSupabaseUrl: !!supabaseUrl,
+            hasSupabaseKey: !!supabaseKey,
+            apiKeyExists: !!apiKey,
+            apiKeyLength: apiKey?.length || 0
           }
         }), 
         { 
@@ -48,7 +56,43 @@ serve(async (req) => {
       );
     }
 
-    // Handle file upload action separately (multipart form data)
+    // Test connection to Doodstream first
+    try {
+      console.log("Testing API connection to Doodstream...");
+      const testResponse = await fetch(`https://doodapi.com/api/account/info?key=${apiKey}`);
+      const testData = await testResponse.json();
+      console.log("API test response:", testData);
+      
+      if (testData.status !== 200) {
+        console.error("API key test failed:", testData);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Invalid API key: ${testData.msg || 'API key test failed'}`,
+            debug: { testResponse: testData }
+          }), 
+          { 
+            status: 401, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+      
+      console.log("API key test successful!");
+    } catch (testError) {
+      console.error("API connection test failed:", testError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Cannot connect to Doodstream API: ${testError.message}`,
+          debug: { testError: testError.message }
+        }), 
+        { 
+          status: 503, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
     if (req.headers.get('content-type')?.includes('multipart/form-data')) {
       console.log('Processing file upload action');
       
