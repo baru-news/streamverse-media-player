@@ -97,11 +97,13 @@ export const useDailyTasks = () => {
       const today = getWIBDate();
       console.log('Fetching progress for today:', today);
 
+      // --- PERBAIKAN DI SINI ---
+      // Perbaiki kueri untuk memfilter berdasarkan task_date, bukan task_key
       const { data: progress, error: progressError } = await supabase
         .from('user_daily_progress')
         .select('*')
         .eq('user_id', user.id)
-        .eq('task_key', today);
+        .eq('task_date', today); // <--- BARIS INI YANG DIPERBAIKI
 
       if (progressError) throw progressError;
 
