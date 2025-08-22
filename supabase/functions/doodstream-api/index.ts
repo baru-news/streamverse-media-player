@@ -25,10 +25,22 @@ serve(async (req) => {
 
     // Get the API key from environment variables
     const apiKey = Deno.env.get('DOODSTREAM_API_KEY');
+    console.log('Environment variables available:', Object.keys(Deno.env.toObject()));
+    console.log('DOODSTREAM_API_KEY exists:', !!apiKey);
+    
     if (!apiKey) {
       console.error('DOODSTREAM_API_KEY not found in environment');
+      console.error('Available env vars:', Object.keys(Deno.env.toObject()));
       return new Response(
-        JSON.stringify({ success: false, error: 'API key not configured' }), 
+        JSON.stringify({ 
+          success: false, 
+          error: 'API key not configured',
+          debug: {
+            envVarsCount: Object.keys(Deno.env.toObject()).length,
+            hasSupabaseUrl: !!Deno.env.get('SUPABASE_URL'),
+            hasSupabaseKey: !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+          }
+        }), 
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
