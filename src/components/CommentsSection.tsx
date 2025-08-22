@@ -69,7 +69,7 @@ const CommentsSection = ({ videoId }: CommentsSectionProps) => {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {displayedComments.map((comment) => (
               <CommentItem
                 key={comment.id}

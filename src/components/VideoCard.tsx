@@ -20,9 +20,6 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
-  const [currentImageSrc, setCurrentImageSrc] = useState(
-    thumbnail || (fileCode ? `https://img.doodcdn.io/snaps/${fileCode}.jpg` : '/placeholder.svg')
-  );
   return (
     <Link to={`/video/${id}`}>
       <div className="group relative bg-gradient-card rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-video cursor-pointer h-full flex flex-col">
@@ -33,7 +30,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
           )}
           
           <img
-            src={currentImageSrc}
+            src={thumbnail}
             alt={`${title} - Video streaming di DINO18 oleh ${creator}`}
             className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -41,26 +38,12 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
             loading="lazy"
             onLoad={() => {
               setImageLoaded(true);
-              console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);
             }}
             onError={(e) => {
-              console.error(`Failed to load thumbnail: ${currentImageSrc}`);
-              const currentSrc = e.currentTarget.src;
-              
-              if (currentSrc.includes('doodcdn.com') && fileCode) {
-                // Try alternative Doodstream formats
-                const newSrc = `https://img.doodcdn.co/splash/${fileCode}.jpg`;
-                console.log(`Trying alternative format: ${newSrc}`);
-                setCurrentImageSrc(newSrc);
-                e.currentTarget.src = newSrc;
-              } else if (!currentSrc.includes('placeholder.svg')) {
-                // Final fallback to placeholder
-                console.log('Using placeholder fallback');
-                setCurrentImageSrc('/placeholder.svg');
-                e.currentTarget.src = '/placeholder.svg';
-                setImageError(true);
-                setImageLoaded(true);
-              }
+              // Simple fallback to placeholder image
+              e.currentTarget.src = '/placeholder.svg';
+              setImageError(true);
+              setImageLoaded(true);
             }}
           />
           
@@ -99,8 +82,8 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
         {/* Content */}
         <div className="p-2 sm:p-3 flex-1 flex flex-col">
           <div className="mb-2 sm:mb-3">
-            <div className="relative">
-              <h3 className={`text-foreground font-medium text-xs sm:text-sm leading-tight group-hover:text-primary transition-colors duration-200 ${
+            <div className="flex items-start justify-between gap-2">
+              <h3 className={`text-foreground font-medium text-xs sm:text-sm leading-tight group-hover:text-primary transition-colors duration-200 flex-1 ${
                 showFullTitle ? '' : 'line-clamp-2 sm:line-clamp-3'
               }`}>
                 {title}
@@ -112,10 +95,10 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
                     e.stopPropagation();
                     setShowFullTitle(!showFullTitle);
                   }}
-                  className="text-primary hover:text-primary/80 transition-colors text-[10px] sm:text-xs mt-1 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 sm:px-2 sm:py-1 rounded"
+                  className="text-primary hover:text-primary/80 transition-colors text-[10px] sm:text-xs flex items-center gap-0.5 bg-black/60 backdrop-blur-sm px-1 py-0.5 sm:px-1.5 sm:py-0.5 rounded flex-shrink-0 self-start"
                 >
                   <MoreHorizontal className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  {showFullTitle ? "Tutup" : "Baca"}
+                  <span className="hidden sm:inline">{showFullTitle ? "Tutup" : "Baca"}</span>
                 </button>
               )}
             </div>

@@ -152,7 +152,7 @@ const DoodstreamPlayer = ({
 
         {/* Video Info */}
         {showPlayer && (
-          <div className="bg-card/50 backdrop-blur-sm p-4 border-t border-border/50">
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 backdrop-blur-sm p-4 border-t border-primary/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
