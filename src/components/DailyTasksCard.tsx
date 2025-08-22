@@ -26,8 +26,10 @@ export const DailyTasksCard = () => {
   // Refresh tasks when countdown reaches zero (reset time)
   useEffect(() => {
     if (isResetting) {
+      console.log('Daily tasks resetting, refreshing tasks...');
       const timer = setTimeout(() => {
         refreshTasks();
+        console.log('Tasks refreshed after reset');
       }, 2000); // Wait 2 seconds to ensure reset is complete
       
       return () => clearTimeout(timer);

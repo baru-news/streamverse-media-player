@@ -11,6 +11,3 @@ verify_jwt = false
 
 [functions.thumbnail-proxy]
 verify_jwt = false
-
-[functions.dynamic-sitemap]
-verify_jwt = false

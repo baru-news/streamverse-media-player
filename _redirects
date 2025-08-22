@@ -1,7 +1,0 @@
-# Cloudflare Pages redirects and rewrites
-
-# SPA fallback - serve index.html for all routes that don't match files
-/*    /index.html   200
-
-# Security redirects
-/admin/*  /admin-login  302  Condition=X-Forwarded-Proto:http

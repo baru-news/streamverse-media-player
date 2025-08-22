@@ -1,7 +1,6 @@
 import React from 'react';
 import { AdBanner } from './AdBanner';
 import { AdCard } from './AdCard';
-import { AdBlockerAlert } from './AdBlockerAlert';
 import { cn } from '@/lib/utils';
 import { useAds } from '@/hooks/useAds';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,7 +59,6 @@ export const AdContainer: React.FC<AdContainerProps> = ({
 
   return (
     <div className={cn(containerClasses[position], className)}>
-      {position === 'content' && <AdBlockerAlert />}
       {renderAd()}
     </div>
   );

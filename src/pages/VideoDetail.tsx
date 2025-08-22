@@ -6,11 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import VideoCard from "@/components/VideoCard";
 import Header from "@/components/Header";
 import DoodstreamPlayer from "@/components/DoodstreamPlayer";
-import { UniversalVideoPlayer } from "@/components/UniversalVideoPlayer";
-import { DualStreamPlayer } from "@/components/DualStreamPlayer";
 import FavoriteButton from "@/components/FavoriteButton";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
-import { VideoProviderManager, type VideoProvider } from "@/lib/video-provider-manager";
 import { useAuth } from "@/hooks/useAuth";
 import { useDailyTasks } from "@/hooks/useDailyTasks";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,44 +61,23 @@ const VideoDetail = () => {
       setIsLoading(true);
       console.log('Loading video with ID:', id);
 
-      // Try to get video from database (with dual provider support)
-      const { data: videos, error } = await supabase
-        .from('videos')
-        .select(`
-          *,
-          categories:category_id (id, name, color),
-          video_hashtags (
-            hashtag_id,
-            hashtags (id, name, color)
-          )
-        `)
-        .eq('file_code', id || '');
-
-      if (error) {
-        console.error('Error fetching video:', error);
-        return;
-      }
-
-      const currentVideo = videos?.[0];
+      // Get specific video by file_code first
+      const currentVideo = await SecureDoodstreamAPI.getVideoByFileCode(id || '');
       console.log('Found video:', currentVideo);
-      
       if (currentVideo) {
-        // Format current video data with dual provider support
+        // Format current video data
         const videoData = {
           id: currentVideo.id,
           title: currentVideo.title,
-          description: currentVideo.description || "Video menarik dari koleksi kami. Nikmati konten berkualitas tinggi dengan streaming yang lancar.",
+          description: currentVideo.description || "Video menarik dari koleksi Doodstream kami. Nikmati konten berkualitas tinggi dengan streaming yang lancar.",
           creator: "DINO18",
           views: formatViews(currentVideo.views || 0),
           uploadDate: formatDate(currentVideo.upload_date),
           duration: formatDuration(currentVideo.duration || 0),
-          category: currentVideo.categories?.name || "Video",
+          category: "Video",
           rating: "9.2",
           tags: ["Streaming", "Video", "Entertainment", "DINO18"],
-          fileCode: currentVideo.file_code,
-          doodstreamFileCode: currentVideo.doodstream_file_code,
-          primaryProvider: currentVideo.primary_provider as VideoProvider || currentVideo.provider as VideoProvider,
-          provider: currentVideo.provider as VideoProvider // Keep for compatibility
+          fileCode: currentVideo.file_code
         };
         setVideo(videoData);
 
@@ -109,32 +85,19 @@ const VideoDetail = () => {
         await loadLikesCount(currentVideo.id);
         await loadVideoHashtags(currentVideo.id);
 
-        // Get related videos from DoodStream only (exclude current video)
-        const allVideosResults = await Promise.allSettled([
-          VideoProviderManager.getVideosFromDatabase('doodstream', 1, 25)
-        ]);
-
-        let allVideos: any[] = [];
-        allVideosResults.forEach(result => {
-          if (result.status === 'fulfilled') {
-            allVideos = [...allVideos, ...result.value];
-          }
-        });
-
-        const related = allVideos
-          .filter(v => v.file_code !== id && v.id !== id)
-          .slice(0, 6)
-          .map(v => ({
-            id: v.file_code,
-            title: v.title,
-            thumbnail: getThumbnailUrl(v.file_code, v.provider),
-            duration: formatDuration(v.duration || 0),
-            views: formatViews(v.views || 0),
-            creator: "DINO18",
-            category: "Video",
-            fileCode: v.file_code,
-            provider: v.provider
-          }));
+        // Get related videos (exclude current video)
+        const allVideos = await SecureDoodstreamAPI.getVideosFromDatabase(1, 50);
+        const related = allVideos.filter(v => v.file_code !== id && v.id !== id).slice(0, 6).map(v => ({
+          id: v.file_code,
+          // Use file_code as id for proper routing
+          title: v.title,
+          thumbnail: v.thumbnail_url || `https://img.doodcdn.io/snaps/${v.file_code}.jpg`,
+          duration: formatDuration(v.duration || 0),
+          views: formatViews(v.views || 0),
+          creator: "DINO18",
+          category: "Video",
+          fileCode: v.file_code
+        }));
         setRelatedVideos(related);
       } else {
         console.log('Video not found with file_code:', id);
@@ -328,30 +291,35 @@ const VideoDetail = () => {
       navigate('/login');
       return;
     }
-    
-    // Try both providers for download
-    let downloadLink = null;
-    let providerUsed = '';
-
-    if (video?.doodstreamFileCode) {
+    if (video?.fileCode) {
       try {
-        downloadLink = await VideoProviderManager.generateDirectLink('doodstream', video.doodstreamFileCode);
-        if (downloadLink) providerUsed = 'Doodstream';
+        // Use the SecureDoodstreamAPI to generate direct link
+        const downloadLink = await SecureDoodstreamAPI.generateDirectLink(video.fileCode);
+        if (downloadLink) {
+          window.open(downloadLink, '_blank');
+          toast({
+            title: "Download Dimulai",
+            description: "Video akan segera diunduh"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Link download tidak tersedia saat ini",
+            variant: "destructive"
+          });
+        }
       } catch (error) {
-        console.error('Error getting Doodstream download link:', error);
+        console.error('Error getting download link:', error);
+        toast({
+          title: "Error",
+          description: "Terjadi kesalahan saat mendapatkan link download",
+          variant: "destructive"
+        });
       }
-    }
-
-    if (downloadLink) {
-      window.open(downloadLink, '_blank');
-      toast({
-        title: "Download Dimulai",
-        description: `Video akan segera diunduh via ${providerUsed}`
-      });
     } else {
       toast({
-        title: "Error", 
-        description: "Download tidak tersedia untuk video ini",
+        title: "Error",
+        description: "File code tidak tersedia",
         variant: "destructive"
       });
     }
@@ -374,10 +342,6 @@ const VideoDetail = () => {
     }
     return views.toString();
   };
-  const getThumbnailUrl = (fileCode: string, provider: VideoProvider): string => {
-    return `https://img.doodcdn.io/thumbnails/${fileCode}.jpg`;
-  };
-
   const formatDate = (dateString: string): string => {
     if (!dateString) return 'Tidak diketahui';
     const date = new Date(dateString);
@@ -416,13 +380,13 @@ const VideoDetail = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background">
-      <SEO title={video?.title} description={video?.description} keywords={`${video?.title}, streaming video, ${video?.provider || 'doodstream'}, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`} image={getThumbnailUrl(video?.fileCode || '', video?.provider || 'doodstream')} type="video.other" video={{
+      <SEO title={video?.title} description={video?.description} keywords={`${video?.title}, streaming video, doodstream, ${videoHashtags.map(h => h.name).join(', ')}, DINO18`} image={`https://img.doodcdn.io/snaps/${video?.fileCode}.jpg`} type="video.other" video={{
       title: video?.title || '',
       description: video?.description || '',
-      thumbnail: getThumbnailUrl(video?.fileCode || '', video?.provider || 'doodstream'),
+      thumbnail: `https://img.doodcdn.io/snaps/${video?.fileCode}.jpg`,
       duration: video?.duration ? parseInt(video.duration.split(':')[0]) * 60 + parseInt(video.duration.split(':')[1]) : undefined,
       uploadDate: new Date().toISOString(),
-      embedUrl: VideoProviderManager.generateEmbedURL(video?.provider || 'doodstream', video?.fileCode || '')
+      embedUrl: `https://doodstream.com/e/${video?.fileCode}`
     }} />
       <Header />
       
@@ -437,16 +401,8 @@ const VideoDetail = () => {
                   <AdContainer position="content" placeholder={false} adIndex={0} />
                 </div>}
               
-              {/* Dual Stream Player - Support for Stream 1 & Stream 2 */}
-              <DualStreamPlayer
-                doodstreamFileCode={video.doodstreamFileCode}
-                primaryProvider={video.primaryProvider}
-                title={video.title}
-                videoId={video.id}
-                width={800}
-                height={450}
-                className="mb-6"
-              />
+              {/* Video Player - Doodstream Integration */}
+              <DoodstreamPlayer fileCode={video.fileCode || "sample-file-code"} title={video.title} videoId={video.id} width={800} height={450} className="mb-6" />
 
               {/* Video Info */}
               <div className="space-y-6">

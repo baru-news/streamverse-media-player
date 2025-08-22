@@ -1,8 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { loadImageWithRetry, createFallbackImage } from '@/lib/image-utils';
-import { AlertTriangle, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface Ad {
   id: string;
@@ -26,18 +23,12 @@ const AdBanner: React.FC<AdBannerProps> = ({
   ad
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
-  const [imageState, setImageState] = useState<'loading' | 'loaded' | 'error' | 'retry'>('loading');
-  const [imageSrc, setImageSrc] = useState<string>('');
-  const [retryCount, setRetryCount] = useState(0);
-  
   // Responsive ad size
   const width = ad ? 'auto' : 300;
   const height = ad ? 'auto' : 70;
 
   useEffect(() => {
-    if (ad?.image_url) {
-      loadAdImage(ad.image_url);
-    } else if (!placeholder && !ad && adRef.current) {
+    if (!placeholder && !ad && adRef.current) {
       // Initialize Google AdSense here
       try {
         // @ts-ignore
@@ -46,83 +37,24 @@ const AdBanner: React.FC<AdBannerProps> = ({
         console.error('AdSense error:', err);
       }
     }
-  }, [ad?.image_url, placeholder, ad]);
-
-  const loadAdImage = async (url: string) => {
-    setImageState('loading');
-    try {
-      const result = await loadImageWithRetry(url, 3, 1000);
-      if (result.success) {
-        setImageSrc(url);
-        setImageState('loaded');
-      } else {
-        console.warn('Failed to load ad image:', url, result.error);
-        setImageState('error');
-        setImageSrc(createFallbackImage(300, 70, 'Konten Tidak Tersedia'));
-      }
-    } catch (error) {
-      console.error('Error loading ad image:', error);
-      setImageState('error');
-      setImageSrc(createFallbackImage(300, 70, 'Error Loading Image'));
-    }
-  };
-
-  const handleRetry = () => {
-    if (ad?.image_url && retryCount < 2) {
-      setRetryCount(prev => prev + 1);
-      setImageState('retry');
-      loadAdImage(ad.image_url);
-    }
-  };
+  }, [placeholder, ad]);
 
   // Show real ad if available
   if (ad) {
+    const AdContent = () => (
+      <img 
+        src={ad.image_url} 
+        alt={ad.title}
+        className="w-full h-auto object-contain max-h-[70px]"
+      />
+    );
+
     return (
       <div 
-        className={cn("overflow-hidden rounded-lg max-w-sm mx-auto", className)}
+        className={cn("overflow-hidden rounded-lg cursor-pointer max-w-sm mx-auto", className)}
+        onClick={() => ad.link_url && window.open(ad.link_url, '_blank')}
       >
-        {imageState === 'loading' && (
-          <div 
-            className="bg-muted border border-muted-foreground/20 rounded-lg flex items-center justify-center animate-pulse"
-            style={{ width: 300, height: 70 }}
-          >
-            <div className="text-muted-foreground text-xs">Loading...</div>
-          </div>
-        )}
-        
-        {(imageState === 'loaded' || imageState === 'error') && (
-          <div 
-            className={cn(
-              "cursor-pointer transition-opacity hover:opacity-90",
-              imageState === 'error' && "relative"
-            )}
-            onClick={() => imageState === 'loaded' && ad.link_url && window.open(ad.link_url, '_blank')}
-          >
-            <img 
-              src={imageSrc} 
-              alt={ad.title}
-              className="w-full h-auto object-contain max-h-[70px]"
-              style={{ width: 300, height: 70 }}
-            />
-            {imageState === 'error' && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRetry();
-                  }}
-                  className="text-white hover:bg-white/20"
-                  disabled={retryCount >= 2}
-                >
-                  <RotateCcw className="h-3 w-3 mr-1" />
-                  {retryCount >= 2 ? 'Failed' : 'Retry'}
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+        <AdContent />
       </div>
     );
   }

@@ -20,6 +20,9 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
+  const [currentImageSrc, setCurrentImageSrc] = useState(
+    thumbnail || (fileCode ? `https://img.doodcdn.io/snaps/${fileCode}.jpg` : '/placeholder.svg')
+  );
   return (
     <Link to={`/video/${id}`}>
       <div className="group relative bg-gradient-card rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-video cursor-pointer h-full flex flex-col">
@@ -30,7 +33,7 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
           )}
           
           <img
-            src={thumbnail}
+            src={currentImageSrc}
             alt={`${title} - Video streaming di DINO18 oleh ${creator}`}
             className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -38,12 +41,26 @@ const VideoCard = ({ id, title, thumbnail, duration, views, creator, fileCode, v
             loading="lazy"
             onLoad={() => {
               setImageLoaded(true);
+              console.log(`Thumbnail loaded successfully: ${currentImageSrc}`);
             }}
             onError={(e) => {
-              // Simple fallback to placeholder image
-              e.currentTarget.src = '/placeholder.svg';
-              setImageError(true);
-              setImageLoaded(true);
+              console.error(`Failed to load thumbnail: ${currentImageSrc}`);
+              const currentSrc = e.currentTarget.src;
+              
+              if (currentSrc.includes('doodcdn.com') && fileCode) {
+                // Try alternative Doodstream formats
+                const newSrc = `https://img.doodcdn.co/splash/${fileCode}.jpg`;
+                console.log(`Trying alternative format: ${newSrc}`);
+                setCurrentImageSrc(newSrc);
+                e.currentTarget.src = newSrc;
+              } else if (!currentSrc.includes('placeholder.svg')) {
+                // Final fallback to placeholder
+                console.log('Using placeholder fallback');
+                setCurrentImageSrc('/placeholder.svg');
+                e.currentTarget.src = '/placeholder.svg';
+                setImageError(true);
+                setImageLoaded(true);
+              }
             }}
           />
           

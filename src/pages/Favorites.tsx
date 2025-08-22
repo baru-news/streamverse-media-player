@@ -31,7 +31,7 @@ const Favorites = () => {
       const formattedVideos = videos.map(video => ({
         id: video.file_code || video.id,
         title: video.title,
-        thumbnail: video.thumbnail_url || `https://img.doodcdn.io/thumbnails/${video.file_code}.jpg`,
+        thumbnail: video.thumbnail_url || `https://img.doodcdn.io/snaps/${video.file_code}.jpg`,
         duration: formatDuration(video.duration || 0),
         views: formatViews(video.views || 0),
         creator: "DINO18",

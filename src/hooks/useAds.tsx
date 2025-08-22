@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { preloadImage } from "@/lib/image-utils";
 
 interface Ad {
   id: string;
@@ -38,23 +37,7 @@ export const useAds = () => {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      
-      const adsData = data || [];
-      setAds(adsData);
-      
-      // Preload active ad images for better performance
-      const activeAds = adsData.filter(ad => ad.is_active && ad.image_url);
-      if (activeAds.length > 0) {
-        // Preload in background without blocking UI
-        Promise.all(
-          activeAds.map(ad => preloadImage(ad.image_url))
-        ).then(results => {
-          const successCount = results.filter(Boolean).length;
-          console.log(`Preloaded ${successCount}/${activeAds.length} ad images`);
-        }).catch(error => {
-          console.warn('Ad image preloading failed:', error);
-        });
-      }
+      setAds(data || []);
     } catch (error) {
       console.error('Error loading ads:', error);
       toast.error('Gagal memuat iklan');
@@ -171,44 +154,24 @@ export const useAds = () => {
 
   const uploadAdImage = async (file: File) => {
     try {
-      // Validate file type and size
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('Format file tidak didukung. Gunakan JPEG, PNG, GIF, atau WebP.');
-      }
-      
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        throw new Error('File terlalu besar. Maksimal 2MB.');
-      }
-
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `banners/${fileName}`;
+      const filePath = `ads/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('ads')
         .upload(filePath, file);
 
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw new Error('Gagal mengupload ke storage: ' + uploadError.message);
-      }
+      if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('ads')
         .getPublicUrl(filePath);
 
-      // Verify the uploaded image can be loaded
-      const canLoad = await preloadImage(publicUrl);
-      if (!canLoad) {
-        console.warn('Uploaded image failed verification, but returning URL anyway');
-      }
-
       return publicUrl;
     } catch (error) {
       console.error('Error uploading ad image:', error);
-      const message = error instanceof Error ? error.message : 'Gagal mengupload gambar';
-      toast.error(message);
+      toast.error('Gagal mengupload gambar');
       throw error;
     }
   };
