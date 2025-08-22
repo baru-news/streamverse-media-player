@@ -97,6 +97,22 @@ const EnhancedVideoManager = () => {
   const syncVideos = async () => {
     setIsSyncing(true);
     try {
+      console.log("Starting video sync process...");
+      
+      // Test API key availability first
+      try {
+        const accountInfo = await SecureDoodstreamAPI.getAccountInfo();
+        console.log("API key test successful:", accountInfo);
+      } catch (testError) {
+        console.error("API key test failed:", testError);
+        toast({
+          title: "Error",
+          description: "API key Doodstream tidak valid atau tidak tersedia. Periksa konfigurasi secret.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       // Sync DoodStream only
       const doodResult = await VideoProviderManager.syncVideos('doodstream');
       
@@ -122,7 +138,7 @@ const EnhancedVideoManager = () => {
       console.error("Failed to sync videos:", error);
       toast({
         title: "Error",
-        description: "Gagal sinkronisasi video.",
+        description: `Gagal sinkronisasi video: ${error.message}`,
         variant: "destructive",
       });
     } finally {
