@@ -176,7 +176,7 @@ const CategoryManagement = () => {
   }
 
   return (
-    <div className="space-y-6 max-h-screen overflow-hidden pb-8">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Manajemen Kategori</h2>
@@ -294,10 +294,9 @@ const CategoryManagement = () => {
         </Card>
       )}
 
-      {/* Categories List with Scrollable Container */}
-      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+      <div className="grid gap-4">
         {categories.map((category, index) => (
-          <Card key={category.id} className="flex-shrink-0">
+          <Card key={category.id}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
