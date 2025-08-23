@@ -92,6 +92,7 @@ async function generateInviteLink(chatId: number) {
 async function handleLinkCommand(update: TelegramUpdate) {
   const message = update.message!;
   const telegramUserId = message.from.id;
+  const telegramUsername = message.from.username;
   const chatId = message.chat.id;
   
   // Check if user already linked
@@ -113,14 +114,32 @@ async function handleLinkCommand(update: TelegramUpdate) {
   // Generate a temporary link code
   const linkCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   
+  // Store code in database
+  const { error } = await supabase
+    .from('telegram_link_codes')
+    .insert({
+      code: linkCode,
+      telegram_user_id: telegramUserId,
+      telegram_username: telegramUsername
+    });
+
+  if (error) {
+    console.error('Error storing link code:', error);
+    await sendTelegramMessage(
+      chatId,
+      `❌ Terjadi kesalahan saat membuat kode link. Silakan coba lagi.`,
+      message.message_id
+    );
+    return;
+  }
+  
+  console.log(`Link code for user ${telegramUserId}: ${linkCode}`);
+  
   await sendTelegramMessage(
     chatId,
     `🔗 Untuk menghubungkan akun Telegram Anda dengan akun website, silakan:\n\n1. Login ke website\n2. Masukkan kode ini: <code>${linkCode}</code>\n\nKode berlaku selama 10 menit.`,
     message.message_id
   );
-
-  // Store the link code temporarily (you might want to use a separate table for this)
-  console.log(`Link code for user ${telegramUserId}: ${linkCode}`);
 }
 
 async function handlePremiumCommand(update: TelegramUpdate) {

@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.telegram-invite]
 verify_jwt = true
+
+[functions.verify-telegram-link]
+verify_jwt = true

@@ -499,6 +499,47 @@ export type Database = {
           },
         ]
       }
+      telegram_link_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          telegram_user_id: number
+          telegram_username: string | null
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          telegram_user_id: number
+          telegram_username?: string | null
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          telegram_user_id?: number
+          telegram_username?: string | null
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_link_codes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       upload_logs: {
         Row: {
           created_at: string
@@ -1083,6 +1124,10 @@ export type Database = {
       update_watch_progress: {
         Args: { duration_seconds: number; user_id_param: string }
         Returns: undefined
+      }
+      verify_telegram_link_code: {
+        Args: { link_code: string; user_id_param: string }
+        Returns: Json
       }
     }
     Enums: {

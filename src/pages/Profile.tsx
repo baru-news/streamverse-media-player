@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, Settings, Camera, Lock, Mail, ArrowLeft, Trophy, Star, Crown } from 'lucide-react';
+import { User, Settings, Camera, Lock, Mail, ArrowLeft, Trophy, Star, Crown, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { ProfilePhotoUpload } from '@/components/profile/ProfilePhotoUpload';
 import { ChangePasswordForm } from '@/components/profile/ChangePasswordForm';
 import { ChangeEmailForm } from '@/components/profile/ChangeEmailForm';
+import { TelegramLinkForm } from '@/components/TelegramLinkForm';
 import { CoinDisplay } from '@/components/CoinDisplay';
 import KittyKeyDisplay from '@/components/KittyKeyDisplay';
 import { UserBadgeDisplay } from '@/components/UserBadgeDisplay';
@@ -21,8 +22,8 @@ const Profile = () => {
   const { user } = useAuth();
   const { badges, activeBadge } = useBadges();
   const { coins } = useCoins();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'email'>('profile');
-  const [profile, setProfile] = useState<{ username: string | null; avatar_url: string | null } | null>(null);
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'email' | 'telegram'>('profile');
+  const [profile, setProfile] = useState<{ username: string | null; avatar_url: string | null; telegram_username: string | null } | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -30,7 +31,7 @@ const Profile = () => {
       
       const { data } = await supabase
         .from('profiles')
-        .select('username, avatar_url')
+        .select('username, avatar_url, telegram_username')
         .eq('id', user.id)
         .single();
       
@@ -63,9 +64,14 @@ const Profile = () => {
 
   const tabs = [
     { id: 'profile', label: 'Profil', icon: User },
+    { id: 'telegram', label: 'Telegram', icon: MessageCircle },
     { id: 'password', label: 'Password', icon: Lock },
     { id: 'email', label: 'Email', icon: Mail },
   ] as const;
+
+  const handleTelegramLinkSuccess = (telegramUsername: string) => {
+    setProfile(prev => prev ? { ...prev, telegram_username: telegramUsername } : null);
+  };
 
   return (
     <>
@@ -255,6 +261,12 @@ const Profile = () => {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6">
                     {activeTab === 'profile' && <ProfilePhotoUpload />}
+                    {activeTab === 'telegram' && (
+                      <TelegramLinkForm 
+                        onSuccess={handleTelegramLinkSuccess}
+                        telegramUsername={profile?.telegram_username || undefined}
+                      />
+                    )}
                     {activeTab === 'password' && <ChangePasswordForm />}
                     {activeTab === 'email' && <ChangeEmailForm />}
                   </CardContent>
