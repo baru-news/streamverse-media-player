@@ -67,67 +67,142 @@ const AdsManagement = () => {
     sort_order: 0,
   });
 
-  const validateImageDimensions = (file: File, position: string): Promise<boolean> => {
+  const validateImageDimensions = (file: File, position: string): Promise<{ isValid: boolean; canProceed: boolean }> => {
     return new Promise((resolve) => {
+      console.log('🖼️ Validating image dimensions for file:', file.name, 'position:', position);
+      
       const img = document.createElement('img');
+      
       img.onload = () => {
+        console.log('✅ Image loaded successfully. Dimensions:', img.width, 'x', img.height);
+        
         const sizeInfo = AD_SIZE_INFO[position as keyof typeof AD_SIZE_INFO];
-        if (!sizeInfo) return resolve(true);
+        if (!sizeInfo) {
+          console.log('⚠️ No size info found for position:', position);
+          return resolve({ isValid: true, canProceed: true });
+        }
 
         const aspectRatio = img.width / img.height;
         const [targetWidth, targetHeight] = sizeInfo.recommended.split('x').map(Number);
         const targetRatio = targetWidth / targetHeight;
         
-        // Allow 10% tolerance for aspect ratio
-        const tolerance = 0.1;
+        console.log('📐 Aspect ratio analysis:', {
+          actualRatio: aspectRatio.toFixed(2),
+          targetRatio: targetRatio.toFixed(2),
+          recommended: sizeInfo.recommended
+        });
+        
+        // Increase tolerance from 10% to 20%
+        const tolerance = 0.2;
         const ratioMatch = Math.abs(aspectRatio - targetRatio) <= (targetRatio * tolerance);
         
+        console.log('🎯 Ratio validation:', {
+          ratioMatch,
+          tolerance: `${tolerance * 100}%`,
+          difference: Math.abs(aspectRatio - targetRatio).toFixed(2)
+        });
+        
+        console.log('📏 Size validation:', {
+          actualWidth: img.width,
+          minWidth: sizeInfo.minWidth,
+          maxWidth: sizeInfo.maxWidth,
+          withinRange: img.width >= sizeInfo.minWidth && img.width <= sizeInfo.maxWidth
+        });
+        
+        let hasWarnings = false;
+        
         if (!ratioMatch) {
-          toast.error(`Rasio gambar tidak sesuai. Untuk posisi ${position}, gunakan rasio ${sizeInfo.ratio} (disarankan: ${sizeInfo.recommended})`);
-          return resolve(false);
+          console.log('⚠️ Aspect ratio mismatch, but allowing upload with warning');
+          toast.error(`⚠️ Rasio gambar ${aspectRatio.toFixed(2)} tidak optimal untuk posisi ${position}. Disarankan: ${sizeInfo.ratio} (${sizeInfo.recommended}). Upload tetap dilanjutkan.`);
+          hasWarnings = true;
         }
         
         if (img.width > sizeInfo.maxWidth || img.width < sizeInfo.minWidth) {
-          toast.error(`Lebar gambar ${img.width}px tidak sesuai. Untuk posisi ${position}, gunakan lebar ${sizeInfo.minWidth}-${sizeInfo.maxWidth}px`);
-          return resolve(false);
+          console.log('⚠️ Size mismatch, but allowing upload with warning');
+          toast.error(`⚠️ Lebar gambar ${img.width}px tidak optimal untuk posisi ${position}. Disarankan: ${sizeInfo.minWidth}-${sizeInfo.maxWidth}px. Upload tetap dilanjutkan.`);
+          hasWarnings = true;
         }
         
-        resolve(true);
+        if (!hasWarnings) {
+          console.log('✅ Image validation passed completely');
+          toast.success(`✅ Dimensi gambar sesuai untuk posisi ${position}`);
+        }
+        
+        // Always allow upload, but mark if it's not ideal
+        resolve({ isValid: !hasWarnings, canProceed: true });
       };
-      img.src = URL.createObjectURL(file);
+      
+      img.onerror = (error) => {
+        console.error('❌ Failed to load image for validation:', error);
+        console.log('🔄 Proceeding with upload despite validation failure');
+        toast.error('Tidak dapat memvalidasi dimensi gambar. Upload tetap dilanjutkan.');
+        // Allow upload even if validation fails
+        resolve({ isValid: false, canProceed: true });
+      };
+      
+      try {
+        img.src = URL.createObjectURL(file);
+        console.log('📤 Created object URL for image validation');
+      } catch (error) {
+        console.error('❌ Failed to create object URL:', error);
+        toast.error('Gagal memproses file gambar. Coba lagi.');
+        resolve({ isValid: false, canProceed: false });
+      }
     });
   };
 
   const handleFileUpload = async (file: File) => {
     if (!file) return;
+    
+    console.log('🚀 Starting file upload process for:', file.name, 'size:', file.size, 'type:', file.type);
 
     // Validate file type (support images including GIF)
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!validTypes.includes(file.type)) {
+      console.log('❌ Invalid file type:', file.type);
       toast.error('Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.');
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
+      console.log('❌ File too large:', file.size, 'bytes');
       toast.error('Ukuran file terlalu besar. Maksimal 5MB.');
       return;
     }
 
+    console.log('✅ Basic file validation passed');
+
     // Validate image dimensions
-    const isValidDimensions = await validateImageDimensions(file, formData.position);
-    if (!isValidDimensions) return;
+    const validationResult = await validateImageDimensions(file, formData.position);
+    console.log('📋 Validation result:', validationResult);
+    
+    if (!validationResult.canProceed) {
+      console.log('🛑 Upload blocked due to validation failure');
+      return;
+    }
 
     setIsUploading(true);
+    console.log('📤 Starting image upload to Supabase...');
+    
     try {
       const imageUrl = await uploadAdImage(file);
+      console.log('✅ Image uploaded successfully. URL:', imageUrl);
+      
       setFormData(prev => ({ ...prev, image_url: imageUrl }));
       setPreviewImage(imageUrl);
-      toast.success('Gambar berhasil diupload');
+      
+      if (validationResult.isValid) {
+        toast.success('✅ Gambar berhasil diupload dengan dimensi optimal');
+      } else {
+        toast.success('⚠️ Gambar berhasil diupload (dengan peringatan dimensi)');
+      }
     } catch (error) {
-      // Error handled in hook
+      console.error('❌ Upload failed:', error);
+      // Error already handled in hook
     } finally {
       setIsUploading(false);
+      console.log('🏁 Upload process completed');
     }
   };
 
