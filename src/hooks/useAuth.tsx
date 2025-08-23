@@ -72,12 +72,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username?: string) => {
     try {
-      // Check if username already exists in profiles table (if provided) - case insensitive
+      // Check if username already exists in profiles table (if provided) - case insensitive  
       if (username && username.trim()) {
-        const { data: existingUsernames, error: usernameCheckError } = await supabase
-          .from('profiles')
-          .select('username')
-          .or(`username.eq.${username.trim()},username.ilike.${username.trim()}`);
+        const { data: usernameExists, error: usernameCheckError } = await supabase
+          .rpc('check_username_exists', { username_input: username.trim().toLowerCase() });
           
         if (usernameCheckError) {
           console.error('Error checking username:', usernameCheckError);
@@ -85,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return { error: { message: 'Database error' } };
         }
           
-        if (existingUsernames && existingUsernames.length > 0) {
+        if (usernameExists) {
           toast.error('Username sudah digunakan. Silakan pilih username lain.');
           return { error: { message: 'Username sudah digunakan' } };
         }
