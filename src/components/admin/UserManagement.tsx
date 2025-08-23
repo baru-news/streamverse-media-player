@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Mail, Clock, User, Calendar, Shield } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Search, Mail, Clock, User, Calendar, Shield, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -22,6 +23,15 @@ interface UserProfile {
   last_active: string;
 }
 
+interface DeleteUserResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
+  tables_cleaned?: string[];
+  records_deleted?: number;
+  deleted_user_id?: string;
+}
+
 const UserManagement = () => {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -29,6 +39,7 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [totalUsers, setTotalUsers] = useState(0);
   const [activeUsers, setActiveUsers] = useState(0);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -91,6 +102,47 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Error resetting password:', error);
       toast.error('Gagal mengirim email reset password');
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    try {
+      setDeletingUser(userId);
+      
+      // Call the database function to delete user and cleanup all related data
+      const { data, error } = await supabase.rpc('admin_delete_user', {
+        target_user_id: userId
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Type assertion for the response - first cast to unknown then to our interface
+      const response = data as unknown as DeleteUserResponse;
+
+      if (!response?.success) {
+        throw new Error(response?.error || 'Failed to delete user');
+      }
+
+      toast.success(`User ${userEmail} berhasil dihapus`, {
+        description: `${response.records_deleted} records dibersihkan dari ${response.tables_cleaned?.length} tabel`
+      });
+
+      // Refresh user list
+      await fetchUsers();
+
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      if (error.message.includes('Cannot delete admin users')) {
+        toast.error('Tidak dapat menghapus user admin');
+      } else if (error.message.includes('Unauthorized')) {
+        toast.error('Akses ditolak. Hanya admin yang dapat menghapus user');
+      } else {
+        toast.error(`Gagal menghapus user: ${error.message}`);
+      }
+    } finally {
+      setDeletingUser(null);
     }
   };
 
@@ -175,7 +227,7 @@ const UserManagement = () => {
         <CardHeader>
           <CardTitle>Manajemen User</CardTitle>
           <CardDescription>
-            Kelola user, reset password, dan lihat statistik watch time
+            Kelola user, reset password, hapus akun, dan lihat statistik watch time
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -243,15 +295,61 @@ const UserManagement = () => {
                         </div>
                       </div>
 
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePasswordReset(user.email)}
-                        className="gap-2"
-                      >
-                        <Mail className="h-3 w-3" />
-                        Reset Password
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePasswordReset(user.email)}
+                          className="gap-2"
+                        >
+                          <Mail className="h-3 w-3" />
+                          Reset Password
+                        </Button>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={deletingUser === user.id}
+                              className="gap-2"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              {deletingUser === user.id ? 'Menghapus...' : 'Hapus Akun'}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Akun User</AlertDialogTitle>
+                              <AlertDialogDescription className="space-y-2">
+                                <p>
+                                  Apakah Anda yakin ingin menghapus akun <span className="font-semibold">{user.email}</span>?
+                                </p>
+                                <p className="text-destructive font-medium">
+                                  ⚠️ Tindakan ini tidak dapat dibatalkan dan akan menghapus:
+                                </p>
+                                <ul className="text-sm list-disc list-inside space-y-1 ml-4">
+                                  <li>Profil user dan data pribadi</li>
+                                  <li>Semua koin dan kitty keys</li>
+                                  <li>Riwayat menonton dan progress</li>
+                                  <li>Komentar, like, dan favorit</li>
+                                  <li>Badge dan pencapaian</li>
+                                  <li>Log aktivitas dan upload</li>
+                                </ul>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(user.id, user.email)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Ya, Hapus Akun
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </Card>
                 ))}

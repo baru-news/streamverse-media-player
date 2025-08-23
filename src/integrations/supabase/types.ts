@@ -869,6 +869,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_user: {
+        Args: { target_user_id: string }
+        Returns: Json
+      }
       can_user_claim_kitty_key_today: {
         Args: { user_id_param: string }
         Returns: boolean
