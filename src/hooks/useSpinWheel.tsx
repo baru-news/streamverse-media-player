@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCoins } from '@/hooks/useCoins';
 import { useKittyKeys } from '@/hooks/useKittyKeys';
 import { toast } from 'sonner';
-import { selectRewardByProbability } from '@/lib/spin-wheel-utils';
+import { selectRewardByProbability, selectRewardByWheelPosition } from '@/lib/spin-wheel-utils';
 
 interface SpinWheelReward {
   id: string;
@@ -87,17 +87,26 @@ export const useSpinWheel = () => {
     }
   }, [kittyKeys]);
 
-  // Frontend reward selection for precise targeting
-  const selectReward = useCallback((): SpinWheelReward | null => {
-    return selectRewardByProbability(rewards);
+  // Frontend reward selection for precise targeting - VISUAL ACCURACY
+  const selectReward = useCallback((): { reward: SpinWheelReward; targetIndex: number } | null => {
+    if (!rewards.length) return null;
+    return selectRewardByWheelPosition(rewards);
   }, [rewards]);
 
   // Perform spin with pre-selected reward for precise animation
-  const performSpin = useCallback(async (preSelectedReward?: SpinWheelReward): Promise<SpinWheelReward | null> => {
+  const performSpin = useCallback(async (preSelectedData?: { reward: SpinWheelReward; targetIndex: number }): Promise<SpinWheelReward | null> => {
     if (!user || !canSpin || spinning) {
       console.log('Cannot spin:', { user: !!user, canSpin, spinning });
       return null;
     }
+
+    // Use pre-selected reward data or select new one
+    const selectedData = preSelectedData || selectReward();
+    if (!selectedData) {
+      throw new Error('No reward selected');
+    }
+
+    const { reward: selectedReward } = selectedData;
 
     // Double-check kitty keys before spinning to prevent race condition
     if (!kittyKeys || kittyKeys.balance < 1) {
@@ -107,17 +116,14 @@ export const useSpinWheel = () => {
       return null;
     }
 
-    console.log('Starting spin with kitty keys balance:', kittyKeys.balance);
+    console.log('🎯 Starting PRECISE spin:', {
+      selectedReward: selectedReward.name,
+      targetIndex: selectedData.targetIndex,
+      kittyBalance: kittyKeys.balance
+    });
     setSpinning(true);
 
     try {
-      // Use pre-selected reward or select new one
-      const selectedReward = preSelectedReward || selectReward();
-      
-      if (!selectedReward) {
-        throw new Error('No reward selected');
-      }
-
       // Record the spin attempt
       const { error: insertError } = await supabase
         .from('user_spin_attempts')

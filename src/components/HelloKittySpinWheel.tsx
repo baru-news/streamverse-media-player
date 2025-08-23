@@ -19,8 +19,8 @@ interface SpinWheelReward {
 
 interface HelloKittySpinWheelProps {
   rewards: SpinWheelReward[];
-  onSpin: (preSelectedReward?: SpinWheelReward) => Promise<SpinWheelReward | null>;
-  onSelectReward: () => SpinWheelReward | null;
+  onSpin: (preSelectedData?: { reward: SpinWheelReward; targetIndex: number }) => Promise<SpinWheelReward | null>;
+  onSelectReward: () => { reward: SpinWheelReward; targetIndex: number } | null;
   spinning: boolean;
   disabled?: boolean;
 }
@@ -42,14 +42,21 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
     if (spinning || disabled || isAnimating) return;
 
     // Pre-select reward for precise targeting
-    const selectedReward = onSelectReward();
-    if (!selectedReward) return;
+    const selectedData = onSelectReward();
+    if (!selectedData) return;
 
-    console.log('Selected reward for spin:', selectedReward.name, 'ID:', selectedReward.id);
+    const { reward: selectedReward, targetIndex } = selectedData;
+
+    console.log('🎯 Wheel will target:', {
+      reward: selectedReward.name,
+      index: targetIndex,
+      coins: selectedReward.coin_amount
+    });
+    
     setIsAnimating(true);
 
-    // Calculate precise target angle for selected reward
-    const targetAngle = calculateTargetAngle(rewards, selectedReward, rotation);
+    // Calculate precise target angle for selected reward INDEX
+    const targetAngle = calculateTargetAngle(rewards, targetIndex, rotation);
     const rotationDistance = Math.abs(targetAngle - rotation);
     const duration = calculateAnimationDuration(rotationDistance);
     
@@ -70,7 +77,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
       
       // Start the backend process
       setTimeout(async () => {
-        const wonReward = await onSpin(selectedReward);
+        const wonReward = await onSpin(selectedData);
         if (wonReward) {
           setLastWonReward(wonReward);
         }
