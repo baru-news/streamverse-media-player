@@ -85,11 +85,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return { error: { message: 'Username sudah digunakan' } };
         }
       }
+
+      // Check if email already exists by checking profiles table
+      const { data: existingEmail } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email.toLowerCase().trim())
+        .maybeSingle();
+        
+      if (existingEmail) {
+        toast.error('Email sudah terdaftar. Silakan gunakan email lain atau login.');
+        return { error: { message: 'Email sudah terdaftar' } };
+      }
       
       // Proceed with signup
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -100,11 +112,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
 
+      // Check if user was created but needs confirmation
+      if (data?.user && !data?.session && !error) {
+        // User needs to confirm email
+        return { error: null };
+      }
+
+      // Check if user already exists (Supabase sometimes returns this in data.user)
+      if (data?.user && data?.user?.email_confirmed_at && !data?.session) {
+        toast.error('Email sudah terdaftar. Silakan gunakan email lain atau login.');
+        return { error: { message: 'Email sudah terdaftar' } };
+      }
+
       if (error) {
         // Handle specific signup errors
         if (error.message.includes('User already registered') || 
             error.message.includes('already been registered') ||
-            error.message.includes('duplicate')) {
+            error.message.includes('duplicate') ||
+            error.message.includes('already exists')) {
+          toast.error('Email sudah terdaftar. Silakan gunakan email lain atau login.');
+        } else if (error.message.includes('email')) {
           toast.error('Email sudah terdaftar. Silakan gunakan email lain atau login.');
         } else {
           toast.error(error.message);
@@ -113,7 +140,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // Return success without showing toast here
-      // Toast will be handled in the component
       return { error: null };
       
     } catch (err) {
