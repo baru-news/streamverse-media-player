@@ -429,17 +429,24 @@ const VideoDetail = () => {
 
 
     <main className="pt-20">
-      <div className="container mx-auto py-0 px-[15px]">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto py-0 px-4 sm:px-6 lg:px-8 max-w-full overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 w-full min-w-0">
             {/* Mobile Ad - Above Video Player */}
             {shouldShowAds && <div className="lg:hidden mb-4">
                 <AdContainer position="content" placeholder={false} adIndex={0} />
               </div>}
 
-            {/* Video Player - Doodstream Integration */}
-            <DoodstreamPlayer fileCode={video.fileCode || "sample-file-code"} title={video.title} videoId={video.id} width={800} height={450} className="mb-6" />
+            {/* Video Player - Doodstream Integration - Mobile Optimized */}
+            <div className="w-full mb-6">
+              <DoodstreamPlayer 
+                fileCode={video.fileCode || "sample-file-code"} 
+                title={video.title} 
+                videoId={video.id}
+                className="w-full"
+              />
+            </div>
 
             {/* Video Info */}
             <div className="space-y-6">

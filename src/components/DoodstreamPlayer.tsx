@@ -28,6 +28,9 @@ const DoodstreamPlayer = ({
   const [showPlayer, setShowPlayer] = useState(false);
   const { watchTime, formatWatchTime, isTracking } = useWatchTime(videoId);
 
+  // Calculate aspect ratio for responsive design
+  const aspectRatio = (height / width) * 100;
+
   const embedUrl = `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
   const directUrl = `https://dood.re/d/${fileCode}`;
 
@@ -56,25 +59,32 @@ const DoodstreamPlayer = ({
   };
 
   return (
-    <Card className={`overflow-hidden bg-black ${className}`}>
+    <Card className={`w-full max-w-full overflow-hidden bg-black ${className}`}>
       <CardContent className="p-0">
-        <div className="relative" style={{ paddingBottom: `${(height / width) * 100}%` }}>
+        {/* Responsive container with proper aspect ratio */}
+        <div 
+          className="relative w-full" 
+          style={{ 
+            paddingBottom: `${Math.max(aspectRatio, 56.25)}%`, // Ensure minimum 16:9 aspect ratio
+            maxWidth: '100%'
+          }}
+        >
           {!showPlayer ? (
-            // Thumbnail/Preview
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <Play className="w-8 h-8 text-primary ml-1" />
+            // Thumbnail/Preview - Mobile optimized
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center px-4">
+              <div className="text-center max-w-sm">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/20 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                  <Play className="w-6 h-6 sm:w-8 sm:h-8 text-primary ml-1" />
                 </div>
-                <h3 className="text-foreground font-medium mb-4">
+                <h3 className="text-foreground font-medium mb-3 sm:mb-4 text-sm sm:text-base px-2">
                   {title || 'Video Player'}
                 </h3>
-                <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:space-x-2 items-center justify-center">
                   <Button 
                     onClick={handleLoadPlayer}
                     variant="hero"
-                    size="lg"
-                    className="gap-2"
+                    size="sm"
+                    className="gap-2 min-h-[44px] touch-manipulation w-full sm:w-auto"
                   >
                     <Play className="w-4 h-4" />
                     Tonton Video
@@ -83,7 +93,7 @@ const DoodstreamPlayer = ({
                     onClick={openInNewTab}
                     variant="outline"
                     size="sm"
-                    className="gap-2 ml-2"
+                    className="gap-2 min-h-[44px] touch-manipulation w-full sm:w-auto"
                   >
                     <ExternalLink className="w-4 h-4" />
                     Buka di Tab Baru
@@ -97,23 +107,24 @@ const DoodstreamPlayer = ({
               {isLoading && (
                 <div className="absolute inset-0 bg-black flex items-center justify-center z-10">
                   <div className="text-center">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-                    <p className="text-foreground text-sm">Memuat video...</p>
+                    <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-spin mx-auto mb-2" />
+                    <p className="text-foreground text-xs sm:text-sm">Memuat video...</p>
                   </div>
                 </div>
               )}
 
               {/* Error State */}
               {hasError && (
-                <div className="absolute inset-0 bg-black flex items-center justify-center z-10">
-                  <div className="text-center">
-                    <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                    <p className="text-foreground text-sm mb-4">Gagal memuat video</p>
-                    <div className="space-x-2">
+                <div className="absolute inset-0 bg-black flex items-center justify-center z-10 px-4">
+                  <div className="text-center max-w-sm">
+                    <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 mx-auto mb-2" />
+                    <p className="text-foreground text-xs sm:text-sm mb-4">Gagal memuat video</p>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 items-center justify-center">
                       <Button 
                         onClick={handleLoadPlayer}
                         variant="outline"
                         size="sm"
+                        className="min-h-[44px] touch-manipulation w-full sm:w-auto"
                       >
                         Coba Lagi
                       </Button>
@@ -121,7 +132,7 @@ const DoodstreamPlayer = ({
                         onClick={openInNewTab}
                         variant="hero"
                         size="sm"
-                        className="gap-2"
+                        className="gap-2 min-h-[44px] touch-manipulation w-full sm:w-auto"
                       >
                         <ExternalLink className="w-4 h-4" />
                         Buka Langsung
@@ -131,7 +142,7 @@ const DoodstreamPlayer = ({
                 </div>
               )}
 
-              {/* Doodstream Iframe */}
+              {/* Doodstream Iframe - Mobile optimized */}
               <iframe
                 src={embedUrl}
                 className="absolute inset-0 w-full h-full"
@@ -143,20 +154,21 @@ const DoodstreamPlayer = ({
                 title={title || 'Doodstream Video Player'}
                 style={{
                   border: 'none',
-                  outline: 'none'
+                  outline: 'none',
+                  minHeight: '250px' // Ensure minimum height on mobile
                 }}
               />
             </>
           )}
         </div>
 
-        {/* Video Info */}
+        {/* Video Info - Mobile responsive */}
         {showPlayer && (
-          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 backdrop-blur-sm p-4 border-t border-primary/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-foreground text-sm font-medium">
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 backdrop-blur-sm p-3 sm:p-4 border-t border-primary/20">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0" />
+                <span className="text-foreground text-xs sm:text-sm font-medium">
                   Streaming dari Doodstream
                 </span>
                 {isTracking && (
@@ -170,10 +182,11 @@ const DoodstreamPlayer = ({
                   onClick={openInNewTab}
                   variant="ghost"
                   size="sm"
-                  className="gap-2 text-muted-foreground hover:text-primary"
+                  className="gap-2 text-muted-foreground hover:text-primary min-h-[44px] touch-manipulation"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  Buka di Tab Baru
+                  <span className="hidden sm:inline">Buka di Tab Baru</span>
+                  <span className="sm:hidden">Tab Baru</span>
                 </Button>
               </div>
             </div>
