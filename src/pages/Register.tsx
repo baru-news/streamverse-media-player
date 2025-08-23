@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,20 @@ const Register = () => {
     return <Navigate to="/" replace />;
   }
 
+  // Password validation rules
+  const passwordRequirements = useMemo(() => {
+    const password = formData.password;
+    return {
+      minLength: password.length >= 6,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      passwordsMatch: formData.password === formData.confirmPassword && formData.password.length > 0
+    };
+  }, [formData.password, formData.confirmPassword]);
+
+  const isPasswordValid = Object.values(passwordRequirements).every(req => req);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
@@ -55,13 +69,8 @@ const Register = () => {
       return;
     }
     
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Kata sandi tidak cocok");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("Kata sandi minimal 6 karakter");
+    if (!isPasswordValid) {
+      toast.error("Kata sandi tidak memenuhi persyaratan");
       return;
     }
 
@@ -230,7 +239,29 @@ const Register = () => {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-xs text-muted-foreground">Minimal 6 karakter</p>
+                
+                {/* Password Requirements */}
+                <div className="space-y-2 mt-3">
+                  <p className="text-xs font-medium text-muted-foreground">Persyaratan kata sandi:</p>
+                  <div className="grid grid-cols-1 gap-1">
+                    <div className={`flex items-center space-x-2 text-xs ${passwordRequirements.minLength ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordRequirements.minLength ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      <span>Minimal 6 karakter</span>
+                    </div>
+                    <div className={`flex items-center space-x-2 text-xs ${passwordRequirements.hasUppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordRequirements.hasUppercase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      <span>Minimal 1 huruf besar (A-Z)</span>
+                    </div>
+                    <div className={`flex items-center space-x-2 text-xs ${passwordRequirements.hasLowercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordRequirements.hasLowercase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      <span>Minimal 1 huruf kecil (a-z)</span>
+                    </div>
+                    <div className={`flex items-center space-x-2 text-xs ${passwordRequirements.hasNumber ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordRequirements.hasNumber ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      <span>Minimal 1 angka (0-9)</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Confirm Password */}
@@ -256,16 +287,24 @@ const Register = () => {
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                
+                {/* Password Match Indicator */}
+                {formData.confirmPassword.length > 0 && (
+                  <div className={`flex items-center space-x-2 text-xs mt-2 ${passwordRequirements.passwordsMatch ? 'text-green-600' : 'text-red-500'}`}>
+                    {passwordRequirements.passwordsMatch ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                    <span>{passwordRequirements.passwordsMatch ? 'Kata sandi cocok' : 'Kata sandi tidak cocok'}</span>
+                  </div>
+                )}
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
+              <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading || !isPasswordValid}>
                 {loading ? "Mendaftar..." : "Daftar Sekarang"}
               </Button>
             </form>
 
             {/* Login Link */}
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-2">
               <p className="text-muted-foreground">
                 Sudah punya akun?{" "}
                 <Link 
@@ -273,6 +312,15 @@ const Register = () => {
                   className="text-primary hover:text-primary-glow font-medium transition-colors"
                 >
                   Masuk di sini
+                </Link>
+              </p>
+              <p className="text-muted-foreground">
+                Lupa kata sandi?{" "}
+                <Link 
+                  to="/forgot-password" 
+                  className="text-primary hover:text-primary-glow font-medium transition-colors"
+                >
+                  Reset di sini
                 </Link>
               </p>
             </div>
