@@ -72,12 +72,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username?: string) => {
     try {
-      // Check if username already exists in profiles table (if provided)
+      // Check if username already exists in profiles table (if provided) - case insensitive
       if (username && username.trim()) {
         const { data: existingUsername } = await supabase
           .from('profiles')
           .select('username')
-          .eq('username', username.trim())
+          .ilike('username', username.trim()) // Case-insensitive check
           .maybeSingle();
           
         if (existingUsername) {
