@@ -106,7 +106,7 @@ const Profile = () => {
               <div className="flex flex-col lg:flex-row items-center gap-6">
                 <div className="relative">
                   <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-primary/20 shadow-glow">
-                    <AvatarImage src="" alt="Profile" />
+                    <AvatarImage src={profile?.avatar_url || ""} alt="Profile" />
                     <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xl font-bold">
                       {getInitials(user.email || '')}
                     </AvatarFallback>

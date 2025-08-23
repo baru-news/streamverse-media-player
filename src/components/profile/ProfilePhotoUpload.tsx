@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,24 @@ export const ProfilePhotoUpload = () => {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single();
+      
+      if (data?.avatar_url) {
+        setAvatarUrl(data.avatar_url);
+      }
+    };
+
+    loadAvatar();
+  }, [user]);
 
   const getInitials = (email: string) => {
     return email.split('@')[0].substring(0, 2).toUpperCase();
@@ -36,8 +54,8 @@ export const ProfilePhotoUpload = () => {
       }
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}_avatar.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const fileName = `avatar.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
 
       // Upload to Supabase Storage
       let { error: uploadError } = await supabase.storage
@@ -52,6 +70,16 @@ export const ProfilePhotoUpload = () => {
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
+
+      // Update profiles table with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) {
+        throw updateError;
+      }
 
       setAvatarUrl(publicUrl);
       toast.success('Foto profil berhasil diupload!');
@@ -69,13 +97,21 @@ export const ProfilePhotoUpload = () => {
       
       if (!user?.id) return;
       
-      const filePath = `avatars/${user.id}_avatar`;
+      const filePath = `${user.id}/avatar`;
       
       const { error } = await supabase.storage
         .from('avatars')
         .remove([filePath]);
 
       if (error) throw error;
+
+      // Update profiles table to remove avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
 
       setAvatarUrl('');
       toast.success('Foto profil berhasil dihapus');
