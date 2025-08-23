@@ -106,77 +106,135 @@ export const BadgeStore = () => {
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 hover:from-yellow-500/20 hover:to-orange-500/20"
+          className="gap-2 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:from-primary/20 hover:to-accent/20 hover-scale transition-all duration-300 shadow-lg hover:shadow-primary/25"
         >
           <ShoppingBag className="w-4 h-4" />
           Badge Store
           {coins && (
-            <Badge variant="secondary" className="ml-1 bg-yellow-500/20 text-foreground border-yellow-500/30">
+            <Badge variant="secondary" className="ml-1 bg-primary/20 text-foreground border-primary/30 animate-pulse">
               {coins.balance} coins
             </Badge>
           )}
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 border border-border/50 shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <ShoppingBag className="w-6 h-6 text-yellow-500" />
-            <span>Badge Store</span>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <Crown className="w-4 h-4 text-yellow-500" />
-                {activeBadge ? `${activeBadge.name}` : 'No badge equipped'}
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 shadow-lg">
+                <ShoppingBag className="w-6 h-6 text-primary" />
               </div>
+              <div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Badge Store</span>
+                <p className="text-sm text-muted-foreground">Koleksi badge eksklusif untuk profil Anda</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20">
+                <Crown className="w-4 h-4 text-primary" />
+                <span className="font-medium">
+                  {activeBadge ? activeBadge.name : 'No badge equipped'}
+                </span>
+              </div>
+              {coins && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full border border-yellow-500/20">
+                  <Gem className="w-4 h-4 text-yellow-500" />
+                  <span className="font-bold text-yellow-600 dark:text-yellow-400">{coins.balance} coins</span>
+                </div>
+              )}
             </div>
           </DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="store" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="store">Store</TabsTrigger>
-            <TabsTrigger value="inventory">My Badges</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl backdrop-blur-sm border border-border/50">
+            <TabsTrigger 
+              value="store" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground transition-all duration-300 font-medium rounded-lg"
+            >
+              <ShoppingBag className="w-4 h-4 mr-2" />
+              Store
+            </TabsTrigger>
+            <TabsTrigger 
+              value="inventory"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground transition-all duration-300 font-medium rounded-lg"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              My Badges
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="store" className="space-y-6">
-            {sortedRarityEntries.map(([rarity, badgeList]) => (
-              <div key={rarity} className="space-y-3">
-                <div className="flex items-center gap-2">
-                  {getRarityIcon(rarity)}
-                  <h3 className={cn("text-lg font-semibold capitalize", getRarityColor(rarity))}>
-                    {rarity}
-                  </h3>
-                  <Badge variant="outline" className="text-xs">
-                    {badgeList.length} badge{badgeList.length !== 1 ? 's' : ''}
-                  </Badge>
+          <TabsContent value="store" className="space-y-8 animate-fade-in">
+            {sortedRarityEntries.map(([rarity, badgeList], index) => (
+              <div key={rarity} className="space-y-4" style={{ animationDelay: `${index * 100}ms` }}>
+                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-muted/30 to-transparent rounded-xl border border-border/30 backdrop-blur-sm">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 shadow-md">
+                    {getRarityIcon(rarity)}
+                  </div>
+                  <div>
+                    <h3 className={cn("text-xl font-bold capitalize bg-gradient-to-r bg-clip-text text-transparent", getRarityColor(rarity))}>
+                      {rarity} Collection
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs border-primary/30 bg-primary/10">
+                        {badgeList.length} badge{badgeList.length !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {badgeList.map((badge) => (
-                    <Card key={badge.id} className={cn(
-                      "relative overflow-hidden transition-all duration-200 hover:scale-105",
-                      badge.owned && "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
-                    )}>
-                      <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                          <BadgeIcon badge={badge} className="w-8 h-8" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {badgeList.map((badge, badgeIndex) => (
+                    <Card 
+                      key={badge.id} 
+                      className={cn(
+                        "group relative overflow-hidden transition-all duration-300 hover-scale cursor-pointer",
+                        "bg-gradient-to-br from-card via-card to-muted/20 border border-border/50",
+                        "hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30",
+                        badge.owned && "ring-2 ring-primary/30 bg-gradient-to-br from-primary/5 via-card to-accent/5 shadow-lg shadow-primary/20"
+                      )}
+                      style={{ animationDelay: `${badgeIndex * 50}ms` }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      <CardHeader className="pb-3 relative z-10">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <BadgeIcon badge={badge} className="w-10 h-10 relative z-10" />
+                          </div>
                           {badge.owned && (
-                            <Check className="w-5 h-5 text-green-500" />
+                            <div className="p-1 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg">
+                              <Check className="w-4 h-4 text-primary-foreground" />
+                            </div>
                           )}
                         </div>
-                        <CardTitle className="text-base">{badge.name}</CardTitle>
+                        <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors duration-300">
+                          {badge.name}
+                        </CardTitle>
                         {badge.description && (
-                          <p className="text-sm text-muted-foreground">{badge.description}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{badge.description}</p>
                         )}
                       </CardHeader>
 
-                      <CardContent className="pt-0">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-1">
-                            <span className="text-lg font-bold text-yellow-500">{badge.price_coins}</span>
+                      <CardContent className="pt-0 relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full border border-yellow-500/20">
+                            <Gem className="w-4 h-4 text-yellow-500" />
+                            <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">{badge.price_coins}</span>
                             <span className="text-sm text-muted-foreground">coins</span>
                           </div>
-                          <Badge variant="outline" className={cn("text-xs", getRarityColor(badge.rarity))}>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "text-xs font-medium border-2 px-2 py-1",
+                              badge.rarity === 'common' && "border-gray-400/50 bg-gray-100/50 text-gray-600 dark:bg-gray-800/50 dark:text-gray-300",
+                              badge.rarity === 'rare' && "border-blue-400/50 bg-blue-100/50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300",
+                              badge.rarity === 'epic' && "border-purple-400/50 bg-purple-100/50 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300",
+                              badge.rarity === 'legendary' && "border-yellow-400/50 bg-yellow-100/50 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-300"
+                            )}
+                          >
                             {badge.rarity}
                           </Badge>
                         </div>
@@ -185,7 +243,7 @@ export const BadgeStore = () => {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="w-full"
+                            className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20"
                             disabled
                           >
                             <Check className="w-4 h-4 mr-2" />
@@ -194,7 +252,12 @@ export const BadgeStore = () => {
                         ) : (
                           <Button 
                             size="sm" 
-                            className="w-full"
+                            className={cn(
+                              "w-full transition-all duration-300 font-medium",
+                              canAfford(badge.price_coins) 
+                                ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25" 
+                                : "opacity-60 cursor-not-allowed"
+                            )}
                             onClick={() => handlePurchase(badge.badge_key)}
                             disabled={!canAfford(badge.price_coins) || purchasing === badge.badge_key}
                           >
@@ -212,36 +275,61 @@ export const BadgeStore = () => {
             ))}
           </TabsContent>
 
-          <TabsContent value="inventory" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <TabsContent value="inventory" className="space-y-6 animate-fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {badges
                 .filter(badge => badge.owned)
                 .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
-                .map((badge) => (
-                <Card key={badge.id} className={cn(
-                  "relative overflow-hidden transition-all duration-200 hover:scale-105",
-                  badge.user_badge?.is_active && "ring-2 ring-yellow-500 bg-yellow-50 dark:bg-yellow-950/20"
-                )}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <BadgeIcon badge={badge} className="w-8 h-8" />
+                .map((badge, index) => (
+                <Card 
+                  key={badge.id} 
+                  className={cn(
+                    "group relative overflow-hidden transition-all duration-300 hover-scale cursor-pointer",
+                    "bg-gradient-to-br from-card via-card to-muted/20 border border-border/50",
+                    "hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30",
+                    badge.user_badge?.is_active && "ring-2 ring-primary bg-gradient-to-br from-primary/10 via-card to-accent/10 shadow-xl shadow-primary/25"
+                  )}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <CardHeader className="pb-3 relative z-10">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <BadgeIcon badge={badge} className="w-10 h-10 relative z-10" />
+                      </div>
                       {badge.user_badge?.is_active && (
-                        <Crown className="w-5 h-5 text-yellow-500" />
+                        <div className="p-1 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg animate-pulse">
+                          <Crown className="w-4 h-4 text-primary-foreground" />
+                        </div>
                       )}
                     </div>
-                    <CardTitle className="text-base">{badge.name}</CardTitle>
+                    <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors duration-300">
+                      {badge.name}
+                    </CardTitle>
                     {badge.description && (
-                      <p className="text-sm text-muted-foreground">{badge.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{badge.description}</p>
                     )}
                   </CardHeader>
 
-                  <CardContent className="pt-0">
-                    <div className="flex items-center justify-between mb-3">
-                      <Badge variant="outline" className={cn("text-xs", getRarityColor(badge.rarity))}>
+                  <CardContent className="pt-0 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge 
+                        variant="outline" 
+                        className={cn(
+                          "text-xs font-medium border-2 px-2 py-1",
+                          badge.rarity === 'common' && "border-gray-400/50 bg-gray-100/50 text-gray-600 dark:bg-gray-800/50 dark:text-gray-300",
+                          badge.rarity === 'rare' && "border-blue-400/50 bg-blue-100/50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300",
+                          badge.rarity === 'epic' && "border-purple-400/50 bg-purple-100/50 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300",
+                          badge.rarity === 'legendary' && "border-yellow-400/50 bg-yellow-100/50 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-300"
+                        )}
+                      >
                         {badge.rarity}
                       </Badge>
-                      <div className="text-xs text-muted-foreground">
-                        Purchased: {new Date(badge.user_badge?.purchased_at || '').toLocaleDateString()}
+                      <div className="text-xs text-muted-foreground text-right">
+                        <div>Purchased</div>
+                        <div className="font-medium">{new Date(badge.user_badge?.purchased_at || '').toLocaleDateString()}</div>
                       </div>
                     </div>
 
@@ -250,17 +338,19 @@ export const BadgeStore = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="w-full"
+                          className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20 font-medium"
                           onClick={() => handleSetActive(null)}
                         >
-                          Unequip
+                          <Crown className="w-4 h-4 mr-2" />
+                          Equipped
                         </Button>
                       ) : (
                         <Button 
                           size="sm" 
-                          className="w-full"
+                          className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25 font-medium transition-all duration-300"
                           onClick={() => handleSetActive(badge.badge_key)}
                         >
+                          <Crown className="w-4 h-4 mr-2" />
                           Equip
                         </Button>
                       )}
@@ -274,10 +364,25 @@ export const BadgeStore = () => {
               .filter(badge => badge.owned)
               .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
               .length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <ShoppingBag className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No badges owned yet</p>
-                <p className="text-sm">Purchase some badges from the store!</p>
+              <div className="text-center py-16">
+                <div className="relative mx-auto w-24 h-24 mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl opacity-50 animate-pulse" />
+                  <div className="relative bg-gradient-to-br from-muted via-card to-muted/50 rounded-full p-6 border border-border/50 shadow-lg">
+                    <ShoppingBag className="w-12 h-12 text-muted-foreground/70 mx-auto" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-muted-foreground">No badges owned yet</h3>
+                <p className="text-muted-foreground/70 mb-4">Start building your collection!</p>
+                <Button 
+                  variant="outline" 
+                  className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 hover:from-primary/20 hover:to-accent/20"
+                  onClick={() => {
+                    const storeTab = document.querySelector('[value="store"]') as HTMLButtonElement;
+                    storeTab?.click();
+                  }}
+                >
+                  Browse Store
+                </Button>
               </div>
             )}
           </TabsContent>

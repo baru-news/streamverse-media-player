@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Edit, Trash2, Star, Shield, Crown, Gem, CircleDot, Upload, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BadgeStoreItem {
   id: string;
@@ -324,19 +325,22 @@ const BadgeStoreManagement = () => {
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => resetForm()} className="gap-2">
+            <Button 
+              onClick={() => resetForm()} 
+              className="gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25 transition-all duration-300"
+            >
               <Plus className="w-4 h-4" />
               Add Badge
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md bg-gradient-to-br from-background via-background to-muted/20 border border-border/50 shadow-2xl">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {editingBadge ? 'Edit Badge' : 'Add New Badge'}
               </DialogTitle>
-              <DialogDescription>
-                {editingBadge ? 'Update badge information' : 'Create a new badge for the store'}
+              <DialogDescription className="text-muted-foreground">
+                {editingBadge ? 'Update badge information and settings' : 'Create a new badge for the store with custom properties'}
               </DialogDescription>
             </DialogHeader>
             
@@ -510,12 +514,21 @@ const BadgeStoreManagement = () => {
               </div>
               
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setDialogOpen(false)}
+                  className="border-border/50 hover:bg-muted/50"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 disabled:opacity-50 shadow-lg transition-all duration-300"
+                >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  {editingBadge ? 'Update' : 'Create'}
+                  {editingBadge ? 'Update Badge' : 'Create Badge'}
                 </Button>
               </DialogFooter>
             </form>
@@ -524,41 +537,70 @@ const BadgeStoreManagement = () => {
       </div>
 
       {/* Badges Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {badges.map((badge) => {
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {badges.map((badge, index) => {
           const IconComponent = getIconComponent(badge.icon);
           const rarityColor = getRarityColor(badge.rarity);
           
           return (
-            <Card key={badge.id} className={`bg-card/50 backdrop-blur-sm border-border/50 ${!badge.is_active ? 'opacity-50' : ''}`}>
-              <CardHeader className="pb-3">
+            <Card 
+              key={badge.id} 
+              className={cn(
+                "group relative overflow-hidden transition-all duration-300 hover-scale cursor-pointer",
+                "bg-gradient-to-br from-card via-card to-muted/20 border border-border/50",
+                "hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 animate-fade-in",
+                !badge.is_active && 'opacity-60 grayscale'
+              )}
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <CardHeader className="pb-3 relative z-10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    {badge.image_url ? (
-                      <img 
-                        src={badge.image_url} 
-                        alt={badge.name}
-                        className="w-12 h-12 object-cover rounded-lg border"
-                      />
-                    ) : (
-                      <div 
-                        className="p-2 rounded-lg"
-                        style={{ backgroundColor: badge.color + '20', color: badge.color }}
-                      >
-                        <IconComponent className="w-5 h-5" />
-                      </div>
-                    )}
+                    <div className="relative">
+                      {badge.image_url ? (
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <img 
+                            src={badge.image_url} 
+                            alt={badge.name}
+                            className="w-12 h-12 object-cover rounded-xl border border-border/50 relative z-10"
+                          />
+                        </div>
+                      ) : (
+                        <div 
+                          className="p-3 rounded-xl shadow-md relative z-10 transition-transform duration-300 group-hover:scale-110"
+                          style={{ backgroundColor: badge.color + '20', color: badge.color }}
+                        >
+                          <IconComponent className="w-6 h-6" />
+                        </div>
+                      )}
+                    </div>
                     <div>
-                      <CardTitle className="text-lg text-foreground">{badge.name}</CardTitle>
-                      <div className="flex items-center gap-2 mt-1">
+                      <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors duration-300">
+                        {badge.name}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 mt-2">
                         <Badge 
-                          variant="secondary" 
-                          className="text-xs"
-                          style={{ backgroundColor: rarityColor + '20', color: rarityColor }}
+                          variant="outline" 
+                          className={cn(
+                            "text-xs font-medium border-2 px-2 py-1",
+                            badge.rarity === 'common' && "border-gray-400/50 bg-gray-100/50 text-gray-600 dark:bg-gray-800/50 dark:text-gray-300",
+                            badge.rarity === 'rare' && "border-blue-400/50 bg-blue-100/50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300",
+                            badge.rarity === 'epic' && "border-purple-400/50 bg-purple-100/50 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300",
+                            badge.rarity === 'legendary' && "border-yellow-400/50 bg-yellow-100/50 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-300"
+                          )}
                         >
                           {badge.rarity}
                         </Badge>
-                        <Badge variant={badge.is_active ? "default" : "secondary"} className="text-xs">
+                        <Badge 
+                          variant={badge.is_active ? "default" : "secondary"} 
+                          className={cn(
+                            "text-xs font-medium",
+                            badge.is_active && "bg-gradient-to-r from-primary/80 to-accent/80"
+                          )}
+                        >
                           {badge.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </div>
@@ -567,16 +609,21 @@ const BadgeStoreManagement = () => {
                 </div>
                 
                 {badge.description && (
-                  <CardDescription className="text-sm">
+                  <CardDescription className="text-sm mt-3 line-clamp-2">
                     {badge.description}
                   </CardDescription>
                 )}
               </CardHeader>
               
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-lg font-semibold text-foreground">
-                    {badge.price_coins} coins
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full border border-yellow-500/20 shadow-sm">
+                    <Gem className="w-4 h-4 text-yellow-500" />
+                    <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">{badge.price_coins}</span>
+                    <span className="text-sm text-muted-foreground">coins</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Key: <span className="font-mono bg-muted/50 px-1 py-0.5 rounded">{badge.badge_key}</span>
                   </div>
                 </div>
                 
@@ -585,39 +632,43 @@ const BadgeStoreManagement = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleEdit(badge)}
-                    className="flex-1"
+                    className="flex-1 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 hover:from-primary/20 hover:to-accent/20 transition-all duration-300"
                   >
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 px-2 py-1 bg-muted/30 rounded-lg border border-border/30">
                     <Switch 
                       checked={badge.is_active} 
                       onCheckedChange={(checked) => toggleActive(badge.id, !badge.is_active)}
                       className="w-4 h-4" 
                     />
-                    <Label className="text-xs">Active</Label>
+                    <Label className="text-xs whitespace-nowrap">Active</Label>
                   </div>
                   
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 transition-colors duration-300"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="bg-gradient-to-br from-background via-background to-muted/20 border border-border/50 shadow-2xl">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Badge</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete "{badge.name}"? This action cannot be undone.
+                          Are you sure you want to delete <strong>"{badge.name}"</strong>? This action cannot be undone and will affect all users who own this badge.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => handleDelete(badge.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          className="bg-gradient-to-r from-destructive to-destructive/90 hover:from-destructive/90 hover:to-destructive text-destructive-foreground"
                         >
                           Delete
                         </AlertDialogAction>
@@ -632,9 +683,21 @@ const BadgeStoreManagement = () => {
       </div>
 
       {badges.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground mb-4">No badges found</div>
-          <Button onClick={() => setDialogOpen(true)} className="gap-2">
+        <div className="text-center py-16">
+          <div className="relative mx-auto w-24 h-24 mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl opacity-50 animate-pulse" />
+            <div className="relative bg-gradient-to-br from-muted via-card to-muted/50 rounded-full p-6 border border-border/50 shadow-lg">
+              <Star className="w-12 h-12 text-muted-foreground/70 mx-auto" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold mb-2 text-foreground">No badges found</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Start building your badge collection by creating the first badge for your store.
+          </p>
+          <Button 
+            onClick={() => setDialogOpen(true)} 
+            className="gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25 font-medium transition-all duration-300"
+          >
             <Plus className="w-4 h-4" />
             Add First Badge
           </Button>
