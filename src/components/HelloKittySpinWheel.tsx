@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   calculateAnimationDuration,
@@ -234,8 +235,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                       <div className="text-sm font-bold leading-tight drop-shadow-sm mb-0.5">
                         {reward.coin_amount}
                       </div>
-                      <div className="text-xs leading-none drop-shadow-sm mb-0.5">
-                        🪙
+                      <div className="flex items-center justify-center text-xs leading-none drop-shadow-sm mb-0.5">
+                        <Coins className="w-3 h-3 text-yellow-600" />
                       </div>
                       {/* Rarity indicator */}
                       <div className="text-xs leading-none drop-shadow-sm">
@@ -333,8 +334,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             <div className="text-pink-900 font-bold text-xl mb-2 drop-shadow-md">
               Anda memenangkan: {lastWonReward.name}
             </div>
-            <div className="text-pink-800 font-bold text-xl drop-shadow-md bg-gradient-to-r from-yellow-200 to-yellow-300 px-4 py-2 rounded-lg inline-block">
-              +{lastWonReward.coin_amount} koin! 🪙✨
+            <div className="text-pink-800 font-bold text-xl drop-shadow-md bg-gradient-to-r from-yellow-200 to-yellow-300 px-4 py-2 rounded-lg inline-flex items-center gap-2">
+              +{lastWonReward.coin_amount} koin! <Coins className="w-5 h-5 text-yellow-600" />✨
             </div>
           </div>
         </div>
