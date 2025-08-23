@@ -45,6 +45,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
     const selectedReward = onSelectReward();
     if (!selectedReward) return;
 
+    console.log('Selected reward for spin:', selectedReward.name, 'ID:', selectedReward.id);
     setIsAnimating(true);
 
     // Calculate precise target angle for selected reward

@@ -39,18 +39,28 @@ export const calculateTargetAngle = (
   const segmentAngle = 360 / rewards.length;
   const rewardIndex = rewards.findIndex(r => r.id === selectedReward.id);
   
-  // Calculate the center angle of the winning segment
-  const targetSegmentCenter = (rewardIndex * segmentAngle) + (segmentAngle / 2);
+  // Calculate the center angle of the winning segment (starting from 0° at top, going clockwise)
+  const segmentStartAngle = rewardIndex * segmentAngle;
+  const segmentCenterAngle = segmentStartAngle + (segmentAngle / 2);
   
   // Add multiple full rotations for dramatic effect (4-7 rotations)
   const fullRotations = 4 + Math.random() * 3;
   const additionalRotations = fullRotations * 360;
   
-  // Calculate final angle - we want the pointer (at top) to point to the center of winning segment
-  // Since pointer is at top (0°), we need to rotate so that the winning segment is at top
-  const finalTargetAngle = currentRotation + additionalRotations + (360 - targetSegmentCenter);
+  // To make the pointer (at top/0°) point to the winning segment center,
+  // we need to rotate the wheel so that the segment center is at 0°
+  // This means we rotate by the negative of the segment's center angle
+  const targetRotation = currentRotation + additionalRotations - segmentCenterAngle;
   
-  return finalTargetAngle;
+  console.log(`Spin calculation:
+    - Selected reward: ${selectedReward.name} (index ${rewardIndex})
+    - Segment angle: ${segmentAngle}°
+    - Segment center: ${segmentCenterAngle}°
+    - Current rotation: ${currentRotation}°
+    - Additional rotations: ${additionalRotations}°
+    - Target rotation: ${targetRotation}°`);
+  
+  return targetRotation;
 };
 
 /**
