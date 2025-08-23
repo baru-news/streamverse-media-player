@@ -81,17 +81,28 @@ const Favorites = () => {
         <main className="pt-20">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-12">
-              <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-white mb-4">Login Diperlukan</h1>
-              <p className="text-muted-foreground mb-6">
-                Silakan login untuk melihat video favorit Anda
+              <div className="relative mx-auto w-20 h-20 mb-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl opacity-50 animate-pulse" />
+                <div className="relative bg-gradient-to-br from-card via-card to-muted rounded-full p-4 border border-border shadow-xl">
+                  <Heart className="w-12 h-12 text-primary mx-auto" />
+                </div>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Login Diperlukan
+              </h1>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+                Silakan login untuk melihat koleksi video favorit Anda dan nikmati pengalaman yang dipersonalisasi
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Link to="/login">
-                  <Button variant="hero" size="sm" className="h-9 px-4 text-sm">Login</Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Link to="/login" className="w-full sm:w-auto">
+                  <Button variant="hero" size="default" className="w-full sm:w-auto min-h-[44px] bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    Masuk Sekarang
+                  </Button>
                 </Link>
-                <Link to="/">
-                  <Button variant="outline" size="sm" className="h-9 px-4 text-sm">Kembali ke Beranda</Button>
+                <Link to="/" className="w-full sm:w-auto">
+                  <Button variant="outline" size="default" className="w-full sm:w-auto min-h-[44px] border-primary/30 text-foreground hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
+                    Kembali ke Beranda
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -111,24 +122,27 @@ const Favorites = () => {
       <Header />
       
       <main className="pt-20">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header Section */}
-          <div className="flex items-center gap-4 mb-8">
-            <Link to="/">
-              <Button variant="ghost" size="icon" className="rounded-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+          {/* Enhanced Header Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-8 p-6 bg-gradient-to-r from-card/50 via-card/30 to-transparent border border-border/50 rounded-2xl backdrop-blur-sm">
+            <Link to="/" className="self-start sm:self-auto">
+              <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 transition-colors duration-300">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                <Heart className="w-6 h-6 text-white fill-current" />
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-md opacity-60 animate-pulse"></div>
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-xl">
+                  <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground fill-current" />
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   Favorit Saya
                 </h1>
-                <p className="text-muted-foreground">
-                  {favoriteVideos.length} video tersimpan
+                <p className="text-muted-foreground text-sm sm:text-base">
+                  {favoriteVideos.length} video tersimpan dalam koleksi Anda
                 </p>
               </div>
             </div>
@@ -136,28 +150,46 @@ const Favorites = () => {
 
           {/* Content */}
           {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Memuat video favorit...</p>
+            <div className="text-center py-16">
+              <div className="relative mx-auto w-16 h-16 mb-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                <div className="relative animate-spin rounded-full h-16 w-16 border-4 border-muted border-t-primary"></div>
+              </div>
+              <p className="text-muted-foreground text-lg">Memuat koleksi video favorit Anda...</p>
             </div>
           ) : favoriteVideos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-              {favoriteVideos.map((video) => (
-                <VideoCard key={video.id} {...video} />
-              ))}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg sm:text-xl font-semibold text-foreground">Koleksi Video ({favoriteVideos.length})</h2>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Heart className="w-4 h-4 fill-current text-primary" />
+                  <span>Disukai</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                {favoriteVideos.map((video) => (
+                  <VideoCard key={video.id} {...video} />
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="text-center py-16">
-              <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-white mb-2">
+            <div className="text-center py-20">
+              <div className="relative mx-auto w-24 h-24 mb-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl opacity-50 animate-pulse" />
+                <div className="relative bg-gradient-to-br from-card via-card/50 to-muted/30 rounded-full p-6 border border-border/50 shadow-xl">
+                  <Heart className="w-12 h-12 text-muted-foreground mx-auto opacity-50" />
+                </div>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Belum Ada Video Favorit
               </h2>
-              <p className="text-muted-foreground mb-6">
-                Mulai menambahkan video ke favorit dengan menekan tombol hati pada video yang Anda sukai
+              <p className="text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed text-sm sm:text-base">
+                Mulai membangun koleksi video favorit Anda dengan menekan tombol hati ❤️ pada video yang Anda sukai. 
+                Video favorit akan tersimpan di sini untuk akses yang mudah.
               </p>
-              <Link to="/">
-                <Button variant="hero" size="sm" className="h-9 px-4 text-sm sm:px-8 sm:text-base">
-                  Jelajahi Video
+              <Link to="/" className="inline-block">
+                <Button variant="hero" size="default" className="min-h-[48px] px-8 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  🎬 Jelajahi Video Sekarang
                 </Button>
               </Link>
             </div>
