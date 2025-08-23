@@ -257,6 +257,48 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_subscriptions: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          is_active: boolean
+          payment_info: Json | null
+          start_date: string
+          subscription_type: string
+          telegram_user_id: number | null
+          telegram_username: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          payment_info?: Json | null
+          start_date?: string
+          subscription_type?: string
+          telegram_user_id?: number | null
+          telegram_username?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          payment_info?: Json | null
+          start_date?: string
+          subscription_type?: string
+          telegram_user_id?: number | null
+          telegram_username?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_verified: boolean | null
@@ -877,6 +919,10 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: boolean
       }
+      check_user_premium_status: {
+        Args: { user_id_param: string }
+        Returns: boolean
+      }
       check_username_exists: {
         Args: { username_input: string }
         Returns: boolean
@@ -914,7 +960,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "premium"
       video_provider: "doodstream"
     }
     CompositeTypes: {
@@ -1043,7 +1089,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "premium"],
       video_provider: ["doodstream"],
     },
   },

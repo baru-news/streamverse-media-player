@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, User, LogOut, Shield, X, Menu, Heart, Target, Settings } from "lucide-react";
+import { Search, User, LogOut, Shield, X, Menu, Heart, Target, Settings, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks/useAuth";
-import { CoinDisplay } from "@/components/CoinDisplay";
-import KittyKeyDisplay from "@/components/KittyKeyDisplay";
+import { useAuth } from '@/hooks/useAuth';
+import { usePremiumSubscription } from '@/hooks/usePremiumSubscription';
+import { CoinDisplay } from './CoinDisplay';
+import KittyKeyDisplay from './KittyKeyDisplay';
 import SpinWheelButton from "@/components/SpinWheelButton";
 import { UserBadgeDisplay } from "@/components/UserBadgeDisplay";
 import { BadgeStore } from "@/components/BadgeStore";
@@ -31,6 +32,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
+  const { isPremium } = usePremiumSubscription();
   const { settings, isLoading } = useWebsiteSettings();
 
   const searchQuery = externalSearchQuery ?? internalSearchQuery;
@@ -169,6 +171,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link to="/premium" className="flex items-center">
+                        <Crown className="mr-2 h-4 w-4" />
+                        <span>Premium</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/favorites" className="flex items-center">
                         <Heart className="mr-2 h-4 w-4" />
                         <span>Favorit Saya</span>
@@ -284,6 +292,14 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                 >
                   <Settings className="mr-3 h-4 w-4" />
                   <span>Profil Saya</span>
+                </Link>
+                <Link 
+                  to="/premium" 
+                  className="flex items-center p-2 hover:bg-muted/50 rounded-md transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Crown className="mr-3 h-4 w-4" />
+                  <span>Premium</span>
                 </Link>
                 <Link 
                   to="/favorites" 
