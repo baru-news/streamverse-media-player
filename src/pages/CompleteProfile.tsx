@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, User } from 'lucide-react';
-import SEO from '@/components/SEO';
+import SEOComponent from '@/components/SEO';
 
 const CompleteProfile = () => {
   const { user } = useAuth();
@@ -129,7 +129,7 @@ const CompleteProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-      <SEO 
+      <SEOComponent 
         title="Lengkapi Profil"
         description="Lengkapi profil Anda dengan memilih username"
       />
