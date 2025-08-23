@@ -354,6 +354,9 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          telegram_chat_id: number | null
+          telegram_user_id: number | null
+          telegram_username: string | null
           updated_at: string
           username: string | null
         }
@@ -363,6 +366,9 @@ export type Database = {
           created_at?: string
           email: string
           id: string
+          telegram_chat_id?: number | null
+          telegram_user_id?: number | null
+          telegram_username?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -372,6 +378,9 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          telegram_chat_id?: number | null
+          telegram_user_id?: number | null
+          telegram_username?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -442,6 +451,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      telegram_invitations: {
+        Row: {
+          chat_id: number
+          created_at: string
+          error_message: string | null
+          id: string
+          invitation_status: string
+          invited_at: string
+          joined_at: string | null
+          telegram_user_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chat_id: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          invitation_status?: string
+          invited_at?: string
+          joined_at?: string | null
+          telegram_user_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chat_id?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          invitation_status?: string
+          invited_at?: string
+          joined_at?: string | null
+          telegram_user_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_invitations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       upload_logs: {
         Row: {
@@ -999,6 +1055,14 @@ export type Database = {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      invite_user_to_telegram: {
+        Args: {
+          chat_id_param: number
+          telegram_user_id_param: number
+          user_id_param: string
         }
         Returns: boolean
       }
