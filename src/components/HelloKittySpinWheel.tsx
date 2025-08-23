@@ -136,6 +136,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             {rewards.map((reward, index) => {
               const startAngle = index * segmentAngle;
               
+              console.log(`🎨 Rendering segment ${index}: ${reward.name} at angle ${startAngle}°`);
+              
               return (
                 <div key={reward.id}>
                   {/* Segment background */}
@@ -169,6 +171,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             {rewards.map((reward, index) => {
               const startAngle = index * segmentAngle;
               const centerAngle = startAngle + (segmentAngle / 2); // Center of the segment
+              
+              console.log(`📝 Rendering text for segment ${index}: ${reward.name} at center angle ${centerAngle}°`);
               
               return (
                 <div

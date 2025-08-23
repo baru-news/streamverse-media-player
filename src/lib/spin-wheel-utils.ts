@@ -39,28 +39,36 @@ export const calculateTargetAngle = (
   const segmentAngle = 360 / rewards.length;
   const rewardIndex = rewards.findIndex(r => r.id === selectedReward.id);
   
-  // Calculate the center angle of the winning segment (starting from 0° at top, going clockwise)
-  const segmentStartAngle = rewardIndex * segmentAngle;
-  const segmentCenterAngle = segmentStartAngle + (segmentAngle / 2);
+  if (rewardIndex === -1) {
+    console.error('Selected reward not found in rewards array:', selectedReward);
+    return currentRotation;
+  }
+  
+  // Calculate the center angle of the winning segment
+  // Segments start from top (0°) and go clockwise
+  const segmentCenterAngle = (rewardIndex * segmentAngle) + (segmentAngle / 2);
   
   // Add multiple full rotations for dramatic effect (4-7 rotations)
   const fullRotations = 4 + Math.random() * 3;
   const additionalRotations = fullRotations * 360;
   
-  // To make the pointer (at top/0°) point to the winning segment center,
-  // we need to rotate the wheel so that the segment center is at 0°
-  // This means we rotate by the negative of the segment's center angle
-  const targetRotation = currentRotation + additionalRotations - segmentCenterAngle;
+  // To align the winning segment with the pointer (at top/0°):
+  // We need to rotate so that the segment center is at the pointer position
+  // Since the pointer is at 0°, we subtract the segment angle from 360°
+  const finalTargetAngle = currentRotation + additionalRotations + (360 - segmentCenterAngle);
   
-  console.log(`Spin calculation:
-    - Selected reward: ${selectedReward.name} (index ${rewardIndex})
+  console.log(`🎯 Spin calculation:
+    - Selected reward: "${selectedReward.name}" (${selectedReward.coin_amount} coins)
+    - Reward index in array: ${rewardIndex}
+    - Total rewards: ${rewards.length}
     - Segment angle: ${segmentAngle}°
-    - Segment center: ${segmentCenterAngle}°
+    - Segment center angle: ${segmentCenterAngle}°
     - Current rotation: ${currentRotation}°
     - Additional rotations: ${additionalRotations}°
-    - Target rotation: ${targetRotation}°`);
+    - Final target angle: ${finalTargetAngle}°
+    - Expected landing position: ${360 - segmentCenterAngle}° from top`);
   
-  return targetRotation;
+  return finalTargetAngle;
 };
 
 /**
