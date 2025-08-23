@@ -43,49 +43,49 @@ export const ProfilePhotoUpload = () => {
 
       const file = event.target.files[0];
       
-      // Check file size (max 5MB)
+      // Basic client-side validation (server will do comprehensive validation)
       if (file.size > 5 * 1024 * 1024) {
         throw new Error('Ukuran file maksimal 5MB');
       }
 
-      // Check file type
       if (!file.type.startsWith('image/')) {
         throw new Error('File harus berupa gambar');
       }
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `avatar.${fileExt}`;
-      const filePath = `${user?.id}/${fileName}`;
-
-      // Upload to Supabase Storage
-      let { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) {
-        throw uploadError;
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Format file tidak didukung. Gunakan JPG, PNG, atau WebP');
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      // Create FormData for secure upload
+      const formData = new FormData();
+      formData.append('file', file);
 
-      // Update profiles table with new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
+      // Upload via secure edge function
+      const { data, error } = await supabase.functions.invoke('secure-avatar-upload', {
+        body: formData,
+      });
 
-      if (updateError) {
-        throw updateError;
+      if (error) {
+        throw new Error(error.message || 'Upload gagal');
       }
 
-      setAvatarUrl(publicUrl);
-      toast.success('Foto profil berhasil diupload!');
+      if (!data.success) {
+        throw new Error(data.error || 'Upload gagal');
+      }
+
+      setAvatarUrl(data.avatar_url);
+      toast.success('Foto profil berhasil diupload dan disanitasi!');
       
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Avatar upload error:', error);
+      if (error.message.includes('Rate limit')) {
+        toast.error('Terlalu banyak upload. Coba lagi dalam 1 jam.');
+      } else if (error.message.includes('Invalid file format')) {
+        toast.error('Format file tidak valid. Pastikan file adalah gambar yang sah.');
+      } else {
+        toast.error(error.message || 'Gagal mengupload foto');
+      }
     } finally {
       setUploading(false);
     }
@@ -97,13 +97,28 @@ export const ProfilePhotoUpload = () => {
       
       if (!user?.id) return;
       
-      const filePath = `${user.id}/avatar`;
+      // Get current avatar URL to extract the secure filename
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single();
       
-      const { error } = await supabase.storage
-        .from('avatars')
-        .remove([filePath]);
+      if (profile?.avatar_url) {
+        // Extract the file path from the URL
+        const pathParts = profile.avatar_url.split('/avatars/');
+        if (pathParts.length > 1) {
+          const filePath = pathParts[1];
+          
+          const { error } = await supabase.storage
+            .from('avatars')
+            .remove([filePath]);
 
-      if (error) throw error;
+          if (error) {
+            console.log('File removal failed (may not exist):', error);
+          }
+        }
+      }
 
       // Update profiles table to remove avatar URL
       const { error: updateError } = await supabase
@@ -117,7 +132,8 @@ export const ProfilePhotoUpload = () => {
       toast.success('Foto profil berhasil dihapus');
       
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Avatar removal error:', error);
+      toast.error(error.message || 'Gagal menghapus foto profil');
     } finally {
       setUploading(false);
     }
@@ -202,12 +218,13 @@ export const ProfilePhotoUpload = () => {
 
         {/* Upload Tips */}
         <div className="bg-muted/30 rounded-lg p-4 w-full max-w-md">
-          <h4 className="font-medium text-foreground mb-2">Tips foto profil:</h4>
+          <h4 className="font-medium text-foreground mb-2">Keamanan & Tips:</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Gunakan foto dengan wajah yang jelas</li>
-            <li>• Format JPG, PNG atau WebP</li>
-            <li>• Maksimal ukuran 5MB</li>
-            <li>• Resolusi minimal 200x200px</li>
+            <li>• ✅ File divalidasi & disanitasi otomatis</li>
+            <li>• ✅ Metadata berbahaya dihapus</li>
+            <li>• ✅ Format JPG, PNG, WebP saja</li>
+            <li>• ✅ Maksimal 5MB, limit 5x per jam</li>
+            <li>• ✅ Resolusi minimal 200x200px</li>
           </ul>
         </div>
       </div>

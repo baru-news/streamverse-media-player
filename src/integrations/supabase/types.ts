@@ -353,6 +353,45 @@ export type Database = {
         }
         Relationships: []
       }
+      upload_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          file_size: number | null
+          filename: string
+          id: string
+          ip_address: string | null
+          success: boolean
+          upload_type: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          file_size?: number | null
+          filename: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          upload_type?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          file_size?: number | null
+          filename?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          upload_type?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_key: string
@@ -841,6 +880,10 @@ export type Database = {
       claim_kitty_key: {
         Args: { user_id_param: string }
         Returns: boolean
+      }
+      cleanup_old_avatar: {
+        Args: { new_avatar_path: string; user_id_param: string }
+        Returns: undefined
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
