@@ -28,7 +28,7 @@ const DoodstreamPlayer = ({
   const [showPlayer, setShowPlayer] = useState(false);
   const { watchTime, formatWatchTime, isTracking } = useWatchTime(videoId);
 
-  // Calculate aspect ratio for responsive design
+  // Calculate aspect ratio for responsive design (cache bust fix)
   const aspectRatio = (height / width) * 100;
 
   const embedUrl = `https://dood.re/e/${fileCode}${autoplay ? '?autoplay=1' : ''}`;
