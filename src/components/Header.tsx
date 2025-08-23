@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, User, LogOut, Shield, X, Menu, Heart, Target } from "lucide-react";
+import { Search, User, LogOut, Shield, X, Menu, Heart, Target, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -163,6 +163,12 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Profil Saya</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/favorites" className="flex items-center">
                         <Heart className="mr-2 h-4 w-4" />
                         <span>Favorit Saya</span>
@@ -271,6 +277,14 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                     </DialogContent>
                   </Dialog>
                 </div>
+                <Link 
+                  to="/profile" 
+                  className="flex items-center p-2 hover:bg-muted/50 rounded-md transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Settings className="mr-3 h-4 w-4" />
+                  <span>Profil Saya</span>
+                </Link>
                 <Link 
                   to="/favorites" 
                   className="flex items-center p-2 hover:bg-muted/50 rounded-md transition-colors"
