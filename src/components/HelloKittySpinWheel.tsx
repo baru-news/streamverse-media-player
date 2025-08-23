@@ -112,9 +112,6 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
   return (
     <div className="flex flex-col items-center space-y-8">
-      {/* Magical Aura Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-indigo-50/50 rounded-full blur-3xl scale-150 animate-pulse"></div>
-      
       {/* Wheel Container with Enhanced Styling */}
       <div className="relative w-96 h-96 mx-auto">
         {/* Floating Magic Stars */}
@@ -132,27 +129,24 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
         </div>
 
         {/* Enhanced Arrow Pointer */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-30">
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-50">
           <div className="relative">
             {/* Glow effect */}
             <div className="absolute inset-0 bg-yellow-300 rounded-full blur-sm opacity-60 scale-125"></div>
             {/* Arrow */}
-            <div className="relative w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-gradient-to-b from-yellow-400 to-yellow-600 drop-shadow-2xl filter">
+            <div className="relative w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-yellow-500 drop-shadow-2xl">
               <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-300"></div>
             </div>
           </div>
           <div className="text-2xl text-center mt-2 drop-shadow-lg animate-pulse">🎀</div>
         </div>
 
-        {/* Magical Outer Ring */}
-        <div className="absolute inset-0 rounded-full border-4 border-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 shadow-2xl animate-pulse opacity-60"></div>
-        
         {/* Spin Wheel with Enhanced Design */}
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full z-10">
           <div
             ref={wheelRef}
             className={cn(
-              "w-full h-full rounded-full border-8 relative overflow-hidden",
+              "w-full h-full rounded-full border-6 relative overflow-hidden z-20",
               "shadow-[0_0_40px_rgba(236,72,153,0.4),inset_0_0_40px_rgba(255,255,255,0.1)]",
               "before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-br before:from-white/20 before:to-transparent before:z-10",
               !isAnimating && "transition-transform duration-300 ease-out"
@@ -161,7 +155,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
               transform: `rotate(${rotation}deg)`,
               transition: isAnimating ? `transform ${animationDuration}ms ${createEasingFunction(animationDuration)}` : undefined,
               background: 'conic-gradient(from 0deg, hsl(326, 87%, 95%), hsl(322, 86%, 92%), hsl(318, 85%, 88%), hsl(314, 84%, 82%), hsl(310, 83%, 75%), hsl(306, 82%, 68%), hsl(302, 81%, 60%), hsl(298, 80%, 52%))',
-              borderImage: 'linear-gradient(45deg, hsl(326, 100%, 74%), hsl(310, 100%, 69%), hsl(294, 100%, 64%)) 1',
+              border: '6px solid hsl(326, 100%, 74%)',
               willChange: isAnimating ? 'transform' : 'auto'
             }}
           >
