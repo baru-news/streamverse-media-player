@@ -29,65 +29,60 @@ export const selectRewardByProbability = (rewards: SpinWheelReward[]): SpinWheel
 };
 
 /**
- * Selects a reward based on visual wheel position - FOR ACCURATE SPIN TARGETING
+ * SIMPLE DETERMINISTIC SYSTEM: 
+ * Select reward based on final wheel angle position
  */
-export const selectRewardByWheelPosition = (rewards: SpinWheelReward[]): { reward: SpinWheelReward; targetIndex: number } => {
+export const selectRewardByFinalAngle = (
+  rewards: SpinWheelReward[], 
+  finalAngle: number
+): { reward: SpinWheelReward; targetIndex: number } => {
   if (!rewards.length) return { reward: rewards[0], targetIndex: 0 };
   
-  // For visual accuracy, we need to select where the pin will land
-  // Use weighted random but ensure it corresponds to actual wheel position
-  const totalProbability = rewards.reduce((sum, reward) => sum + reward.probability, 0);
-  const random = Math.random() * totalProbability;
+  // Normalize angle to 0-360 range
+  const normalizedAngle = ((finalAngle % 360) + 360) % 360;
   
-  let currentSum = 0;
-  for (let i = 0; i < rewards.length; i++) {
-    const reward = rewards[i];
-    currentSum += reward.probability;
-    if (random <= currentSum) {
-      console.log(`🎯 Selected reward for visual landing: "${reward.name}" at index ${i}`);
-      return { reward, targetIndex: i };
-    }
-  }
+  // Calculate which segment the pointer (at 0°) will point to
+  const segmentAngle = 360 / rewards.length;
+  const targetIndex = Math.floor(normalizedAngle / segmentAngle);
   
-  return { reward: rewards[0], targetIndex: 0 }; // Fallback
+  // Ensure index is within bounds
+  const clampedIndex = Math.min(targetIndex, rewards.length - 1);
+  const selectedReward = rewards[clampedIndex];
+  
+  console.log(`🎯 DETERMINISTIC SELECTION:
+    - Final angle: ${finalAngle}° 
+    - Normalized: ${normalizedAngle}°
+    - Segment angle: ${segmentAngle}°
+    - Target index: ${clampedIndex}
+    - Selected reward: "${selectedReward.name}" (${selectedReward.coin_amount} coins)`);
+  
+  return { reward: selectedReward, targetIndex: clampedIndex };
 };
 
 /**
- * Calculates precise target angle for a specific reward at specific index
+ * SIMPLE SPIN CALCULATION:
+ * Generate final angle and calculate target
  */
-export const calculateTargetAngle = (
-  rewards: SpinWheelReward[], 
-  targetIndex: number,
+export const calculateSpinTarget = (
+  rewards: SpinWheelReward[],
   currentRotation: number
-): number => {
-  const segmentAngle = 360 / rewards.length;
+): { finalAngle: number; rewardData: { reward: SpinWheelReward; targetIndex: number } } => {
+  // Generate random final angle (3-6 full rotations + random position)
+  const fullRotations = 3 + Math.random() * 3;
+  const randomAngle = Math.random() * 360;
+  const finalAngle = currentRotation + (fullRotations * 360) + randomAngle;
   
-  // Calculate the center angle of the winning segment
-  // Segments start from top (0°) and go clockwise
-  const segmentCenterAngle = (targetIndex * segmentAngle) + (segmentAngle / 2);
+  // Determine what reward will be selected at this angle
+  const rewardData = selectRewardByFinalAngle(rewards, finalAngle);
   
-  // Add multiple full rotations for dramatic effect (4-7 rotations)
-  const fullRotations = 4 + Math.random() * 3;
-  const additionalRotations = fullRotations * 360;
-  
-  // To align the winning segment with the pointer (at top/0°):
-  // We need to rotate so that the segment center is at the pointer position
-  // The wheel rotates, so we need to position the segment at 0°
-  const finalTargetAngle = currentRotation + additionalRotations + (360 - segmentCenterAngle);
-  
-  const selectedReward = rewards[targetIndex];
-  console.log(`🎯 Precise spin calculation:
-    - Target reward: "${selectedReward?.name}" (${selectedReward?.coin_amount} coins)
-    - Target index: ${targetIndex}
-    - Total segments: ${rewards.length}
-    - Segment angle: ${segmentAngle}°
-    - Segment center angle: ${segmentCenterAngle}°
+  console.log(`🎲 SPIN TARGET CALCULATION:
     - Current rotation: ${currentRotation}°
-    - Additional rotations: ${additionalRotations}°
-    - Final target angle: ${finalTargetAngle}°
-    - Pin will land at: segment ${targetIndex}`);
+    - Full rotations: ${fullRotations}
+    - Random angle: ${randomAngle}°
+    - Final angle: ${finalAngle}°
+    - Will land on: "${rewardData.reward.name}"`);
   
-  return finalTargetAngle;
+  return { finalAngle, rewardData };
 };
 
 /**

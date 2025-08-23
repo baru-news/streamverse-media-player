@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { 
-  calculateTargetAngle, 
   calculateAnimationDuration,
   getAnticipationAnimation,
   createEasingFunction 
@@ -19,8 +18,8 @@ interface SpinWheelReward {
 
 interface HelloKittySpinWheelProps {
   rewards: SpinWheelReward[];
-  onSpin: (preSelectedData?: { reward: SpinWheelReward; targetIndex: number }) => Promise<SpinWheelReward | null>;
-  onSelectReward: () => { reward: SpinWheelReward; targetIndex: number } | null;
+  onSpin: (preSelectedData?: { finalAngle: number; rewardData: { reward: SpinWheelReward; targetIndex: number } }) => Promise<SpinWheelReward | null>;
+  onSelectReward: () => { finalAngle: number; rewardData: { reward: SpinWheelReward; targetIndex: number } } | null;
   spinning: boolean;
   disabled?: boolean;
 }
@@ -41,28 +40,27 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
   const handleSpin = async () => {
     if (spinning || disabled || isAnimating) return;
 
-    // Pre-select reward for precise targeting
-    const selectedData = onSelectReward();
-    if (!selectedData) return;
+    // Generate spin data with final angle
+    const spinData = onSelectReward();
+    if (!spinData) return;
 
-    const { reward: selectedReward, targetIndex } = selectedData;
-
-    console.log('🎯 Wheel will target:', {
-      reward: selectedReward.name,
-      index: targetIndex,
-      coins: selectedReward.coin_amount
+    const { finalAngle, rewardData } = spinData;
+    
+    console.log('🎯 SIMPLE SPIN SYSTEM:', {
+      finalAngle,
+      targetReward: rewardData.reward.name,
+      targetIndex: rewardData.targetIndex
     });
     
     setIsAnimating(true);
 
-    // Calculate precise target angle for selected reward INDEX
-    const targetAngle = calculateTargetAngle(rewards, targetIndex, rotation);
-    const rotationDistance = Math.abs(targetAngle - rotation);
+    // Simple calculation: just rotate to final angle
+    const rotationDistance = Math.abs(finalAngle - rotation);
     const duration = calculateAnimationDuration(rotationDistance);
     
     setAnimationDuration(duration);
 
-    // Anticipation animation - small backward rotation
+    // Anticipation animation
     const anticipation = getAnticipationAnimation(rotation);
     
     // Apply anticipation
@@ -71,18 +69,18 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
       wheelRef.current.style.transform = `rotate(${anticipation.anticipation}deg)`;
     }
     
-    // After anticipation, start main spin animation
+    // Main spin to final angle
     setTimeout(() => {
-      setRotation(targetAngle);
+      setRotation(finalAngle);
       
-      // Start the backend process
+      // Start backend process
       setTimeout(async () => {
-        const wonReward = await onSpin(selectedData);
+        const wonReward = await onSpin(spinData);
         if (wonReward) {
           setLastWonReward(wonReward);
         }
         setIsAnimating(false);
-      }, duration - 500); // Start backend call 500ms before animation ends
+      }, duration - 500);
       
     }, anticipation.anticipationDuration);
   };

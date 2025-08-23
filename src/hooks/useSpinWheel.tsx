@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCoins } from '@/hooks/useCoins';
 import { useKittyKeys } from '@/hooks/useKittyKeys';
 import { toast } from 'sonner';
-import { selectRewardByProbability, selectRewardByWheelPosition } from '@/lib/spin-wheel-utils';
+import { selectRewardByProbability, calculateSpinTarget } from '@/lib/spin-wheel-utils';
 
 interface SpinWheelReward {
   id: string;
@@ -87,38 +87,40 @@ export const useSpinWheel = () => {
     }
   }, [kittyKeys]);
 
-  // Frontend reward selection for precise targeting - VISUAL ACCURACY
-  const selectReward = useCallback((): { reward: SpinWheelReward; targetIndex: number } | null => {
+  // SIMPLE DETERMINISTIC reward selection
+  const selectReward = useCallback((): { finalAngle: number; rewardData: { reward: SpinWheelReward; targetIndex: number } } | null => {
     if (!rewards.length) return null;
-    return selectRewardByWheelPosition(rewards);
+    return calculateSpinTarget(rewards, 0); // Start from 0 for simplicity
   }, [rewards]);
 
-  // Perform spin with pre-selected reward for precise animation
-  const performSpin = useCallback(async (preSelectedData?: { reward: SpinWheelReward; targetIndex: number }): Promise<SpinWheelReward | null> => {
+  // SIMPLE DETERMINISTIC spin system
+  const performSpin = useCallback(async (preSelectedData?: { finalAngle: number; rewardData: { reward: SpinWheelReward; targetIndex: number } }): Promise<SpinWheelReward | null> => {
     if (!user || !canSpin || spinning) {
       console.log('Cannot spin:', { user: !!user, canSpin, spinning });
       return null;
     }
 
-    // Use pre-selected reward data or select new one
-    const selectedData = preSelectedData || selectReward();
-    if (!selectedData) {
-      throw new Error('No reward selected');
+    // Use pre-calculated spin data or generate new one
+    const spinData = preSelectedData || selectReward();
+    if (!spinData) {
+      throw new Error('No spin data generated');
     }
 
-    const { reward: selectedReward } = selectedData;
+    const { finalAngle, rewardData } = spinData;
+    const selectedReward = rewardData.reward;
 
-    // Double-check kitty keys before spinning to prevent race condition
+    // Double-check kitty keys before spinning
     if (!kittyKeys || kittyKeys.balance < 1) {
       console.log('Insufficient kitty keys at spin time:', kittyKeys?.balance);
       toast.error('Kitty Key tidak cukup! 🗝️');
-      await checkCanSpin(); // Refresh state
+      await checkCanSpin();
       return null;
     }
 
-    console.log('🎯 Starting PRECISE spin:', {
+    console.log('🎯 STARTING DETERMINISTIC SPIN:', {
       selectedReward: selectedReward.name,
-      targetIndex: selectedData.targetIndex,
+      finalAngle,
+      targetIndex: rewardData.targetIndex,
       kittyBalance: kittyKeys.balance
     });
     setSpinning(true);
@@ -135,16 +137,15 @@ export const useSpinWheel = () => {
 
       if (insertError) throw insertError;
 
-      // Spend kitty key with better error handling
-      console.log('Attempting to spend kitty key. Current balance:', kittyKeys.balance);
+      // Spend kitty key
+      console.log('Spending kitty key. Current balance:', kittyKeys.balance);
       const keySpent = await spendKittyKey(1);
       if (!keySpent) {
-        console.log('Failed to spend kitty key. Current balance after attempt:', kittyKeys?.balance);
+        console.log('Failed to spend kitty key');
         throw new Error('Failed to spend kitty key');
       }
-      console.log('Successfully spent kitty key');
 
-      // Update user coins with safer approach
+      // Update user coins
       const { data: existingCoins } = await supabase
         .from('user_coins')
         .select('balance, total_earned')
@@ -152,7 +153,6 @@ export const useSpinWheel = () => {
         .single();
 
       if (existingCoins) {
-        // Update existing record
         const { error: updateError } = await supabase
           .from('user_coins')
           .update({
@@ -164,7 +164,6 @@ export const useSpinWheel = () => {
 
         if (updateError) throw updateError;
       } else {
-        // Create new record for new user
         const { error: insertError } = await supabase
           .from('user_coins')
           .insert({
@@ -181,7 +180,7 @@ export const useSpinWheel = () => {
       await refreshCoins();
       await checkCanSpin();
 
-      // Show success message with Hello Kitty theme
+      // Success message
       toast.success(`🎀 ${selectedReward.name}! +${selectedReward.coin_amount} coins! 💕`, {
         duration: 4000,
       });
@@ -190,14 +189,12 @@ export const useSpinWheel = () => {
     } catch (error) {
       console.error('Error performing spin:', error);
       
-      // More specific error messages
       if (error.message === 'Failed to spend kitty key') {
         toast.error('Kitty Key tidak cukup atau gagal digunakan! 🗝️');
       } else {
         toast.error('Spin tidak berhasil. Silakan coba lagi! 😿');
       }
       
-      // Refresh state after error
       await refreshKittyKeys();
       await checkCanSpin();
       
