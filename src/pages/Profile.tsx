@@ -3,15 +3,23 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { User, Settings, Camera, Lock, Mail, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { User, Settings, Camera, Lock, Mail, ArrowLeft, Trophy, Star, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { ProfilePhotoUpload } from '@/components/profile/ProfilePhotoUpload';
 import { ChangePasswordForm } from '@/components/profile/ChangePasswordForm';
 import { ChangeEmailForm } from '@/components/profile/ChangeEmailForm';
+import { CoinDisplay } from '@/components/CoinDisplay';
+import KittyKeyDisplay from '@/components/KittyKeyDisplay';
+import { UserBadgeDisplay } from '@/components/UserBadgeDisplay';
+import { useBadges } from '@/hooks/useBadges';
+import { useCoins } from '@/hooks/useCoins';
 
 const Profile = () => {
   const { user } = useAuth();
+  const { badges, activeBadge } = useBadges();
+  const { coins } = useCoins();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'email'>('profile');
 
   if (!user) {
@@ -75,7 +83,7 @@ const Profile = () => {
           {/* Profile Overview Card */}
           <Card className="mb-8 bg-gradient-card border-0 shadow-video">
             <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex flex-col lg:flex-row items-center gap-6">
                 <div className="relative">
                   <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-primary/20 shadow-glow">
                     <AvatarImage src="" alt="Profile" />
@@ -91,20 +99,64 @@ const Profile = () => {
                     <Camera className="w-4 h-4" />
                   </Button>
                 </div>
-                <div className="text-center md:text-left">
-                  <h2 className="text-xl font-semibold text-foreground mb-1">
-                    {user.user_metadata?.username || 'User'}
-                  </h2>
-                  <p className="text-muted-foreground mb-3">
+                <div className="flex-1 text-center lg:text-left">
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-2">
+                    <h2 className="text-xl font-semibold text-foreground">
+                      {user.user_metadata?.username || 'User'}
+                    </h2>
+                    {user.id && <UserBadgeDisplay userId={user.id} showTooltip />}
+                  </div>
+                  <p className="text-muted-foreground mb-4">
                     {user.email}
                   </p>
-                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                    <div className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                  
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 p-4 rounded-xl border border-yellow-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Trophy className="w-5 h-5 text-yellow-500" />
+                        <span className="text-sm font-medium text-foreground">Coins</span>
+                      </div>
+                      <CoinDisplay className="justify-center lg:justify-start" showTotal />
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-pink-500/10 to-pink-600/10 p-4 rounded-xl border border-pink-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Crown className="w-5 h-5 text-pink-500" />
+                        <span className="text-sm font-medium text-foreground">Kitty Keys</span>
+                      </div>
+                      <div className="flex justify-center lg:justify-start">
+                        <KittyKeyDisplay />
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 p-4 rounded-xl border border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="w-5 h-5 text-purple-500" />
+                        <span className="text-sm font-medium text-foreground">Badges</span>
+                      </div>
+                      <div className="text-center lg:text-left">
+                        <span className="text-lg font-bold text-foreground">
+                          {badges.filter(b => b.owned).length}
+                        </span>
+                        <span className="text-sm text-muted-foreground ml-1">/ {badges.length}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                       Verified
-                    </div>
-                    <div className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm">
+                    </Badge>
+                    <Badge variant="outline" className="bg-secondary/10">
                       Member sejak {new Date(user.created_at).getFullYear()}
-                    </div>
+                    </Badge>
+                    {activeBadge && (
+                      <Badge variant="outline" className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+                        Active Badge: {activeBadge.name}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
