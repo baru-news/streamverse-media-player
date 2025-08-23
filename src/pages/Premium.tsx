@@ -1,19 +1,72 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePremiumSubscription } from '@/hooks/usePremiumSubscription';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Crown, Key, Users, Star, MessageSquare } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Check, Crown, Key, Users, Star, MessageSquare, ArrowRight, CheckCircle } from 'lucide-react';
 import SEO from '@/components/SEO';
 import TrakteerPaymentForm from '@/components/TrakteerPaymentForm';
 import PremiumRequestStatus from '@/components/PremiumRequestStatus';
+import { TelegramLinkForm } from '@/components/TelegramLinkForm';
+import { supabase } from '@/integrations/supabase/client';
 
 const Premium = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { subscription, loading, isPremium } = usePremiumSubscription();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [telegramLinked, setTelegramLinked] = useState(false);
+  const [telegramUsername, setTelegramUsername] = useState<string>('');
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  // Fetch user profile to check Telegram linking status
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      setProfileLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('telegram_username, telegram_user_id')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+        
+        if (data?.telegram_username && data?.telegram_user_id) {
+          setTelegramLinked(true);
+          setTelegramUsername(data.telegram_username);
+          setCurrentStep(2);
+        } else {
+          setTelegramLinked(false);
+          setCurrentStep(1);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const handleTelegramSuccess = (username: string) => {
+    setTelegramLinked(true);
+    setTelegramUsername(username);
+    setCurrentStep(2);
+  };
+
+  const steps = [
+    { number: 1, title: 'Link Telegram', description: 'Connect your Telegram account', completed: telegramLinked },
+    { number: 2, title: 'Make Payment', description: 'Pay via Trakteer', completed: false },
+    { number: 3, title: 'Submit Proof', description: 'Upload payment verification', completed: false }
+  ];
 
   if (!user) {
     return (
@@ -56,7 +109,7 @@ const Premium = () => {
     "Lifetime benefits (never expires)"
   ];
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <SEO 
@@ -178,9 +231,77 @@ const Premium = () => {
         </div>
       </div>
 
-      {/* Trakteer Payment Section */}
+      {/* Premium Purchase Flow */}
       <div className="max-w-4xl mx-auto mb-16 space-y-8">
-        <TrakteerPaymentForm />
+        {/* Progress Steps */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Premium Upgrade Process</CardTitle>
+            <CardDescription>
+              Follow these steps to get your lifetime premium membership
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Step Progress Bar */}
+              <div className="flex items-center justify-between mb-8">
+                {steps.map((step, index) => (
+                  <div key={step.number} className="flex items-center">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors ${
+                      step.completed ? 'bg-green-500 border-green-500 text-white' :
+                      currentStep === step.number ? 'border-primary text-primary' :
+                      'border-muted text-muted-foreground'
+                    }`}>
+                      {step.completed ? <CheckCircle className="w-4 h-4" /> : step.number}
+                    </div>
+                    <div className="ml-3">
+                      <div className={`font-medium text-sm ${
+                        step.completed ? 'text-green-600' :
+                        currentStep === step.number ? 'text-primary' :
+                        'text-muted-foreground'
+                      }`}>
+                        {step.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{step.description}</div>
+                    </div>
+                    {index < steps.length - 1 && (
+                      <ArrowRight className="w-4 h-4 mx-4 text-muted-foreground" />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Step Content */}
+              {currentStep === 1 && (
+                <div className="space-y-4">
+                  <Alert>
+                    <MessageSquare className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Required:</strong> You must link your Telegram account first to receive premium group access after payment approval.
+                    </AlertDescription>
+                  </Alert>
+                  <TelegramLinkForm 
+                    onSuccess={handleTelegramSuccess}
+                    telegramUsername={telegramLinked ? telegramUsername : undefined}
+                  />
+                </div>
+              )}
+
+              {currentStep === 2 && telegramLinked && (
+                <div className="space-y-4">
+                  <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-700">
+                      <strong>Telegram Account Linked:</strong> @{telegramUsername}. You can now proceed with payment.
+                    </AlertDescription>
+                  </Alert>
+                  <TrakteerPaymentForm telegramUsername={telegramUsername} />
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        
         <PremiumRequestStatus />
       </div>
 
@@ -210,27 +331,38 @@ const Premium = () => {
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">How do I access the premium Telegram channel?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                After purchasing Premium membership through Trakteer, make sure to provide your Telegram username during payment proof submission. Our team will manually review your payment and invite you to the exclusive premium channel within 24-48 hours of approval.
-              </p>
-            </CardContent>
-          </Card>
+           <Card>
+             <CardHeader>
+               <CardTitle className="text-lg">How do I access the premium Telegram channel?</CardTitle>
+             </CardHeader>
+             <CardContent>
+               <p className="text-muted-foreground">
+                 You must first link your Telegram account using our verification system, then purchase Premium membership through Trakteer. Our team will automatically invite your verified Telegram account to the exclusive premium channel within 24 hours of payment approval.
+               </p>
+             </CardContent>
+           </Card>
           
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">What's the payment verification process?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                After making payment via Trakteer, submit your transaction ID, payment proof, and Telegram username through our form. Our team manually verifies each payment within 24 hours and activates your premium benefits accordingly.
-              </p>
-            </CardContent>
-          </Card>
+           <Card>
+             <CardHeader>
+               <CardTitle className="text-lg">What's the payment verification process?</CardTitle>
+             </CardHeader>
+             <CardContent>
+               <p className="text-muted-foreground">
+                 First link your Telegram account, then make payment via Trakteer, and finally submit your transaction ID and payment proof. Our team verifies each payment within 24 hours and automatically invites your linked Telegram account to the premium channel.
+               </p>
+             </CardContent>
+           </Card>
+           
+           <Card>
+             <CardHeader>
+               <CardTitle className="text-lg">Why do I need to link my Telegram account first?</CardTitle>
+             </CardHeader>
+             <CardContent>
+               <p className="text-muted-foreground">
+                 Linking your Telegram account ensures secure access to the premium channel. It prevents unauthorized users from accessing premium content and allows us to automatically invite only verified premium members.
+               </p>
+             </CardContent>
+           </Card>
         </div>
       </div>
     </div>

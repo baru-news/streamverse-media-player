@@ -64,14 +64,31 @@ export const usePremiumRequests = () => {
   }) => {
     if (!user) return { error: 'User not authenticated' };
 
+    // Validate that user has linked Telegram account
     try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('telegram_user_id, telegram_username')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        return { error: 'Failed to verify user profile' };
+      }
+
+      if (!profile?.telegram_user_id || !profile?.telegram_username) {
+        return { error: 'You must link your Telegram account before submitting a premium request' };
+      }
+
+      // Use the verified Telegram username from profile
       const { data, error } = await supabase
         .from('premium_subscription_requests')
         .insert({
           user_id: user.id,
           trakteer_transaction_id: requestData.trakteer_transaction_id,
           payment_proof_url: requestData.payment_proof_url,
-          telegram_username: requestData.telegram_username,
+          telegram_username: profile.telegram_username,
           amount: requestData.amount,
           subscription_type: requestData.subscription_type || 'lifetime',
         })
@@ -82,19 +99,20 @@ export const usePremiumRequests = () => {
 
       toast({
         title: "Success",
-        description: "Premium subscription request submitted successfully. We'll review it within 24 hours.",
+        description: `Premium request submitted successfully! We'll review it within 24 hours and invite @${profile.telegram_username} to the premium channel upon approval.`,
       });
 
       await fetchUserRequests();
       return { data };
     } catch (error) {
       console.error('Error submitting premium request:', error);
+      const errorMessage = error?.message || "Failed to submit premium request";
       toast({
         title: "Error",
-        description: "Failed to submit premium request",
+        description: errorMessage,
         variant: "destructive",
       });
-      return { error };
+      return { error: errorMessage };
     }
   };
 

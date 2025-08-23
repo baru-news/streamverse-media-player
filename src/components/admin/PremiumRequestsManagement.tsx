@@ -32,6 +32,8 @@ interface PremiumRequest {
   profiles?: {
     username?: string;
     email: string;
+    telegram_user_id?: bigint | null;
+    telegram_username?: string | null;
   } | null;
 }
 
@@ -60,7 +62,12 @@ const PremiumRequestsManagement = () => {
         .from('premium_subscription_requests')
         .select(`
           *,
-          profiles(username, email)
+          profiles:user_id (
+            email,
+            username,
+            telegram_user_id,
+            telegram_username
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -85,7 +92,7 @@ const PremiumRequestsManagement = () => {
           // Fetch profiles for these users
           const { data: profilesData, error: profilesError } = await supabase
             .from('profiles')
-            .select('id, username, email')
+            .select('id, username, email, telegram_user_id, telegram_username')
             .in('id', userIds);
 
           if (profilesError) {
@@ -319,25 +326,39 @@ const PremiumRequestsManagement = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <span className="font-medium">Amount:</span>
-            <div>IDR {request.amount.toLocaleString('id-ID')}</div>
+            <span className="text-sm font-medium">User Email:</span>
+            <p className="text-sm text-muted-foreground">{request.profiles?.email}</p>
           </div>
           <div>
-            <span className="font-medium">Type:</span>
-            <div className="capitalize">{request.subscription_type}</div>
+            <span className="text-sm font-medium">Amount:</span>
+            <p className="text-sm font-semibold">IDR {request.amount.toLocaleString('id-ID')}</p>
           </div>
           <div>
-            <span className="font-medium">Created:</span>
-            <div>{formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}</div>
+            <span className="text-sm font-medium">Subscription Type:</span>
+            <p className="text-sm text-muted-foreground capitalize">{request.subscription_type}</p>
           </div>
-          {request.processed_at && (
-            <div>
-              <span className="font-medium">Processed:</span>
-              <div>{formatDistanceToNow(new Date(request.processed_at), { addSuffix: true })}</div>
+          <div>
+            <span className="text-sm font-medium">Telegram Status:</span>
+            <div className="flex items-center gap-2">
+              {request.profiles?.telegram_user_id ? (
+                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  ✓ Linked ({request.telegram_username})
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="bg-red-100 text-red-800">
+                  ✗ Not Linked
+                </Badge>
+              )}
             </div>
-          )}
+          </div>
+          <div>
+            <span className="text-sm font-medium">Created:</span>
+            <p className="text-sm text-muted-foreground">
+              {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
+            </p>
+          </div>
         </div>
 
         {request.telegram_username && (
@@ -391,24 +412,26 @@ const PremiumRequestsManagement = () => {
 
         {request.status === 'pending' && (
           <>
-            <Alert className="mb-4">
-              <MessageSquare className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Manual Telegram Invitation:</strong>
-                {request.telegram_username ? (
-                  <>
-                    {' '}After approval, manually invite <strong>{request.telegram_username}</strong> to the premium Telegram channel.
-                  </>
-                ) : (
-                  ' No Telegram username provided.'
-                )}
-              </AlertDescription>
-            </Alert>
+            {!request.profiles?.telegram_user_id ? (
+              <Alert className="mb-4 border-red-200 bg-red-50">
+                <MessageSquare className="h-4 w-4 text-red-500" />
+                <AlertDescription className="text-red-700">
+                  <strong>⚠ Telegram Not Linked:</strong> User must link their Telegram account before approval. Premium invitation will fail without proper Telegram linking.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <MessageSquare className="h-4 w-4 text-green-500" />
+                <AlertDescription className="text-green-700">
+                  <strong>✓ Telegram Ready:</strong> User has linked Telegram account. Premium invitation will be sent automatically upon approval.
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="flex gap-2">
               <Button
                 size="sm"
                 onClick={() => openDialog(request, 'approve')}
-                disabled={processingId === request.id}
+                disabled={processingId === request.id || !request.profiles?.telegram_user_id}
                 className="flex-1"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
