@@ -64,10 +64,10 @@ export const useSpinWheel = () => {
   useEffect(() => {
     const initializeData = async () => {
       setLoading(true);
-      await Promise.all([
-        fetchRewards(),
-        checkCanSpin()
-      ]);
+      await fetchRewards();
+      if (user) {
+        await checkCanSpin();
+      }
       setLoading(false);
     };
 
@@ -76,7 +76,7 @@ export const useSpinWheel = () => {
     } else {
       setLoading(false);
     }
-  }, [user, fetchRewards, checkCanSpin]);
+  }, [user]); // Remove fetchRewards and checkCanSpin dependencies to avoid circular deps
   
   // Update canSpin when kittyKeys changes
   useEffect(() => {
@@ -171,10 +171,9 @@ export const useSpinWheel = () => {
       }
 
       // Refresh data
-      await Promise.all([
-        checkCanSpin(),
-        refreshCoins()
-      ]);
+      await refreshKittyKeys();
+      await refreshCoins();
+      await checkCanSpin();
 
       // Show success message with Hello Kitty theme
       toast.success(`🎀 ${selectedReward.name}! +${selectedReward.coin_amount} coins! 💕`, {
@@ -193,24 +192,22 @@ export const useSpinWheel = () => {
       }
       
       // Refresh state after error
-      await Promise.all([
-        checkCanSpin(),
-        refreshKittyKeys()
-      ]);
+      await refreshKittyKeys();
+      await checkCanSpin();
       
       return null;
     } finally {
       setSpinning(false);
     }
-  }, [user, canSpin, spinning, rewards, kittyKeys, selectReward, spendKittyKey, checkCanSpin, refreshCoins, refreshKittyKeys]);
+  }, [user, canSpin, spinning, rewards, kittyKeys, selectReward, spendKittyKey, refreshCoins, refreshKittyKeys]);
 
   // Refresh all data
   const refreshData = useCallback(async () => {
-    await Promise.all([
-      fetchRewards(),
-      checkCanSpin()
-    ]);
-  }, [fetchRewards, checkCanSpin]);
+    await fetchRewards();
+    if (user) {
+      await checkCanSpin();
+    }
+  }, [user]); // Simplified dependencies
 
   return {
     rewards,
