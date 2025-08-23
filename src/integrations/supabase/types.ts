@@ -834,6 +834,10 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: boolean
       }
+      check_username_exists: {
+        Args: { username_input: string }
+        Returns: boolean
+      }
       claim_kitty_key: {
         Args: { user_id_param: string }
         Returns: boolean
