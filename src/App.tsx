@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import UpdatePassword from "./pages/UpdatePassword";
 import VideoDetail from "./pages/VideoDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminUpload from "./pages/AdminUpload";
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/update-password" element={<UpdatePassword />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/video/:id" element={<VideoDetail />} />
             <Route path="/favorites" element={<Favorites />} />
