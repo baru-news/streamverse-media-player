@@ -1020,8 +1020,14 @@ export type Database = {
         Returns: Json
       }
       approve_premium_request: {
-        Args: { admin_notes_param?: string; request_id: string }
-        Returns: boolean
+        Args:
+          | {
+              admin_notes_param?: string
+              premium_group_id?: number
+              request_id: string
+            }
+          | { admin_notes_param?: string; request_id: string }
+        Returns: Json
       }
       can_user_claim_kitty_key_today: {
         Args: { user_id_param: string }

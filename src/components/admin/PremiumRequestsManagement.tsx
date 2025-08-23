@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -39,6 +40,7 @@ const PremiumRequestsManagement = () => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<PremiumRequest | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [telegramGroupId, setTelegramGroupId] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [dialogType, setDialogType] = useState<'approve' | 'reject'>('approve');
 
@@ -119,21 +121,62 @@ const PremiumRequestsManagement = () => {
   const handleApprove = async (requestId: string, notes?: string) => {
     setProcessingId(requestId);
     try {
+      // First approve the request
       const { data, error } = await supabase.rpc('approve_premium_request', {
         request_id: requestId,
-        admin_notes_param: notes || null
+        admin_notes_param: notes || null,
+        premium_group_id: telegramGroupId ? parseInt(telegramGroupId) : null
       });
 
       if (error) throw error;
 
-      if (data) {
-        toast({
-          title: "Success",
-          description: "Premium subscription request approved successfully",
-        });
+      // Type cast the response to handle the jsonb return type
+      const response = data as any;
+      
+      if (response && response.success) {
+        // If Telegram group ID is provided, try to send invitation
+        if (telegramGroupId && response.telegram_username) {
+          try {
+            const inviteResponse = await supabase.functions.invoke('telegram-invite', {
+              body: {
+                user_id: response.user_id,
+                telegram_username: response.telegram_username,
+                premium_group_id: parseInt(telegramGroupId)
+              }
+            });
+
+            if (inviteResponse.error) {
+              console.error('Telegram invitation error:', inviteResponse.error);
+              toast({
+                title: "Partially Successful",
+                description: "Premium approved but failed to send Telegram invitation. User can join manually.",
+              });
+            } else {
+              toast({
+                title: "Success",
+                description: "Premium request approved and Telegram invitation sent!",
+              });
+            }
+          } catch (telegramError) {
+            console.error('Telegram integration error:', telegramError);
+            toast({
+              title: "Partially Successful", 
+              description: "Premium approved but Telegram integration failed. User can join manually.",
+            });
+          }
+        } else {
+          toast({
+            title: "Success",
+            description: "Premium subscription request approved successfully",
+          });
+        }
+
         await fetchRequests();
       } else {
-        throw new Error('Failed to approve request');
+        const errorMsg = (response && typeof response === 'object' && 'error' in response) 
+          ? String(response.error) 
+          : 'Failed to approve request';
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Error approving request:', error);
@@ -146,6 +189,7 @@ const PremiumRequestsManagement = () => {
       setProcessingId(null);
       setShowDialog(false);
       setAdminNotes('');
+      setTelegramGroupId('');
     }
   };
 
@@ -188,6 +232,7 @@ const PremiumRequestsManagement = () => {
       setProcessingId(null);
       setShowDialog(false);
       setAdminNotes('');
+      setTelegramGroupId('');
     }
   };
 
@@ -195,6 +240,7 @@ const PremiumRequestsManagement = () => {
     setSelectedRequest(request);
     setDialogType(type);
     setAdminNotes('');
+    setTelegramGroupId('');
     setShowDialog(true);
   };
 
@@ -556,6 +602,23 @@ const PremiumRequestsManagement = () => {
                   className="mt-1"
                 />
               </div>
+              
+              {dialogType === 'approve' && (
+                <div>
+                  <Label htmlFor="telegram-group">Telegram Group ID (Optional)</Label>
+                  <Input
+                    id="telegram-group"
+                    type="number"
+                    placeholder="Enter Telegram group chat ID (e.g., -1001234567890)"
+                    value={telegramGroupId}
+                    onChange={(e) => setTelegramGroupId(e.target.value)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    If provided, user will be automatically invited to the premium Telegram group
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
