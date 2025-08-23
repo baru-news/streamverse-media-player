@@ -156,28 +156,22 @@ export const useAds = () => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      console.log('Uploading file to banners bucket:', fileName);
+      const filePath = `ads/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('banners')
+        .from('ads')
         .upload(filePath, file);
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('banners')
+        .from('ads')
         .getPublicUrl(filePath);
 
-      console.log('Upload successful, public URL:', publicUrl);
       return publicUrl;
     } catch (error) {
       console.error('Error uploading ad image:', error);
-      toast.error(`Gagal mengupload gambar: ${error.message}`);
+      toast.error('Gagal mengupload gambar');
       throw error;
     }
   };
