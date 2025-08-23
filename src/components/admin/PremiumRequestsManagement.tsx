@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useWebsiteSettings } from '@/hooks/useWebsiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,14 +36,17 @@ interface PremiumRequest {
 }
 
 const PremiumRequestsManagement = () => {
+  const { settings } = useWebsiteSettings();
   const [requests, setRequests] = useState<PremiumRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<PremiumRequest | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
-  const [telegramGroupId, setTelegramGroupId] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [dialogType, setDialogType] = useState<'approve' | 'reject'>('approve');
+  
+  // Get telegram group ID from settings
+  const telegramGroupId = settings.telegram_premium_group_id || '';
 
   useEffect(() => {
     fetchRequests();
@@ -189,7 +193,6 @@ const PremiumRequestsManagement = () => {
       setProcessingId(null);
       setShowDialog(false);
       setAdminNotes('');
-      setTelegramGroupId('');
     }
   };
 
@@ -232,7 +235,6 @@ const PremiumRequestsManagement = () => {
       setProcessingId(null);
       setShowDialog(false);
       setAdminNotes('');
-      setTelegramGroupId('');
     }
   };
 
@@ -240,7 +242,6 @@ const PremiumRequestsManagement = () => {
     setSelectedRequest(request);
     setDialogType(type);
     setAdminNotes('');
-    setTelegramGroupId('');
     setShowDialog(true);
   };
 
@@ -605,18 +606,27 @@ const PremiumRequestsManagement = () => {
               
               {dialogType === 'approve' && (
                 <div>
-                  <Label htmlFor="telegram-group">Telegram Group ID (Optional)</Label>
-                  <Input
-                    id="telegram-group"
-                    type="number"
-                    placeholder="Enter Telegram group chat ID (e.g., -1001234567890)"
-                    value={telegramGroupId}
-                    onChange={(e) => setTelegramGroupId(e.target.value)}
-                    className="mt-1"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    If provided, user will be automatically invited to the premium Telegram group
-                  </p>
+                  <Label htmlFor="telegram-group">Telegram Group ID</Label>
+                  <div className="mt-1 p-3 bg-muted rounded-lg">
+                    {telegramGroupId ? (
+                      <div>
+                        <p className="text-sm font-medium text-green-600 mb-1">✓ Group ID Configured</p>
+                        <p className="text-sm font-mono bg-background p-2 rounded border">
+                          {telegramGroupId}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          User akan diundang otomatis ke grup premium setelah approval
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm font-medium text-amber-600 mb-1">⚠ No Group ID Set</p>
+                        <p className="text-xs text-muted-foreground">
+                          Silakan set Telegram Group ID di Website Settings untuk undangan otomatis
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

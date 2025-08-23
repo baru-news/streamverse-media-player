@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, Image, FileText, Save, Loader2, Search, Upload, X } from "lucide-react";
+import { Globe, Image, FileText, Save, Loader2, Search, Upload, X, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,7 @@ const WebsiteSettings = () => {
         updateSetting('favicon_url', currentSettings.favicon_url || ''),
         updateSetting('google_verification_code', currentSettings.google_verification_code || ''),
         updateSetting('meta_keywords', currentSettings.meta_keywords || ''),
+        updateSetting('telegram_premium_group_id', currentSettings.telegram_premium_group_id || ''),
       ]);
 
       toast({
@@ -347,6 +348,42 @@ const WebsiteSettings = () => {
             <p className="text-xs text-muted-foreground mt-2">
               Upload file atau masukkan URL logo (PNG, JPG, SVG). Ukuran recommended: 200x50px
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Telegram Integration */}
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <CardHeader>
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <MessageCircle className="w-5 h-5" />
+            Telegram Integration
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="telegram_premium_group_id" className="text-foreground">Premium Group ID</Label>
+            <Input
+              id="telegram_premium_group_id"
+              value={currentSettings.telegram_premium_group_id || ''}
+              onChange={(e) => handleInputChange('telegram_premium_group_id', e.target.value)}
+              placeholder="-1001234567890"
+              className="bg-background/50"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              ID grup Telegram premium untuk undangan otomatis. Format: <code>-1001234567890</code>
+            </p>
+          </div>
+          
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm font-medium mb-2">Cara mendapatkan Group ID:</p>
+            <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+              <li>Invite bot @userinfobot ke grup Telegram</li>
+              <li>Bot akan mengirim pesan dengan Group ID</li>
+              <li>Copy ID yang dimulai dengan tanda minus (-)</li>
+              <li>Paste ID tersebut ke field di atas</li>
+              <li>Remove bot dari grup setelah selesai</li>
+            </ol>
           </div>
         </CardContent>
       </Card>
