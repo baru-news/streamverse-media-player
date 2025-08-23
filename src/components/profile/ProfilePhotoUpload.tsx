@@ -193,7 +193,7 @@ export const ProfilePhotoUpload = () => {
                 {uploading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent" />
-                    <span className="hidden xs:inline">Uploading...</span>
+                    <span className="hidden xs:inline">Mengupload...</span>
                     <span className="xs:hidden">Upload...</span>
                   </>
                 ) : (

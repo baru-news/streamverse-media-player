@@ -173,14 +173,14 @@ const Profile = () => {
                   <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
                     <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      Verified
+                      Terverifikasi
                     </Badge>
                     <Badge variant="outline" className="bg-secondary/10">
                       Member sejak {new Date(user.created_at).getFullYear()}
                     </Badge>
                     {activeBadge && (
                       <Badge variant="outline" className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
-                        Active Badge: {activeBadge.name}
+                        Badge Aktif: {activeBadge.name}
                       </Badge>
                     )}
                   </div>

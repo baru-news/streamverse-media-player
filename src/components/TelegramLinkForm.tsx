@@ -22,7 +22,7 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
     if (!code.trim()) {
       toast({
         title: "Error",
-        description: "Please enter the verification code from Telegram",
+        description: "Silakan masukkan kode verifikasi dari Telegram",
         variant: "destructive",
       });
       return;
@@ -41,7 +41,7 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
 
       if (data?.success) {
         toast({
-          title: "Success!",
+          title: "Berhasil!",
           description: data.message,
         });
         onSuccess(data.telegram_username);
@@ -49,7 +49,7 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
       } else {
         toast({
           title: "Error",
-          description: data?.error || "Failed to verify code",
+          description: data?.error || "Gagal memverifikasi kode",
           variant: "destructive",
         });
       }
@@ -57,7 +57,7 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
       console.error('Error verifying Telegram link:', error);
       toast({
         title: "Error",
-        description: "Failed to verify code. Please try again.",
+        description: "Gagal memverifikasi kode. Silakan coba lagi.",
         variant: "destructive",
       });
     } finally {
@@ -71,10 +71,10 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            Telegram Account
+            Akun Telegram
           </CardTitle>
           <CardDescription>
-            Your Telegram account is connected
+            Akun Telegram Anda telah terhubung
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -92,28 +92,28 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageCircle className="h-5 w-5" />
-          Link Telegram Account
+          Hubungkan Akun Telegram
         </CardTitle>
         <CardDescription>
-          Connect your Telegram account to receive premium group access
+          Hubungkan akun Telegram Anda untuk mendapat akses grup premium
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="p-4 bg-muted rounded-lg">
-            <h4 className="font-medium mb-2">How to link:</h4>
+            <h4 className="font-medium mb-2">Cara menghubungkan:</h4>
             <ol className="text-sm text-muted-foreground space-y-1">
-              <li>1. Start a chat with our Telegram bot</li>
-              <li>2. Send the command: <code className="bg-background px-1 rounded">/link</code></li>
-              <li>3. Copy the 6-digit code you receive</li>
-              <li>4. Enter the code below</li>
+              <li>1. Mulai chat dengan bot Telegram kami</li>
+              <li>2. Kirim perintah: <code className="bg-background px-1 rounded">/link</code></li>
+              <li>3. Salin kode 6 digit yang Anda terima</li>
+              <li>4. Masukkan kode di bawah ini</li>
             </ol>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Input
-                placeholder="Enter 6-digit code (e.g. ABC123)"
+                placeholder="Masukkan kode 6 digit (contoh: ABC123)"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 maxLength={6}
@@ -123,7 +123,7 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
             
             <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Verify & Link Account
+              Verifikasi & Hubungkan Akun
             </Button>
           </form>
         </div>
