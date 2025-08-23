@@ -69,7 +69,7 @@ const AdsManagement = () => {
 
   const validateImageDimensions = (file: File, position: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      const img = new HTMLImageElement();
+      const img = document.createElement('img');
       img.onload = () => {
         const sizeInfo = AD_SIZE_INFO[position as keyof typeof AD_SIZE_INFO];
         if (!sizeInfo) return resolve(true);
