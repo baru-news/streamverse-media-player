@@ -112,36 +112,36 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center space-y-8">
-      {/* Wheel Container with Enhanced Styling */}
-      <div className="relative w-96 h-96 mx-auto">
-        {/* Floating Magic Stars */}
-        <div className="absolute -top-8 -left-8 text-3xl animate-bounce" style={{animationDelay: '0s'}}>✨</div>
-        <div className="absolute -top-6 -right-10 text-2xl animate-bounce" style={{animationDelay: '1s'}}>⭐</div>
-        <div className="absolute -bottom-8 -left-10 text-3xl animate-bounce" style={{animationDelay: '2s'}}>🌟</div>
-        <div className="absolute -bottom-6 -right-8 text-2xl animate-bounce" style={{animationDelay: '0.5s'}}>💫</div>
+    <div className="flex flex-col items-center space-y-4 sm:space-y-8 px-4 w-full">
+      {/* Wheel Container with Enhanced Styling - Responsive sizing */}
+      <div className="relative w-72 h-72 sm:w-96 sm:h-96 mx-auto max-w-full">
+        {/* Floating Magic Stars - Mobile optimized positioning */}
+        <div className="absolute -top-4 sm:-top-8 -left-4 sm:-left-8 text-xl sm:text-3xl animate-bounce" style={{animationDelay: '0s'}}>✨</div>
+        <div className="absolute -top-3 sm:-top-6 -right-5 sm:-right-10 text-lg sm:text-2xl animate-bounce" style={{animationDelay: '1s'}}>⭐</div>
+        <div className="absolute -bottom-4 sm:-bottom-8 -left-5 sm:-left-10 text-xl sm:text-3xl animate-bounce" style={{animationDelay: '2s'}}>🌟</div>
+        <div className="absolute -bottom-3 sm:-bottom-6 -right-4 sm:-right-8 text-lg sm:text-2xl animate-bounce" style={{animationDelay: '0.5s'}}>💫</div>
         
-        {/* Orbiting Hearts */}
+        {/* Orbiting Hearts - Mobile optimized */}
         <div className="absolute inset-0 animate-spin" style={{animationDuration: '20s'}}>
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-pink-400 text-xl">💕</div>
-          <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 text-pink-400 text-xl">💖</div>
-          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-pink-400 text-xl">💗</div>
-          <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 text-pink-400 text-xl">💝</div>
+          <div className="absolute -top-2 sm:-top-4 left-1/2 transform -translate-x-1/2 text-pink-400 text-lg sm:text-xl">💕</div>
+          <div className="absolute top-1/2 -right-2 sm:-right-4 transform -translate-y-1/2 text-pink-400 text-lg sm:text-xl">💖</div>
+          <div className="absolute -bottom-2 sm:-bottom-4 left-1/2 transform -translate-x-1/2 text-pink-400 text-lg sm:text-xl">💗</div>
+          <div className="absolute top-1/2 -left-2 sm:-left-4 transform -translate-y-1/2 text-pink-400 text-lg sm:text-xl">💝</div>
         </div>
 
-        {/* Enhanced Arrow Pointer */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 z-50">
+        {/* Enhanced Arrow Pointer - Mobile optimized */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 sm:-translate-y-4 z-50">
           <div className="relative">
             {/* Glow effect */}
             <div className="absolute inset-0 bg-yellow-300 rounded-full blur-md opacity-70 scale-150"></div>
-            {/* Arrow */}
-            <div className="relative w-0 h-0 border-l-8 border-r-8 border-b-16 border-l-transparent border-r-transparent border-b-yellow-500 drop-shadow-2xl">
-              <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-5 border-r-5 border-b-10 border-l-transparent border-r-transparent border-b-yellow-300"></div>
+            {/* Arrow - smaller on mobile */}
+            <div className="relative w-0 h-0 border-l-6 border-r-6 border-b-12 sm:border-l-8 sm:border-r-8 sm:border-b-16 border-l-transparent border-r-transparent border-b-yellow-500 drop-shadow-2xl">
+              <div className="absolute top-2 sm:top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-3 border-r-3 border-b-6 sm:border-l-5 sm:border-r-5 sm:border-b-10 border-l-transparent border-r-transparent border-b-yellow-300"></div>
             </div>
             {/* Additional shadow for depth */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-16 border-l-transparent border-r-transparent border-b-yellow-600/30 blur-sm"></div>
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-b-12 sm:border-l-8 sm:border-r-8 sm:border-b-16 border-l-transparent border-r-transparent border-b-yellow-600/30 blur-sm"></div>
           </div>
-          <div className="text-3xl text-center mt-3 drop-shadow-lg animate-pulse">🎀</div>
+          <div className="text-2xl sm:text-3xl text-center mt-2 sm:mt-3 drop-shadow-lg animate-pulse">🎀</div>
         </div>
 
         {/* Spin Wheel with Enhanced Design */}
@@ -224,19 +224,19 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
                     }}
                   >
                     <div className={cn(
-                      "absolute top-4 left-1/2 transform -translate-x-1/2 text-center w-16 pointer-events-none",
+                      "absolute top-3 sm:top-4 left-1/2 transform -translate-x-1/2 text-center w-12 sm:w-16 pointer-events-none",
                       getTextColor(reward.rarity),
                       // Add text shadow for better visibility
                       "drop-shadow-md"
                     )}>
-                      <div className="text-xs font-bold leading-tight break-words drop-shadow-sm mb-1">
+                      <div className="text-xs sm:text-xs font-bold leading-tight break-words drop-shadow-sm mb-0.5 sm:mb-1">
                         {reward.name}
                       </div>
-                      <div className="text-sm font-bold leading-tight drop-shadow-sm mb-0.5">
+                      <div className="text-sm sm:text-sm font-bold leading-tight drop-shadow-sm mb-0.5">
                         {reward.coin_amount}
                       </div>
                       <div className="flex items-center justify-center text-xs leading-none drop-shadow-sm mb-0.5">
-                        <Coins className="w-3 h-3 text-yellow-600" />
+                        <Coins className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-600" />
                       </div>
                       {/* Rarity indicator */}
                       <div className="text-xs leading-none drop-shadow-sm">
@@ -251,41 +251,41 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
               );
             })}
 
-            {/* Enhanced Center Hello Kitty Face */}
+            {/* Enhanced Center Hello Kitty Face - Mobile optimized */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
-              {/* Outer glow ring */}
-              <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full blur-sm opacity-60 animate-pulse scale-110"></div>
+              {/* Outer glow ring - responsive sizing */}
+              <div className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full blur-sm opacity-60 animate-pulse scale-110"></div>
               
-              {/* Main center circle */}
-              <div className="relative w-20 h-20 bg-gradient-to-br from-white via-pink-50 to-pink-100 rounded-full border-4 border-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 flex items-center justify-center shadow-2xl">
+              {/* Main center circle - responsive sizing */}
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-white via-pink-50 to-pink-100 rounded-full border-3 sm:border-4 border-pink-400 flex items-center justify-center shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent rounded-full"></div>
-                <div className="relative text-3xl animate-pulse">🐱</div>
+                <div className="relative text-2xl sm:text-3xl animate-pulse">🐱</div>
                 
-                {/* Floating sparkles around center */}
-                <div className="absolute -top-2 -right-2 text-yellow-300 text-sm animate-bounce" style={{animationDelay: '0s'}}>✨</div>
-                <div className="absolute -bottom-2 -left-2 text-pink-300 text-sm animate-bounce" style={{animationDelay: '1s'}}>💖</div>
+                {/* Floating sparkles around center - responsive */}
+                <div className="absolute -top-1.5 sm:-top-2 -right-1.5 sm:-right-2 text-yellow-300 text-xs sm:text-sm animate-bounce" style={{animationDelay: '0s'}}>✨</div>
+                <div className="absolute -bottom-1.5 sm:-bottom-2 -left-1.5 sm:-left-2 text-pink-300 text-xs sm:text-sm animate-bounce" style={{animationDelay: '1s'}}>💖</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Paw Print Decorations */}
-        <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 text-pink-300 text-xl opacity-50">
+        {/* Paw Print Decorations - Mobile optimized */}
+        <div className="absolute -left-6 sm:-left-8 top-1/2 transform -translate-y-1/2 text-pink-300 text-lg sm:text-xl opacity-50">
           🐾
         </div>
-        <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 text-pink-300 text-xl opacity-50">
+        <div className="absolute -right-6 sm:-right-8 top-1/2 transform -translate-y-1/2 text-pink-300 text-lg sm:text-xl opacity-50">
           🐾
         </div>
       </div>
 
-      {/* Enhanced Spin Button */}
+      {/* Enhanced Spin Button - Mobile optimized */}
       <button
         onClick={handleSpin}
         disabled={spinning || disabled || isAnimating}
         className={cn(
-          "relative px-10 py-4 rounded-full font-bold text-white shadow-2xl transform transition-all duration-300 overflow-hidden",
+          "relative px-8 py-3 sm:px-10 sm:py-4 rounded-full font-bold text-white shadow-2xl transform transition-all duration-300 overflow-hidden touch-manipulation",
           "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500",
-          "hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 hover:scale-110 hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]",
+          "hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 hover:scale-105 sm:hover:scale-110 hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]",
           "active:scale-95",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:rounded-full",
@@ -294,12 +294,12 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
         )}
       >
         {/* Button glow effect */}
-        <div className="absolute -inset-2 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 rounded-full blur-lg opacity-30 animate-pulse"></div>
+        <div className="absolute -inset-1 sm:-inset-2 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 rounded-full blur-lg opacity-30 animate-pulse"></div>
         
-        <span className="relative z-10 flex items-center gap-3 text-lg">
+        <span className="relative z-10 flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
           {spinning || isAnimating ? (
             <>
-              <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 sm:border-3 border-white border-t-transparent rounded-full animate-spin"></div>
               Spinning... ✨
             </>
           ) : (
