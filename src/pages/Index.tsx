@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
 import { useAds } from "@/hooks/useAds";
+import { useWelcomeBonus } from "@/hooks/useWelcomeBonus";
 import Header from "@/components/Header";
 import VideoGrid from "@/components/VideoGrid";
 import HashtagFilter from "@/components/HashtagFilter";
@@ -11,6 +12,7 @@ import CategoryFilter from "@/components/CategoryFilter";
 import SEO from "@/components/SEO";
 import { AdContainer } from "@/components/ads/AdContainer";
 import { Skeleton } from "@/components/ui/skeleton";
+import WelcomeBonusDialog from "@/components/WelcomeBonusDialog";
 const Index = () => {
   const {
     user
@@ -23,6 +25,7 @@ const Index = () => {
     settings: adsSettings,
     isLoading: adsLoading
   } = useAds();
+  const welcomeBonus = useWelcomeBonus();
   const [selectedHashtagId, setSelectedHashtagId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -114,6 +117,14 @@ const Index = () => {
           </div>
         </div>
       </main>
+      
+      {/* Welcome Bonus Dialog */}
+      <WelcomeBonusDialog
+        open={welcomeBonus.showDialog}
+        onClose={welcomeBonus.hideDialog}
+        onClaim={welcomeBonus.claimBonus}
+        loading={welcomeBonus.loading}
+      />
       
       {/* Footer */}
       <footer className="bg-footer-bg backdrop-blur-md border-t border-border/40 mt-16">

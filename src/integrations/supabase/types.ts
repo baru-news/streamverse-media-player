@@ -360,6 +360,7 @@ export type Database = {
           telegram_username: string | null
           updated_at: string
           username: string | null
+          welcome_bonus_claimed: boolean
         }
         Insert: {
           age_verified?: boolean | null
@@ -373,6 +374,7 @@ export type Database = {
           telegram_username?: string | null
           updated_at?: string
           username?: string | null
+          welcome_bonus_claimed?: boolean
         }
         Update: {
           age_verified?: boolean | null
@@ -386,6 +388,7 @@ export type Database = {
           telegram_username?: string | null
           updated_at?: string
           username?: string | null
+          welcome_bonus_claimed?: boolean
         }
         Relationships: []
       }
@@ -1071,6 +1074,10 @@ export type Database = {
               request_id: string
             }
           | { admin_notes_param?: string; request_id: string }
+        Returns: Json
+      }
+      award_welcome_bonus: {
+        Args: { user_id_param: string }
         Returns: Json
       }
       can_user_claim_kitty_key_today: {
