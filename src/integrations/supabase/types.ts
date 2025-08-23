@@ -155,6 +155,39 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean
+          message: string
+          name: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean
+          message: string
+          name: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          name?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       daily_tasks: {
         Row: {
           created_at: string
@@ -687,11 +720,15 @@ export type Database = {
           created_at: string
           description: string | null
           description_edited: boolean | null
+          doodstream_file_code: string | null
           duration: number | null
           file_code: string
           file_size: number | null
           id: string
           original_title: string | null
+          primary_provider: Database["public"]["Enums"]["video_provider"] | null
+          provider: Database["public"]["Enums"]["video_provider"]
+          provider_data: Json | null
           slug: string | null
           status: string | null
           thumbnail_url: string | null
@@ -706,11 +743,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
+          doodstream_file_code?: string | null
           duration?: number | null
           file_code: string
           file_size?: number | null
           id?: string
           original_title?: string | null
+          primary_provider?:
+            | Database["public"]["Enums"]["video_provider"]
+            | null
+          provider?: Database["public"]["Enums"]["video_provider"]
+          provider_data?: Json | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -725,11 +768,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_edited?: boolean | null
+          doodstream_file_code?: string | null
           duration?: number | null
           file_code?: string
           file_size?: number | null
           id?: string
           original_title?: string | null
+          primary_provider?:
+            | Database["public"]["Enums"]["video_provider"]
+            | null
+          provider?: Database["public"]["Enums"]["video_provider"]
+          provider_data?: Json | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -815,6 +864,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      video_provider: "doodstream"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -943,6 +993,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      video_provider: ["doodstream"],
     },
   },
 } as const

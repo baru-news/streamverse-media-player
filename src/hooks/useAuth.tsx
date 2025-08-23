@@ -71,27 +71,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, username?: string) => {
-    // Use current origin for email confirmation redirect
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          username: username || ''
+    try {
+      // Check if username already exists in profiles table (if provided)
+      if (username && username.trim()) {
+        const { data: existingUsername } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', username.trim())
+          .maybeSingle();
+          
+        if (existingUsername) {
+          toast.error('Username sudah digunakan. Silakan pilih username lain.');
+          return { error: { message: 'Username sudah digunakan' } };
         }
       }
-    });
+      
+      // Proceed with signup
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            username: username || ''
+          }
+        }
+      });
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Akun berhasil dibuat! Silakan periksa email Anda untuk konfirmasi.');
+      if (error) {
+        // Handle specific signup errors
+        if (error.message.includes('User already registered') || 
+            error.message.includes('already been registered') ||
+            error.message.includes('duplicate')) {
+          toast.error('Email sudah terdaftar. Silakan gunakan email lain atau login.');
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        toast.success('Akun berhasil dibuat! Silakan periksa email Anda untuk konfirmasi.');
+      }
+
+      return { error };
+    } catch (err) {
+      console.error('Signup error:', err);
+      toast.error('Terjadi kesalahan saat mendaftarkan akun');
+      return { error: err };
     }
-
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {

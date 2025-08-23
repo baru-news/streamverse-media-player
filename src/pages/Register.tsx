@@ -39,6 +39,22 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation checks
+    if (!formData.username.trim()) {
+      toast.error("Username harus diisi");
+      return;
+    }
+    
+    if (formData.username.length < 3) {
+      toast.error("Username minimal 3 karakter");
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      toast.error("Username hanya boleh mengandung huruf, angka, dan underscore");
+      return;
+    }
+    
     if (formData.password !== formData.confirmPassword) {
       toast.error("Kata sandi tidak cocok");
       return;
@@ -110,13 +126,17 @@ const Register = () => {
                     id="username"
                     name="username"
                     type="text"
-                    placeholder="Pilih username unik"
+                    placeholder="Pilih username unik (minimal 3 karakter)"
                     value={formData.username}
                     onChange={handleChange}
                     className="pl-10 bg-pink-50/20 border-pink-200/50 focus:border-primary focus:bg-pink-50/30 transition-colors"
                     required
+                    minLength={3}
                   />
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Username hanya boleh mengandung huruf, angka, dan underscore
+                </p>
               </div>
 
               {/* Email */}
@@ -160,6 +180,7 @@ const Register = () => {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                <p className="text-xs text-muted-foreground">Minimal 6 karakter</p>
               </div>
 
               {/* Confirm Password */}
