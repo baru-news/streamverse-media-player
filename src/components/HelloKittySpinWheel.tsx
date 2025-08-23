@@ -54,9 +54,13 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
     
     setIsAnimating(true);
 
-    // Simple calculation: just rotate to final angle
-    const rotationDistance = Math.abs(finalAngle - rotation);
-    const duration = calculateAnimationDuration(rotationDistance);
+    // Calculate total rotation distance for exciting animation
+    // Ensure we always get minimum rotations regardless of current position
+    const totalRotation = finalAngle - rotation;
+    const rotationDistance = Math.abs(totalRotation);
+    
+    // Use fixed exciting duration - don't rely on distance calculation
+    const duration = Math.max(2500, Math.min(4000, 2500 + (rotationDistance / 2000) * 1500));
     
     setAnimationDuration(duration);
 
