@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,12 +15,32 @@ import KittyKeyDisplay from '@/components/KittyKeyDisplay';
 import { UserBadgeDisplay } from '@/components/UserBadgeDisplay';
 import { useBadges } from '@/hooks/useBadges';
 import { useCoins } from '@/hooks/useCoins';
+import { supabase } from '@/integrations/supabase/client';
 
 const Profile = () => {
   const { user } = useAuth();
   const { badges, activeBadge } = useBadges();
   const { coins } = useCoins();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'email'>('profile');
+  const [profile, setProfile] = useState<{ username: string | null; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setProfile(data);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   if (!user) {
     return (
@@ -102,7 +122,7 @@ const Profile = () => {
                 <div className="flex-1 text-center lg:text-left">
                   <div className="flex items-center justify-center lg:justify-start gap-3 mb-2">
                     <h2 className="text-xl font-semibold text-foreground">
-                      {user.user_metadata?.username || 'User'}
+                      {profile?.username || 'User'}
                     </h2>
                     {user.id && <UserBadgeDisplay userId={user.id} showTooltip />}
                   </div>
