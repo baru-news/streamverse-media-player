@@ -174,8 +174,8 @@ export const ProfilePhotoUpload = () => {
         </div>
 
         {/* Upload Controls */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative">
+        <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 w-full max-w-sm">
+          <div className="relative flex-1">
             <input
               type="file"
               id="avatar-upload"
@@ -186,19 +186,21 @@ export const ProfilePhotoUpload = () => {
             />
             <Button
               asChild
-              className="gap-2 shadow-glow"
+              className="gap-2 shadow-glow w-full"
               disabled={uploading}
             >
               <label htmlFor="avatar-upload" className="cursor-pointer">
                 {uploading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent" />
-                    Uploading...
+                    <span className="hidden xs:inline">Uploading...</span>
+                    <span className="xs:hidden">Upload...</span>
                   </>
                 ) : (
                   <>
                     <Upload className="w-4 h-4" />
-                    Upload Foto
+                    <span className="hidden xs:inline">Upload Foto</span>
+                    <span className="xs:hidden">Upload</span>
                   </>
                 )}
               </label>
@@ -207,12 +209,13 @@ export const ProfilePhotoUpload = () => {
           
           <Button
             variant="outline" 
-            className="gap-2"
+            className="gap-2 flex-1 xs:flex-initial"
             onClick={() => document.getElementById('avatar-upload')?.click()}
             disabled={uploading}
           >
             <Camera className="w-4 h-4" />
-            Pilih Gambar
+            <span className="hidden xs:inline">Pilih Gambar</span>
+            <span className="xs:hidden">Pilih</span>
           </Button>
         </div>
 

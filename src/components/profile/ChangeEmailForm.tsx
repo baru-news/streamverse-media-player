@@ -154,9 +154,9 @@ export const ChangeEmailForm = () => {
       </form>
 
       {/* Additional Info */}
-      <div className="bg-muted/30 rounded-lg p-4">
-        <h4 className="font-medium text-foreground mb-2">Tips keamanan:</h4>
-        <ul className="text-sm text-muted-foreground space-y-1">
+      <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
+        <h4 className="font-medium text-foreground mb-2 text-sm sm:text-base">Tips keamanan:</h4>
+        <ul className="text-xs sm:text-sm text-muted-foreground space-y-1">
           <li>• Pastikan email baru masih dapat Anda akses</li>
           <li>• Periksa folder spam jika tidak menerima email konfirmasi</li>
           <li>• Jangan bagikan link konfirmasi kepada orang lain</li>

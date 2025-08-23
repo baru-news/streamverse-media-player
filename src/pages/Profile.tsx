@@ -76,24 +76,24 @@ const Profile = () => {
       />
       
       <div className="min-h-screen bg-gradient-hero">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <Link to="/">
+          <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <Link to="/" className="shrink-0">
               <Button variant="outline" size="sm" className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
-                Kembali
+                <span className="hidden xs:inline">Kembali</span>
               </Button>
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-primary rounded-xl shadow-glow">
-                <Settings className="w-6 h-6 text-primary-foreground" />
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2 sm:p-3 bg-gradient-primary rounded-xl shadow-glow shrink-0">
+                <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                   Profil Saya
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Kelola informasi akun Anda
                 </p>
               </div>
@@ -101,59 +101,59 @@ const Profile = () => {
           </div>
 
           {/* Profile Overview Card */}
-          <Card className="mb-8 bg-gradient-card border-0 shadow-video">
-            <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row items-center gap-6">
+          <Card className="mb-6 sm:mb-8 bg-gradient-card border-0 shadow-video">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
                 <div className="relative">
-                  <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-primary/20 shadow-glow">
+                  <Avatar className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 border-4 border-primary/20 shadow-glow">
                     <AvatarImage src={profile?.avatar_url || ""} alt="Profile" />
-                    <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xl font-bold">
+                    <AvatarFallback className="bg-gradient-primary text-primary-foreground text-lg sm:text-xl font-bold">
                       {getInitials(user.email || '')}
                     </AvatarFallback>
                   </Avatar>
                   <Button
                     size="sm"
-                    className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0 shadow-glow"
+                    className="absolute -bottom-2 -right-2 rounded-full w-7 h-7 sm:w-8 sm:h-8 p-0 shadow-glow"
                     onClick={() => setActiveTab('profile')}
                   >
-                    <Camera className="w-4 h-4" />
+                    <Camera className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
-                <div className="flex-1 text-center lg:text-left">
-                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-2">
-                    <h2 className="text-xl font-semibold text-foreground">
+                <div className="flex-1 text-center lg:text-left w-full">
+                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3 mb-3 sm:mb-2">
+                    <h2 className="text-lg sm:text-xl font-semibold text-foreground">
                       {profile?.username || 'User'}
                     </h2>
                     {user.id && <UserBadgeDisplay userId={user.id} showTooltip />}
                   </div>
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-sm sm:text-base text-muted-foreground mb-4 break-all sm:break-normal">
                     {user.email}
                   </p>
                   
                   {/* Stats Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                    <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 p-4 rounded-xl border border-yellow-500/20">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                    <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 p-3 sm:p-4 rounded-xl border border-yellow-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                        <span className="text-sm font-medium text-foreground">Coins</span>
+                        <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+                        <span className="text-xs sm:text-sm font-medium text-foreground">Coins</span>
                       </div>
                       <CoinDisplay className="justify-center lg:justify-start" showTotal />
                     </div>
                     
-                    <div className="bg-gradient-to-r from-pink-500/10 to-pink-600/10 p-4 rounded-xl border border-pink-500/20">
+                    <div className="bg-gradient-to-r from-pink-500/10 to-pink-600/10 p-3 sm:p-4 rounded-xl border border-pink-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <Crown className="w-5 h-5 text-pink-500" />
-                        <span className="text-sm font-medium text-foreground">Kitty Keys</span>
+                        <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500" />
+                        <span className="text-xs sm:text-sm font-medium text-foreground">Kitty Keys</span>
                       </div>
                       <div className="flex justify-center lg:justify-start">
                         <KittyKeyDisplay />
                       </div>
                     </div>
                     
-                    <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 p-4 rounded-xl border border-purple-500/20">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="w-5 h-5 text-purple-500" />
-                        <span className="text-sm font-medium text-foreground">Badges</span>
+                    <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 p-3 sm:p-4 rounded-xl border border-purple-500/20 xs:col-span-2 lg:col-span-1">
+                      <div className="flex items-center gap-2 mb-2 justify-center lg:justify-start">
+                        <Star className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+                        <span className="text-xs sm:text-sm font-medium text-foreground">Badges</span>
                       </div>
                       <div className="text-center lg:text-left">
                         <span className="text-lg font-bold text-foreground">
@@ -184,55 +184,82 @@ const Profile = () => {
           </Card>
 
           {/* Tabs Navigation */}
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar Tabs */}
-            <div className="w-full md:w-64">
-              <Card className="p-4 bg-gradient-card border-0 shadow-video">
-                <div className="space-y-2">
-                  {tabs.map((tab) => {
-                    const Icon = tab.icon;
-                    return (
-                      <Button
-                        key={tab.id}
-                        variant={activeTab === tab.id ? "default" : "ghost"}
-                        className={`w-full justify-start gap-3 transition-smooth ${
-                          activeTab === tab.id 
-                            ? "bg-gradient-primary text-primary-foreground shadow-glow" 
-                            : "hover:bg-primary/10"
-                        }`}
-                        onClick={() => setActiveTab(tab.id)}
-                      >
-                        <Icon className="w-5 h-5" />
-                        {tab.label}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </Card>
+          <div className="flex flex-col gap-4 sm:gap-6">
+            {/* Mobile Tabs - Horizontal */}
+            <div className="md:hidden">
+              <div className="flex overflow-x-auto scrollbar-hide gap-2 p-1 bg-gradient-card rounded-lg">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <Button
+                      key={tab.id}
+                      variant={activeTab === tab.id ? "default" : "ghost"}
+                      size="sm"
+                      className={`shrink-0 gap-2 transition-smooth ${
+                        activeTab === tab.id 
+                          ? "bg-gradient-primary text-primary-foreground shadow-glow" 
+                          : "hover:bg-primary/10"
+                      }`}
+                      onClick={() => setActiveTab(tab.id)}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {tab.label}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1">
-              <Card className="bg-gradient-card border-0 shadow-video">
-                <CardHeader className="border-b border-border/50">
-                  <CardTitle className="flex items-center gap-3 text-foreground">
-                    {tabs.find(tab => tab.id === activeTab)?.icon && (
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        {(() => {
-                          const Icon = tabs.find(tab => tab.id === activeTab)?.icon!;
-                          return <Icon className="w-5 h-5 text-primary" />;
-                        })()}
-                      </div>
-                    )}
-                    {tabs.find(tab => tab.id === activeTab)?.label}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {activeTab === 'profile' && <ProfilePhotoUpload />}
-                  {activeTab === 'password' && <ChangePasswordForm />}
-                  {activeTab === 'email' && <ChangeEmailForm />}
-                </CardContent>
-              </Card>
+            <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+              {/* Desktop Sidebar Tabs */}
+              <div className="hidden md:block md:w-64">
+                <Card className="p-4 bg-gradient-card border-0 shadow-video">
+                  <div className="space-y-2">
+                    {tabs.map((tab) => {
+                      const Icon = tab.icon;
+                      return (
+                        <Button
+                          key={tab.id}
+                          variant={activeTab === tab.id ? "default" : "ghost"}
+                          className={`w-full justify-start gap-3 transition-smooth ${
+                            activeTab === tab.id 
+                              ? "bg-gradient-primary text-primary-foreground shadow-glow" 
+                              : "hover:bg-primary/10"
+                          }`}
+                          onClick={() => setActiveTab(tab.id)}
+                        >
+                          <Icon className="w-5 h-5" />
+                          {tab.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </Card>
+              </div>
+
+              {/* Content Area */}
+              <div className="flex-1">
+                <Card className="bg-gradient-card border-0 shadow-video">
+                  <CardHeader className="border-b border-border/50 p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-3 text-foreground text-lg">
+                      {tabs.find(tab => tab.id === activeTab)?.icon && (
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          {(() => {
+                            const Icon = tabs.find(tab => tab.id === activeTab)?.icon!;
+                            return <Icon className="w-5 h-5 text-primary" />;
+                          })()}
+                        </div>
+                      )}
+                      {tabs.find(tab => tab.id === activeTab)?.label}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6">
+                    {activeTab === 'profile' && <ProfilePhotoUpload />}
+                    {activeTab === 'password' && <ChangePasswordForm />}
+                    {activeTab === 'email' && <ChangeEmailForm />}
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </div>

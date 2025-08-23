@@ -229,12 +229,12 @@ export const ChangePasswordForm = () => {
         </div>
 
         {/* Password Requirements */}
-        <div className="bg-muted/30 rounded-lg p-4">
-          <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
+        <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
+          <h4 className="font-medium text-foreground mb-2 flex items-center gap-2 text-sm sm:text-base">
             <Lock className="w-4 h-4" />
             Persyaratan Password:
           </h4>
-          <ul className="text-sm text-muted-foreground space-y-1">
+          <ul className="text-xs sm:text-sm text-muted-foreground space-y-1">
             <li className={`flex items-center gap-2 ${newPassword.length >= 6 ? 'text-green-600' : ''}`}>
               {newPassword.length >= 6 ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
               Minimal 6 karakter
