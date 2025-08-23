@@ -240,9 +240,12 @@ const VideoDetail = () => {
   };
 
   const handleShare = async () => {
+    console.log('🔄 Share button clicked, user:', user?.id);
+    
     const shareUrl = window.location.href;
 
     if (!user) {
+      console.log('❌ User not authenticated');
       toast({
         title: "Login Diperlukan",
         description: "Silakan login untuk membagikan video ini",
@@ -261,6 +264,7 @@ const VideoDetail = () => {
         });
 
         // PERBAIKAN: Panggil updateTaskProgress HANYA setelah share berhasil
+        console.log('✅ Share successful via navigator.share, updating task progress...');
         await updateTaskProgress('daily_share', 1);
         
         toast({
@@ -277,13 +281,18 @@ const VideoDetail = () => {
             variant: "destructive"
           });
         }
+        
+        // Always update task progress when falling back to copy link
         handleCopyLink(shareUrl);
+        console.log('✅ Share failed, using fallback and updating task progress...');
+        await updateTaskProgress('daily_share', 1);
       }
     } else {
       // Fallback: Copy link and update task progress
       handleCopyLink(shareUrl);
       
       // PERBAIKAN: Panggil updateTaskProgress juga di fallback
+      console.log('✅ Share via copy link fallback, updating task progress...');
       await updateTaskProgress('daily_share', 1);
     }
   };
