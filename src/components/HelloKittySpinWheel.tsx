@@ -46,7 +46,8 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
     const { finalAngle, rewardData } = spinData;
     
-    console.log('🎯 SIMPLE SPIN SYSTEM:', {
+    console.log('🎯 SPIN SYSTEM - BEFORE FIX:', {
+      currentRotation: rotation,
       finalAngle,
       targetReward: rewardData.reward.name,
       targetIndex: rewardData.targetIndex
@@ -54,13 +55,23 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
     
     setIsAnimating(true);
 
-    // Calculate total rotation distance for exciting animation
-    // Ensure we always get minimum rotations regardless of current position
-    const totalRotation = finalAngle - rotation;
-    const rotationDistance = Math.abs(totalRotation);
+    // FIXED: Normalize current rotation and ensure forward spinning
+    const normalizedCurrent = rotation % 360;
+    const normalizedTarget = finalAngle % 360;
     
-    // Use fixed exciting duration - don't rely on distance calculation
-    const duration = Math.max(2500, Math.min(4000, 2500 + (rotationDistance / 2000) * 1500));
+    // Always spin forward with minimum 5 full rotations (1800°)
+    const minSpins = 5 * 360; // 1800°
+    const forwardRotation = normalizedCurrent + minSpins + normalizedTarget;
+    
+    console.log('🎯 SPIN SYSTEM - AFTER FIX:', {
+      normalizedCurrent,
+      normalizedTarget, 
+      forwardRotation,
+      totalDistance: forwardRotation - rotation
+    });
+    
+    // Fixed exciting duration - always 3 seconds for consistency
+    const duration = 3000;
     
     setAnimationDuration(duration);
 
@@ -75,7 +86,7 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
     
     // Main spin to final angle
     setTimeout(() => {
-      setRotation(finalAngle);
+      setRotation(forwardRotation); // Use the corrected forward rotation
       
       // Start backend process
       setTimeout(async () => {
