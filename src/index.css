@@ -156,4 +156,25 @@
   .admin-scroll::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--accent));
   }
+
+  /* Spin Wheel Animations */
+  .animate-wheel-glow {
+    animation: wheel-glow 2s ease-in-out infinite;
+  }
+
+  .animate-victory-bounce {
+    animation: victory-bounce 1s ease-out;
+  }
+
+  @keyframes wheel-glow {
+    0% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.6); }
+    100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+  }
+
+  @keyframes victory-bounce {
+    0%, 20%, 60%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    80% { transform: translateY(-5px); }
+  }
 }

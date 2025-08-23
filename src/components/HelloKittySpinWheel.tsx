@@ -1,18 +1,26 @@
 import React, { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { 
+  calculateTargetAngle, 
+  calculateAnimationDuration,
+  getAnticipationAnimation,
+  createEasingFunction 
+} from '@/lib/spin-wheel-utils';
 
 interface SpinWheelReward {
   id: string;
   name: string;
   coin_amount: number;
   rarity: string;
+  probability: number;
   color: string;
   sort_order: number;
 }
 
 interface HelloKittySpinWheelProps {
   rewards: SpinWheelReward[];
-  onSpin: () => Promise<SpinWheelReward | null>;
+  onSpin: (preSelectedReward?: SpinWheelReward) => Promise<SpinWheelReward | null>;
+  onSelectReward: () => SpinWheelReward | null;
   spinning: boolean;
   disabled?: boolean;
 }
@@ -20,38 +28,55 @@ interface HelloKittySpinWheelProps {
 const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
   rewards,
   onSpin,
+  onSelectReward,
   spinning,
   disabled = false
 }) => {
   const [rotation, setRotation] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
   const [lastWonReward, setLastWonReward] = useState<SpinWheelReward | null>(null);
+  const [animationDuration, setAnimationDuration] = useState(3000);
 
   const handleSpin = async () => {
-    if (spinning || disabled) return;
+    if (spinning || disabled || isAnimating) return;
 
-    // Generate random spin rotation (multiple full rotations + random position)
-    const spins = 5 + Math.random() * 5; // 5-10 full rotations
-    const finalAngle = Math.random() * 360;
-    const totalRotation = rotation + (spins * 360) + finalAngle;
+    // Pre-select reward for precise targeting
+    const selectedReward = onSelectReward();
+    if (!selectedReward) return;
 
-    setRotation(totalRotation);
+    setIsAnimating(true);
 
-    // Perform the actual spin
-    const wonReward = await onSpin();
+    // Calculate precise target angle for selected reward
+    const targetAngle = calculateTargetAngle(rewards, selectedReward, rotation);
+    const rotationDistance = Math.abs(targetAngle - rotation);
+    const duration = calculateAnimationDuration(rotationDistance);
     
-    if (wonReward) {
-      setLastWonReward(wonReward);
-      
-      // Calculate which segment was won and adjust rotation to point to it
-      const segmentAngle = 360 / rewards.length;
-      const rewardIndex = rewards.findIndex(r => r.id === wonReward.id);
-      const targetAngle = (rewardIndex * segmentAngle) + (segmentAngle / 2);
-      
-      // Adjust final rotation to point arrow to winning segment
-      const adjustedRotation = totalRotation - (finalAngle - targetAngle);
-      setRotation(adjustedRotation);
+    setAnimationDuration(duration);
+
+    // Anticipation animation - small backward rotation
+    const anticipation = getAnticipationAnimation(rotation);
+    
+    // Apply anticipation
+    if (wheelRef.current) {
+      wheelRef.current.style.transition = `transform ${anticipation.anticipationDuration}ms ease-out`;
+      wheelRef.current.style.transform = `rotate(${anticipation.anticipation}deg)`;
     }
+    
+    // After anticipation, start main spin animation
+    setTimeout(() => {
+      setRotation(targetAngle);
+      
+      // Start the backend process
+      setTimeout(async () => {
+        const wonReward = await onSpin(selectedReward);
+        if (wonReward) {
+          setLastWonReward(wonReward);
+        }
+        setIsAnimating(false);
+      }, duration - 500); // Start backend call 500ms before animation ends
+      
+    }, anticipation.anticipationDuration);
   };
 
   const segmentAngle = 360 / rewards.length;
@@ -98,12 +123,13 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
             ref={wheelRef}
             className={cn(
               "w-full h-full rounded-full border-4 border-pink-400 relative shadow-xl overflow-hidden",
-              "transition-transform duration-4000 ease-out",
-              spinning && "animate-spin-slow"
+              !isAnimating && "transition-transform duration-300 ease-out"
             )}
             style={{
               transform: `rotate(${rotation}deg)`,
-              background: 'conic-gradient(from 0deg, #fdf2f8, #fce7f3, #fbcfe8, #f9a8d4, #f472b6, #ec4899, #db2777, #be185d)'
+              transition: isAnimating ? `transform ${animationDuration}ms ${createEasingFunction(animationDuration)}` : undefined,
+              background: 'conic-gradient(from 0deg, #fdf2f8, #fce7f3, #fbcfe8, #f9a8d4, #f472b6, #ec4899, #db2777, #be185d)',
+              willChange: isAnimating ? 'transform' : 'auto'
             }}
           >
             {rewards.map((reward, index) => {
@@ -204,17 +230,17 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
       {/* Spin Button */}
       <button
         onClick={handleSpin}
-        disabled={spinning || disabled}
+        disabled={spinning || disabled || isAnimating}
         className={cn(
           "px-8 py-3 rounded-full font-bold text-white shadow-lg transform transition-all duration-200",
           "bg-gradient-to-r from-pink-400 to-pink-500",
           "hover:from-pink-500 hover:to-pink-600 hover:scale-105 hover:shadow-xl",
           "active:scale-95",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
-          spinning && "animate-pulse"
+          (spinning || isAnimating) && "animate-pulse"
         )}
       >
-        {spinning ? (
+        {spinning || isAnimating ? (
           <span className="flex items-center gap-2">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             Spinning... ✨
@@ -228,9 +254,16 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
 
       {/* Last Won Display */}
       {lastWonReward && (
-        <div className="bg-gradient-to-r from-pink-100 to-pink-200 border-2 border-pink-300 rounded-lg p-5 animate-bounce">
+        <div className={cn(
+          "bg-gradient-to-r from-pink-100 to-pink-200 border-2 border-pink-300 rounded-lg p-5",
+          lastWonReward.rarity === 'legendary' ? "animate-wheel-glow" : "animate-victory-bounce"
+        )}>
           <div className="text-center">
-            <div className="text-pink-700 font-bold text-xl mb-2">🎉 Selamat! 🎉</div>
+            <div className="text-pink-700 font-bold text-xl mb-2">
+              🎉 Selamat! 🎉
+              {lastWonReward.rarity === 'legendary' && ' 👑'}
+              {lastWonReward.rarity === 'epic' && ' ⭐'}
+            </div>
             <div className="text-pink-900 font-bold text-lg mb-1">
               Anda memenangkan: {lastWonReward.name}
             </div>

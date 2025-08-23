@@ -24,6 +24,7 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
     loading,
     spinning,
     performSpin,
+    selectReward,
     refreshData
   } = useSpinWheel();
 
@@ -64,12 +65,13 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
               </div>
           ) : (
             <>
-              <HelloKittySpinWheel
-                rewards={rewards}
-                onSpin={performSpin}
-                spinning={spinning}
-                disabled={!canSpin}
-              />
+        <HelloKittySpinWheel
+          rewards={rewards}
+          onSpin={performSpin}
+          onSelectReward={selectReward}
+          spinning={spinning}
+          disabled={!canSpin}
+        />
 
               {/* Status Information */}
               <div className="mt-6 space-y-4">

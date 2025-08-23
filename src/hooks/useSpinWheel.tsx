@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCoins } from '@/hooks/useCoins';
 import { useKittyKeys } from '@/hooks/useKittyKeys';
 import { toast } from 'sonner';
+import { selectRewardByProbability } from '@/lib/spin-wheel-utils';
 
 interface SpinWheelReward {
   id: string;
@@ -86,8 +87,13 @@ export const useSpinWheel = () => {
     }
   }, [user, fetchRewards, checkCanSpin]);
 
-  // Perform spin
-  const performSpin = useCallback(async (): Promise<SpinWheelReward | null> => {
+  // Frontend reward selection for precise targeting
+  const selectReward = useCallback((): SpinWheelReward | null => {
+    return selectRewardByProbability(rewards);
+  }, [rewards]);
+
+  // Perform spin with pre-selected reward for precise animation
+  const performSpin = useCallback(async (preSelectedReward?: SpinWheelReward): Promise<SpinWheelReward | null> => {
     if (!user || !canSpin || spinning) {
       console.log('Cannot spin:', { user: !!user, canSpin, spinning });
       return null;
@@ -97,23 +103,11 @@ export const useSpinWheel = () => {
     setSpinning(true);
 
     try {
-      // Select random reward based on probability
-      const totalProbability = rewards.reduce((sum, reward) => sum + reward.probability, 0);
-      const random = Math.random() * totalProbability;
+      // Use pre-selected reward or select new one
+      const selectedReward = preSelectedReward || selectReward();
       
-      let currentSum = 0;
-      let selectedReward: SpinWheelReward | null = null;
-      
-      for (const reward of rewards) {
-        currentSum += reward.probability;
-        if (random <= currentSum) {
-          selectedReward = reward;
-          break;
-        }
-      }
-
       if (!selectedReward) {
-        selectedReward = rewards[0]; // Fallback to first reward
+        throw new Error('No reward selected');
       }
 
       // Record the spin attempt
@@ -200,6 +194,7 @@ export const useSpinWheel = () => {
     loading,
     spinning,
     performSpin,
+    selectReward,
     refreshData
   };
 };
