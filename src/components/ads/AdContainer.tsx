@@ -1,12 +1,11 @@
 import React from 'react';
 import { AdBanner } from './AdBanner';
-import { AdCard } from './AdCard';
 import { cn } from '@/lib/utils';
 import { useAds } from '@/hooks/useAds';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AdContainerProps {
-  position: 'header' | 'content' | 'sidebar' | 'footer' | 'banner';
+  position: 'content' | 'sidebar' | 'banner';
   className?: string;
   placeholder?: boolean;
   adIndex?: number; // Index iklan mana yang akan ditampilkan
@@ -22,10 +21,8 @@ export const AdContainer: React.FC<AdContainerProps> = ({
   const { user } = useAuth();
 
   const containerClasses = {
-    header: "w-full flex justify-center py-4",
     content: "w-full flex justify-center",
     sidebar: "sticky top-4",
-    footer: "w-full flex justify-center py-4",
     banner: "w-full flex justify-center py-2"
   };
 
