@@ -74,11 +74,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // Check if username already exists in profiles table (if provided) - case insensitive
       if (username && username.trim()) {
-        const { data: existingUsername } = await supabase
-          .from('profiles')
-          .select('username')
-          .ilike('username', username.trim()) // Case-insensitive check
-          .maybeSingle();
+        const { data: existingUsername, error: usernameCheckError } = await supabase
+          .rpc('check_username_exists', { username_input: username.trim().toLowerCase() });
+          
+        if (usernameCheckError) {
+          console.error('Error checking username:', usernameCheckError);
+          toast.error('Terjadi kesalahan saat memeriksa username');
+          return { error: { message: 'Database error' } };
+        }
           
         if (existingUsername) {
           toast.error('Username sudah digunakan. Silakan pilih username lain.');
