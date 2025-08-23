@@ -70,26 +70,32 @@ export const selectRewardByFinalAngle = (
 };
 
 /**
- * SIMPLE SPIN CALCULATION:
- * Generate final angle and calculate target
+ * EXCITING SPIN CALCULATION:
+ * Ensures fast spinning for at least 1 second before finding target
  */
 export const calculateSpinTarget = (
   rewards: SpinWheelReward[],
   currentRotation: number
 ): { finalAngle: number; rewardData: { reward: SpinWheelReward; targetIndex: number } } => {
-  // Generate random final angle (3-6 full rotations + random position)
-  const fullRotations = 3 + Math.random() * 3;
+  // Ensure minimum 5 full rotations for exciting spin (at least 1800°)
+  const minRotations = 5;
+  const extraRotations = Math.random() * 4; // 0-4 additional rotations
+  const totalRotations = minRotations + extraRotations;
+  
+  // Random position within 360° for final landing
   const randomAngle = Math.random() * 360;
-  const finalAngle = currentRotation + (fullRotations * 360) + randomAngle;
+  const finalAngle = currentRotation + (totalRotations * 360) + randomAngle;
   
   // Determine what reward will be selected at this angle
   const rewardData = selectRewardByFinalAngle(rewards, finalAngle);
   
-  console.log(`🎲 SPIN TARGET CALCULATION:
+  console.log(`🎲 EXCITING SPIN CALCULATION:
     - Current rotation: ${currentRotation}°
-    - Full rotations: ${fullRotations}
-    - Random angle: ${randomAngle}°
-    - Final angle: ${finalAngle}°
+    - Minimum rotations: ${minRotations} (${minRotations * 360}°)
+    - Extra rotations: ${extraRotations.toFixed(2)} (${(extraRotations * 360).toFixed(0)}°)
+    - Total rotations: ${totalRotations.toFixed(2)} (${(totalRotations * 360).toFixed(0)}°)
+    - Random final position: ${randomAngle.toFixed(0)}°
+    - Final angle: ${finalAngle.toFixed(0)}°
     - Will land on: "${rewardData.reward.name}"`);
   
   return { finalAngle, rewardData };
@@ -103,13 +109,21 @@ export const createEasingFunction = (duration: number) => {
 };
 
 /**
- * Calculates animation duration based on rotation distance
+ * Calculates exciting animation duration - minimum 2.5 seconds for satisfying spin
  */
 export const calculateAnimationDuration = (rotationDistance: number): number => {
-  // Base duration of 3 seconds, with slight variation based on distance
-  const baseDuration = 3000;
-  const variationFactor = Math.min(rotationDistance / 1800, 1) * 500; // Max 500ms variation
-  return baseDuration + variationFactor;
+  // Ensure minimum 2.5 seconds for exciting feel, up to 4 seconds for long spins
+  const minDuration = 2500;
+  const maxDuration = 4000;
+  
+  // Calculate duration based on rotation distance (more spins = longer duration)
+  const baseDuration = Math.min(minDuration + (rotationDistance / 1800) * 1000, maxDuration);
+  
+  console.log(`⏱️ ANIMATION DURATION:
+    - Rotation distance: ${rotationDistance.toFixed(0)}°
+    - Calculated duration: ${baseDuration}ms`);
+  
+  return baseDuration;
 };
 
 /**
