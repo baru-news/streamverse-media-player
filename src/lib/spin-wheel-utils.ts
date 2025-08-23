@@ -41,22 +41,32 @@ export const selectRewardByFinalAngle = (
   // Normalize angle to 0-360 range
   const normalizedAngle = ((finalAngle % 360) + 360) % 360;
   
-  // Calculate which segment the pointer (at 0°) will point to
+  // CRITICAL FIX: The wheel pointer is at top (0°), but segments start from 0°
+  // We need to account for the fact that the pointer points to the TOP of the wheel
+  // Each segment has a center angle, and we need to find which segment the pointer hits
   const segmentAngle = 360 / rewards.length;
-  const targetIndex = Math.floor(normalizedAngle / segmentAngle);
   
-  // Ensure index is within bounds
-  const clampedIndex = Math.min(targetIndex, rewards.length - 1);
-  const selectedReward = rewards[clampedIndex];
+  // Calculate which segment the TOP pointer (0°) points to
+  // The pointer points "down" into the wheel, so we need to find which segment it hits
+  let targetIndex = Math.floor((360 - normalizedAngle) / segmentAngle);
   
-  console.log(`🎯 DETERMINISTIC SELECTION:
-    - Final angle: ${finalAngle}° 
-    - Normalized: ${normalizedAngle}°
-    - Segment angle: ${segmentAngle}°
-    - Target index: ${clampedIndex}
-    - Selected reward: "${selectedReward.name}" (${selectedReward.coin_amount} coins)`);
+  // Handle edge case where angle is exactly 0 or 360
+  if (targetIndex >= rewards.length) {
+    targetIndex = 0;
+  }
   
-  return { reward: selectedReward, targetIndex: clampedIndex };
+  const selectedReward = rewards[targetIndex];
+  
+  console.log(`🎯 ACCURATE POINTER CALCULATION:
+    - Final wheel angle: ${finalAngle}° 
+    - Normalized wheel: ${normalizedAngle}°
+    - Segment size: ${segmentAngle}°
+    - Pointer hits segment: ${targetIndex}
+    - Reward: "${selectedReward.name}" (${selectedReward.coin_amount} coins)
+    - Segment start angle: ${targetIndex * segmentAngle}°
+    - Segment end angle: ${(targetIndex + 1) * segmentAngle}°`);
+  
+  return { reward: selectedReward, targetIndex };
 };
 
 /**
