@@ -118,28 +118,28 @@ export const BadgeStore = () => {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 border border-border/50 shadow-2xl">
+      <DialogContent className="max-w-[95vw] sm:max-w-5xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background via-background to-muted/20 border border-border/50 shadow-2xl mx-2 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 shadow-lg">
-                <ShoppingBag className="w-6 h-6 text-primary" />
+                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Badge Store</span>
-                <p className="text-sm text-muted-foreground">Koleksi badge eksklusif untuk profil Anda</p>
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Badge Store</span>
+                <p className="text-xs sm:text-sm text-muted-foreground">Koleksi badge eksklusif untuk profil Anda</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-sm">
-              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20">
-                <Crown className="w-4 h-4 text-primary" />
-                <span className="font-medium">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 text-sm w-full sm:w-auto">
+              <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20 w-full sm:w-auto">
+                <Crown className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="font-medium truncate">
                   {activeBadge ? activeBadge.name : 'No badge equipped'}
                 </span>
               </div>
               {coins && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full border border-yellow-500/20">
-                  <Gem className="w-4 h-4 text-yellow-500" />
+                <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full border border-yellow-500/20 w-full sm:w-auto">
+                  <Gem className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                   <span className="font-bold text-yellow-600 dark:text-yellow-400">{coins.balance} coins</span>
                 </div>
               )}
@@ -148,32 +148,34 @@ export const BadgeStore = () => {
         </DialogHeader>
         
         <Tabs defaultValue="store" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl backdrop-blur-sm border border-border/50">
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl backdrop-blur-sm border border-border/50 mb-4 sm:mb-6 touch-manipulation">
             <TabsTrigger 
               value="store" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground transition-all duration-300 font-medium rounded-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground transition-all duration-300 font-medium rounded-lg py-2 sm:py-3"
             >
-              <ShoppingBag className="w-4 h-4 mr-2" />
-              Store
+              <ShoppingBag className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Store</span>
+              <span className="sm:hidden">Store</span>
             </TabsTrigger>
             <TabsTrigger 
               value="inventory"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground transition-all duration-300 font-medium rounded-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground transition-all duration-300 font-medium rounded-lg py-2 sm:py-3"
             >
-              <Crown className="w-4 h-4 mr-2" />
-              My Badges
+              <Crown className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">My Badges</span>
+              <span className="sm:hidden">Badges</span>
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="store" className="space-y-8 animate-fade-in">
             {sortedRarityEntries.map(([rarity, badgeList], index) => (
               <div key={rarity} className="space-y-4" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-muted/30 to-transparent rounded-xl border border-border/30 backdrop-blur-sm">
+                <div className="flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-r from-muted/30 to-transparent rounded-xl border border-border/30 backdrop-blur-sm">
                   <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 shadow-md">
                     {getRarityIcon(rarity)}
                   </div>
                   <div>
-                    <h3 className={cn("text-xl font-bold capitalize bg-gradient-to-r bg-clip-text text-transparent", getRarityColor(rarity))}>
+                    <h3 className={cn("text-lg sm:text-xl font-bold capitalize bg-gradient-to-r bg-clip-text text-transparent", getRarityColor(rarity))}>
                       {rarity} Collection
                     </h3>
                     <div className="flex items-center gap-2">
@@ -184,7 +186,7 @@ export const BadgeStore = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                   {badgeList.map((badge, badgeIndex) => (
                     <Card 
                       key={badge.id} 
@@ -243,7 +245,7 @@ export const BadgeStore = () => {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20"
+                            className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20 min-h-[44px] touch-manipulation"
                             disabled
                           >
                             <Check className="w-4 h-4 mr-2" />
@@ -253,7 +255,7 @@ export const BadgeStore = () => {
                           <Button 
                             size="sm" 
                             className={cn(
-                              "w-full transition-all duration-300 font-medium",
+                              "w-full transition-all duration-300 font-medium min-h-[44px] touch-manipulation",
                               canAfford(badge.price_coins) 
                                 ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25" 
                                 : "opacity-60 cursor-not-allowed"
@@ -276,7 +278,7 @@ export const BadgeStore = () => {
           </TabsContent>
 
           <TabsContent value="inventory" className="space-y-6 animate-fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {badges
                 .filter(badge => badge.owned)
                 .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
@@ -338,7 +340,7 @@ export const BadgeStore = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20 font-medium"
+                          className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20 font-medium min-h-[44px] touch-manipulation"
                           onClick={() => handleSetActive(null)}
                         >
                           <Crown className="w-4 h-4 mr-2" />
@@ -347,7 +349,7 @@ export const BadgeStore = () => {
                       ) : (
                         <Button 
                           size="sm" 
-                          className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25 font-medium transition-all duration-300"
+                          className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25 font-medium transition-all duration-300 min-h-[44px] touch-manipulation"
                           onClick={() => handleSetActive(badge.badge_key)}
                         >
                           <Crown className="w-4 h-4 mr-2" />
