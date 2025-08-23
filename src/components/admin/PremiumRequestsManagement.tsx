@@ -18,6 +18,7 @@ interface PremiumRequest {
   user_id: string;
   trakteer_transaction_id?: string;
   payment_proof_url?: string;
+  telegram_username?: string;
   amount: number;
   subscription_type: string;
   status: string;
@@ -250,6 +251,23 @@ const PremiumRequestsManagement = () => {
           )}
         </div>
 
+        {request.telegram_username && (
+          <div className="mb-3">
+            <span className="font-medium text-sm">Telegram Username:</span>
+            <div className="text-sm font-mono bg-muted p-2 rounded flex items-center justify-between">
+              <span>{request.telegram_username}</span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigator.clipboard.writeText(request.telegram_username || '')}
+                className="ml-2 h-6 px-2 text-xs"
+              >
+                Copy
+              </Button>
+            </div>
+          </div>
+        )}
+
         {request.trakteer_transaction_id && (
           <div className="mb-3">
             <span className="font-medium text-sm">Transaction ID:</span>
@@ -283,27 +301,42 @@ const PremiumRequestsManagement = () => {
         )}
 
         {request.status === 'pending' && (
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={() => openDialog(request, 'approve')}
-              disabled={processingId === request.id}
-              className="flex-1"
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Approve
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => openDialog(request, 'reject')}
-              disabled={processingId === request.id}
-              className="flex-1"
-            >
-              <XCircle className="w-4 h-4 mr-2" />
-              Reject
-            </Button>
-          </div>
+          <>
+            <Alert className="mb-4">
+              <MessageSquare className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Manual Telegram Invitation:</strong>
+                {request.telegram_username ? (
+                  <>
+                    {' '}After approval, manually invite <strong>{request.telegram_username}</strong> to the premium Telegram channel.
+                  </>
+                ) : (
+                  ' No Telegram username provided.'
+                )}
+              </AlertDescription>
+            </Alert>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => openDialog(request, 'approve')}
+                disabled={processingId === request.id}
+                className="flex-1"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => openDialog(request, 'reject')}
+                disabled={processingId === request.id}
+                className="flex-1"
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                Reject
+              </Button>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
@@ -459,6 +492,9 @@ const PremiumRequestsManagement = () => {
                 <p><strong>Amount:</strong> IDR {selectedRequest.amount.toLocaleString('id-ID')}</p>
                 {selectedRequest.trakteer_transaction_id && (
                   <p><strong>Transaction ID:</strong> {selectedRequest.trakteer_transaction_id}</p>
+                )}
+                {selectedRequest.telegram_username && (
+                  <p><strong>Telegram:</strong> {selectedRequest.telegram_username}</p>
                 )}
               </div>
 

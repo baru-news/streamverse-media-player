@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Crown, Key, Users, Star } from 'lucide-react';
+import { Check, Crown, Key, Users, Star, MessageSquare } from 'lucide-react';
 import SEO from '@/components/SEO';
 import TrakteerPaymentForm from '@/components/TrakteerPaymentForm';
 import PremiumRequestStatus from '@/components/PremiumRequestStatus';
@@ -216,7 +216,18 @@ const Premium = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                After purchasing Premium membership, our Telegram bot will automatically invite you to the exclusive premium channel where you'll get early access to content before it's published on the main site.
+                After purchasing Premium membership through Trakteer, make sure to provide your Telegram username during payment proof submission. Our team will manually review your payment and invite you to the exclusive premium channel within 24-48 hours of approval.
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">What's the payment verification process?</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                After making payment via Trakteer, submit your transaction ID, payment proof, and Telegram username through our form. Our team manually verifies each payment within 24 hours and activates your premium benefits accordingly.
               </p>
             </CardContent>
           </Card>

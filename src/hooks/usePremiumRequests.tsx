@@ -8,6 +8,7 @@ interface PremiumRequest {
   user_id: string;
   trakteer_transaction_id?: string;
   payment_proof_url?: string;
+  telegram_username?: string;
   amount: number;
   subscription_type: string;
   status: string;
@@ -57,6 +58,7 @@ export const usePremiumRequests = () => {
   const submitRequest = async (requestData: {
     trakteer_transaction_id?: string;
     payment_proof_url?: string;
+    telegram_username?: string;
     amount: number;
     subscription_type?: string;
   }) => {
@@ -69,6 +71,7 @@ export const usePremiumRequests = () => {
           user_id: user.id,
           trakteer_transaction_id: requestData.trakteer_transaction_id,
           payment_proof_url: requestData.payment_proof_url,
+          telegram_username: requestData.telegram_username,
           amount: requestData.amount,
           subscription_type: requestData.subscription_type || 'lifetime',
         })

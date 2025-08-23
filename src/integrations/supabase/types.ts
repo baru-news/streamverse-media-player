@@ -268,6 +268,7 @@ export type Database = {
           processed_at: string | null
           status: string
           subscription_type: string
+          telegram_username: string | null
           trakteer_transaction_id: string | null
           updated_at: string
           user_id: string
@@ -282,6 +283,7 @@ export type Database = {
           processed_at?: string | null
           status?: string
           subscription_type?: string
+          telegram_username?: string | null
           trakteer_transaction_id?: string | null
           updated_at?: string
           user_id: string
@@ -296,6 +298,7 @@ export type Database = {
           processed_at?: string | null
           status?: string
           subscription_type?: string
+          telegram_username?: string | null
           trakteer_transaction_id?: string | null
           updated_at?: string
           user_id?: string

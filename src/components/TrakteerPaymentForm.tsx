@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExternalLink, Upload, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
 import { usePremiumRequests } from '@/hooks/usePremiumRequests';
+import { toast } from '@/hooks/use-toast';
 
 const TRAKTEER_AMOUNT = 50000; // IDR 50,000
 const TRAKTEER_URL = "https://trakteer.id/your-username"; // Replace with actual Trakteer URL
@@ -18,13 +19,19 @@ const TrakteerPaymentForm = () => {
   const [formData, setFormData] = useState({
     trakteer_transaction_id: '',
     payment_proof_url: '',
+    telegram_username: '',
     amount: TRAKTEER_AMOUNT,
   });
   const [step, setStep] = useState<'payment' | 'proof'>('payment');
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmitProof = async () => {
-    if (!formData.trakteer_transaction_id || !formData.payment_proof_url) {
+    if (!formData.trakteer_transaction_id || !formData.payment_proof_url || !formData.telegram_username) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields including your Telegram username",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -32,10 +39,15 @@ const TrakteerPaymentForm = () => {
     const result = await submitRequest(formData);
     
     if (!result.error) {
+      toast({
+        title: "Success",
+        description: "Payment proof submitted! We'll review it within 24 hours and invite you to our premium Telegram channel.",
+      });
       setStep('payment');
       setFormData({
         trakteer_transaction_id: '',
         payment_proof_url: '',
+        telegram_username: '',
         amount: TRAKTEER_AMOUNT,
       });
     }
@@ -88,6 +100,26 @@ const TrakteerPaymentForm = () => {
             </div>
 
             <div>
+              <Label htmlFor="telegram">Telegram Username *</Label>
+              <Input
+                id="telegram"
+                placeholder="@yourusername"
+                value={formData.telegram_username}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  if (value && !value.startsWith('@')) {
+                    value = '@' + value;
+                  }
+                  setFormData(prev => ({ ...prev, telegram_username: value }));
+                }}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter your Telegram username to receive premium channel access
+              </p>
+            </div>
+
+            <div>
               <Label>Payment Amount</Label>
               <div className="mt-1 p-3 bg-muted rounded-md">
                 <span className="text-lg font-semibold">IDR {TRAKTEER_AMOUNT.toLocaleString('id-ID')}</span>
@@ -107,7 +139,7 @@ const TrakteerPaymentForm = () => {
             </Button>
             <Button
               onClick={handleSubmitProof}
-              disabled={!formData.trakteer_transaction_id || !formData.payment_proof_url || submitting}
+              disabled={!formData.trakteer_transaction_id || !formData.payment_proof_url || !formData.telegram_username || submitting}
               className="flex-1"
             >
               {submitting ? 'Submitting...' : 'Submit for Review'}
