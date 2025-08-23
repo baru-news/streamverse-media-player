@@ -261,7 +261,7 @@ const VideoDetail = () => {
         });
 
         // PERBAIKAN: Panggil updateTaskProgress HANYA setelah share berhasil
-        await updateTaskProgress('share', 1);
+        await updateTaskProgress('daily_share', 1);
         
         toast({
           title: "Dibagikan!",
@@ -284,7 +284,7 @@ const VideoDetail = () => {
       handleCopyLink(shareUrl);
       
       // PERBAIKAN: Panggil updateTaskProgress juga di fallback
-      await updateTaskProgress('share', 1);
+      await updateTaskProgress('daily_share', 1);
     }
   };
 
