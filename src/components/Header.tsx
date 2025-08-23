@@ -139,7 +139,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                       Tugas
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-md">
+                  <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-hidden mx-2 sm:mx-auto">
                     <DialogHeader>
                       <DialogTitle>Tugas Harian</DialogTitle>
                     </DialogHeader>
@@ -263,7 +263,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
                         Tugas Harian
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-hidden mx-2 sm:mx-auto">
                       <DialogHeader>
                         <DialogTitle>Tugas Harian</DialogTitle>
                       </DialogHeader>

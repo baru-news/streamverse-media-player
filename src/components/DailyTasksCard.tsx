@@ -92,27 +92,27 @@ export const DailyTasksCard = () => {
   const allTasksCompleted = totalCount > 0 && completedCount === totalCount;
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50 w-full max-w-full overflow-hidden">
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5" />
-            Tugas Harian
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            <span className="text-sm sm:text-base font-semibold">Tugas Harian</span>
           </div>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs self-start sm:self-auto">
             {completedCount}/{totalCount}
           </Badge>
         </CardTitle>
         
         {/* Countdown Section */}
         <div className="mt-3 p-3 bg-muted/20 rounded-lg border border-border/50">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
-              <Timer className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Reset dalam:</span>
+              <Timer className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium">Reset dalam:</span>
             </div>
             <div className={cn(
-              "text-sm font-mono font-bold px-2 py-1 rounded",
+              "text-xs sm:text-sm font-mono font-bold px-2 py-1 rounded self-start sm:self-auto",
               isResetting 
                 ? "text-green-400 bg-green-500/20" 
                 : "text-primary bg-primary/10"
@@ -135,22 +135,22 @@ export const DailyTasksCard = () => {
           {/* Kitty Key Claim Section */}
           {getTotalTasksCount() > 0 && (
             <div className={cn(
-              "mt-4 p-4 border rounded-lg transition-all duration-300",
+              "mt-4 p-3 sm:p-4 border rounded-lg transition-all duration-300",
               getCompletedTasksCount() === getTotalTasksCount() 
                 ? "bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200" 
                 : "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200"
             )}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start gap-2">
                   <Gift className={cn(
-                    "w-5 h-5 transition-colors",
+                    "w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0 transition-colors",
                     getCompletedTasksCount() === getTotalTasksCount() 
                       ? "text-yellow-600" 
                       : "text-gray-400"
                   )} />
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className={cn(
-                      "font-bold transition-colors",
+                      "text-sm sm:text-base font-bold transition-colors",
                       getCompletedTasksCount() === getTotalTasksCount() 
                         ? "text-yellow-800" 
                         : "text-gray-600"
@@ -158,7 +158,7 @@ export const DailyTasksCard = () => {
                       Bonus Kitty Key! 🗝️
                     </h3>
                     <p className={cn(
-                      "text-sm transition-colors",
+                      "text-xs sm:text-sm transition-colors break-words",
                       getCompletedTasksCount() === getTotalTasksCount() 
                         ? "text-yellow-700" 
                         : "text-gray-500"
@@ -174,11 +174,12 @@ export const DailyTasksCard = () => {
                   onClick={claimKittyKey}
                   disabled={getCompletedTasksCount() !== getTotalTasksCount() || !canClaim}
                   className={cn(
-                    "font-bold px-4 py-2 rounded-lg shadow-lg transition-all",
+                    "font-bold px-3 sm:px-4 py-2 rounded-lg shadow-lg transition-all w-full sm:w-auto min-h-[44px] touch-manipulation",
                     getCompletedTasksCount() === getTotalTasksCount() && canClaim
                       ? "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   )}
+                  size="sm"
                 >
                   {getCompletedTasksCount() === getTotalTasksCount() ? (
                     canClaim ? (
@@ -208,37 +209,39 @@ export const DailyTasksCard = () => {
         {/* Spin Wheel Status */}
         {allTasksCompleted && (
           <div className="mt-3 p-3 bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 rounded-lg">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-pink-600">🎀</span>
-              {canSpin ? (
-                <span className="text-pink-700 font-medium animate-pulse">Roda beruntung tersedia! Kumpulkan Kitty Key! 🎡</span>
-              ) : (
-                <span className="text-pink-600">Kumpulkan Kitty Key untuk bermain roda beruntung! 🌸</span>
-              )}
+            <div className="flex items-start gap-2 text-xs sm:text-sm">
+              <span className="text-pink-600 text-base">🎀</span>
+              <div className="min-w-0 flex-1">
+                {canSpin ? (
+                  <span className="text-pink-700 font-medium animate-pulse break-words">Roda beruntung tersedia! Kumpulkan Kitty Key! 🎡</span>
+                ) : (
+                  <span className="text-pink-600 break-words">Kumpulkan Kitty Key untuk bermain roda beruntung! 🌸</span>
+                )}
+              </div>
             </div>
           </div>
         )}
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[200px] sm:h-[300px] md:h-[400px] p-4 touch-pan-y">
-          <div className="space-y-4 pb-4">
+        <ScrollArea className="h-[250px] sm:h-[300px] md:h-[400px] p-3 sm:p-4 touch-pan-y">
+          <div className="space-y-3 sm:space-y-4 pb-4">
             {tasks.map((task) => (
-              <div key={task.id} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+              <div key={task.id} className="space-y-2 p-2 sm:p-3 bg-muted/10 rounded-lg border border-border/30">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-start gap-2 min-w-0 flex-1">
                     {task.progress?.is_completed ? (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                     ) : (
-                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <Clock className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                     )}
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{task.title}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium break-words">{task.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatTaskType(task.task_type)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2">
                     <div className="flex items-center gap-1 text-xs text-yellow-600">
                       <Coins className="w-3 h-3" />
                       {task.reward_coins}
@@ -270,7 +273,7 @@ export const DailyTasksCard = () => {
             
             {tasks.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <Target className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Tidak ada tugas harian tersedia</p>
               </div>
             )}
