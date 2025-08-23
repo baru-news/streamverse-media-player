@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import HelloKittySpinWheel from './HelloKittySpinWheel';
 import { useSpinWheel } from '@/hooks/useSpinWheel';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Coins } from 'lucide-react';
 
 interface SpinWheelDialogProps {
   open: boolean;
@@ -101,8 +101,8 @@ const SpinWheelDialog: React.FC<SpinWheelDialogProps> = ({
                         <div className="text-sm font-bold text-pink-900 truncate">
                           {reward.name}
                         </div>
-                        <div className="text-lg font-bold text-pink-700">
-                          {reward.coin_amount} 🪙
+                        <div className="text-lg font-bold text-pink-700 flex items-center justify-center gap-1">
+                          {reward.coin_amount} <Coins className="w-4 h-4 text-yellow-600" />
                         </div>
                         <div className="text-sm font-medium text-pink-600">
                           {reward.rarity === 'legendary' && '👑 Legendaris'}
