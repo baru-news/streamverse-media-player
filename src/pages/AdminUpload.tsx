@@ -39,8 +39,8 @@ const AdminUpload = () => {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6" id="admin-tabs">
-            <div className="w-full overflow-x-auto scrollbar-hide pb-1">
-              <TabsList className="bg-card/50 backdrop-blur-sm inline-flex w-max min-w-full">
+            <div className="w-full overflow-x-auto admin-scroll pb-1">
+              <TabsList className="bg-card/50 backdrop-blur-sm inline-flex w-max min-w-max gap-1">
                 <TabsTrigger value="dashboard" className="gap-2 whitespace-nowrap px-4 py-2">
                   <Settings className="w-4 h-4" />
                   <span className="hidden sm:inline">Dashboard</span>

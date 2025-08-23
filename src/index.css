@@ -132,4 +132,28 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
   }
+  
+  /* Custom scrollbar for admin panel */
+  .admin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  
+  .admin-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .admin-scroll::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+  
+  .admin-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+  }
+  
+  .admin-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
+  }
 }
