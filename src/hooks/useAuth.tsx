@@ -109,11 +109,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           toast.error(error.message);
         }
-      } else {
-        toast.success('Akun berhasil dibuat! Silakan periksa email Anda untuk konfirmasi.');
+        return { error };
       }
 
-      return { error };
+      // Return success without showing toast here
+      // Toast will be handled in the component
+      return { error: null };
+      
     } catch (err) {
       console.error('Signup error:', err);
       toast.error('Terjadi kesalahan saat mendaftarkan akun');

@@ -67,9 +67,24 @@ const Register = () => {
 
     setLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password, formData.username);
-    
-    setLoading(false);
+    try {
+      const { error } = await signUp(formData.email, formData.password, formData.username);
+      
+      // If there's an error, don't proceed
+      if (error) {
+        console.log("Registration failed:", error.message);
+        return;
+      }
+      
+      // Only show success if no error occurred
+      console.log("Registration successful");
+      toast.success('Akun berhasil dibuat! Silakan periksa email Anda untuk konfirmasi.');
+      
+    } catch (err) {
+      console.error("Registration error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
