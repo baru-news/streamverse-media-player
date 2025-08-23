@@ -19,7 +19,7 @@ interface SpinWheelReward {
 export const useSpinWheel = () => {
   const { user } = useAuth();
   const { refreshCoins } = useCoins();
-  const { spendKittyKey } = useKittyKeys();
+  const { spendKittyKey, kittyKeys, refreshKittyKeys } = useKittyKeys();
   const [rewards, setRewards] = useState<SpinWheelReward[]>([]);
   const [canSpin, setCanSpin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ export const useSpinWheel = () => {
     }
   }, []);
 
-  // Check if user can spin (has kitty keys)
+  // Check if user can spin (has kitty keys) - now using local state for consistency
   const checkCanSpin = useCallback(async () => {
     if (!user) {
       console.log('No user found');
@@ -49,27 +49,18 @@ export const useSpinWheel = () => {
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('user_kitty_keys')
-        .select('balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    // Ensure we have fresh kitty keys data
+    await refreshKittyKeys();
+    
+    // Use local state for consistency with spendKittyKey function
+    const balance = kittyKeys?.balance || 0;
+    console.log('Kitty keys balance from local state:', balance);
+    console.log('Can spin:', balance > 0);
+    
+    setCanSpin(balance > 0);
+  }, [user, kittyKeys, refreshKittyKeys]);
 
-      if (error) throw error;
-      
-      const balance = data?.balance || 0;
-      console.log('Kitty keys balance:', balance);
-      console.log('Can spin:', balance > 0);
-      
-      setCanSpin(balance > 0);
-    } catch (error) {
-      console.error('Error checking kitty keys balance:', error);
-      setCanSpin(false);
-    }
-  }, [user]);
-
-  // Initialize data
+  // Initialize data and sync with kitty keys changes
   useEffect(() => {
     const initializeData = async () => {
       setLoading(true);
@@ -86,6 +77,15 @@ export const useSpinWheel = () => {
       setLoading(false);
     }
   }, [user, fetchRewards, checkCanSpin]);
+  
+  // Update canSpin when kittyKeys changes
+  useEffect(() => {
+    if (kittyKeys !== null) {
+      const balance = kittyKeys.balance || 0;
+      console.log('Kitty keys state updated, new balance:', balance);
+      setCanSpin(balance > 0);
+    }
+  }, [kittyKeys]);
 
   // Frontend reward selection for precise targeting
   const selectReward = useCallback((): SpinWheelReward | null => {
@@ -99,7 +99,15 @@ export const useSpinWheel = () => {
       return null;
     }
 
-    console.log('Starting spin...');
+    // Double-check kitty keys before spinning to prevent race condition
+    if (!kittyKeys || kittyKeys.balance < 1) {
+      console.log('Insufficient kitty keys at spin time:', kittyKeys?.balance);
+      toast.error('Kitty Key tidak cukup! 🗝️');
+      await checkCanSpin(); // Refresh state
+      return null;
+    }
+
+    console.log('Starting spin with kitty keys balance:', kittyKeys.balance);
     setSpinning(true);
 
     try {
@@ -121,11 +129,14 @@ export const useSpinWheel = () => {
 
       if (insertError) throw insertError;
 
-      // Spend kitty key
+      // Spend kitty key with better error handling
+      console.log('Attempting to spend kitty key. Current balance:', kittyKeys.balance);
       const keySpent = await spendKittyKey(1);
       if (!keySpent) {
+        console.log('Failed to spend kitty key. Current balance after attempt:', kittyKeys?.balance);
         throw new Error('Failed to spend kitty key');
       }
+      console.log('Successfully spent kitty key');
 
       // Update user coins with safer approach
       const { data: existingCoins } = await supabase
@@ -173,12 +184,25 @@ export const useSpinWheel = () => {
       return selectedReward;
     } catch (error) {
       console.error('Error performing spin:', error);
-      toast.error('Failed to spin the wheel. Please try again! 😿');
+      
+      // More specific error messages
+      if (error.message === 'Failed to spend kitty key') {
+        toast.error('Kitty Key tidak cukup atau gagal digunakan! 🗝️');
+      } else {
+        toast.error('Spin tidak berhasil. Silakan coba lagi! 😿');
+      }
+      
+      // Refresh state after error
+      await Promise.all([
+        checkCanSpin(),
+        refreshKittyKeys()
+      ]);
+      
       return null;
     } finally {
       setSpinning(false);
     }
-  }, [user, canSpin, spinning, rewards, checkCanSpin, refreshCoins]);
+  }, [user, canSpin, spinning, rewards, kittyKeys, selectReward, spendKittyKey, checkCanSpin, refreshCoins, refreshKittyKeys]);
 
   // Refresh all data
   const refreshData = useCallback(async () => {
