@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, MessageCircle } from "lucide-react";
+import { useWebsiteSettings } from "@/hooks/useWebsiteSettings";
+import { Loader2, MessageCircle, ExternalLink } from "lucide-react";
 
 interface TelegramLinkFormProps {
   onSuccess: (telegramUsername: string) => void;
@@ -15,6 +16,36 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { settings } = useWebsiteSettings();
+
+  const telegramBotUsername = settings.telegram_bot_username || "your_bot_name";
+
+  const openTelegramChat = () => {
+    const command = "/link";
+    const botUsername = telegramBotUsername.startsWith('@') ? telegramBotUsername.slice(1) : telegramBotUsername;
+    
+    // Try to open in Telegram app first
+    const telegramAppUrl = `tg://resolve?domain=${botUsername}&text=${encodeURIComponent(command)}`;
+    
+    // Fallback to web Telegram
+    const telegramWebUrl = `https://t.me/${botUsername}?text=${encodeURIComponent(command)}`;
+    
+    // For mobile devices, try app first then fallback to web
+    if (navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/)) {
+      // Try to open in app
+      const appLink = document.createElement('a');
+      appLink.href = telegramAppUrl;
+      appLink.click();
+      
+      // Fallback to web after a short delay
+      setTimeout(() => {
+        window.open(telegramWebUrl, '_blank', 'noopener,noreferrer');
+      }, 1000);
+    } else {
+      // Desktop: open web version directly
+      window.open(telegramWebUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,12 +132,43 @@ export const TelegramLinkForm = ({ onSuccess, telegramUsername }: TelegramLinkFo
       <CardContent>
         <div className="space-y-4">
           <div className="p-4 bg-muted rounded-lg">
-            <h4 className="font-medium mb-2">Cara menghubungkan:</h4>
-            <ol className="text-sm text-muted-foreground space-y-1">
-              <li>1. Mulai chat dengan bot Telegram kami</li>
-              <li>2. Kirim perintah: <code className="bg-background px-1 rounded">/link</code></li>
-              <li>3. Salin kode 6 digit yang Anda terima</li>
-              <li>4. Masukkan kode di bawah ini</li>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium">Cara menghubungkan:</h4>
+              <Button 
+                onClick={openTelegramChat}
+                size="sm" 
+                variant="outline"
+                className="gap-2 text-xs sm:text-sm"
+              >
+                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Buka Chat Bot</span>
+                <span className="xs:hidden">Chat Bot</span>
+              </Button>
+            </div>
+            <ol className="text-sm text-muted-foreground space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="font-medium text-foreground min-w-[20px]">1.</span>
+                <div>
+                  <span>Klik tombol "Buka Chat Bot" di atas, atau mulai chat manual dengan bot Telegram kami</span>
+                  {telegramBotUsername !== "your_bot_name" && (
+                    <div className="mt-1 text-xs bg-background px-2 py-1 rounded border">
+                      @{telegramBotUsername}
+                    </div>
+                  )}
+                </div>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-medium text-foreground min-w-[20px]">2.</span>
+                <span>Kirim perintah: <code className="bg-background px-2 py-1 rounded font-mono text-xs">/link</code></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-medium text-foreground min-w-[20px]">3.</span>
+                <span>Salin kode 6 digit yang Anda terima dari bot</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-medium text-foreground min-w-[20px]">4.</span>
+                <span>Masukkan kode tersebut di kolom di bawah ini</span>
+              </li>
             </ol>
           </div>
           

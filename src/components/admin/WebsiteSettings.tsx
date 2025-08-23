@@ -31,6 +31,7 @@ const WebsiteSettings = () => {
         updateSetting('google_verification_code', currentSettings.google_verification_code || ''),
         updateSetting('meta_keywords', currentSettings.meta_keywords || ''),
         updateSetting('telegram_premium_group_id', currentSettings.telegram_premium_group_id || ''),
+        updateSetting('telegram_bot_username', currentSettings.telegram_bot_username || ''),
       ]);
 
       toast({
@@ -361,6 +362,20 @@ const WebsiteSettings = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="telegram_bot_username" className="text-foreground">Bot Username</Label>
+            <Input
+              id="telegram_bot_username"
+              value={currentSettings.telegram_bot_username || ''}
+              onChange={(e) => handleInputChange('telegram_bot_username', e.target.value)}
+              placeholder="your_bot_username"
+              className="bg-background/50"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Username bot Telegram untuk linking akun (tanpa @). Contoh: <code>your_bot_username</code>
+            </p>
+          </div>
+          
           <div>
             <Label htmlFor="telegram_premium_group_id" className="text-foreground">Premium Group ID</Label>
             <Input
