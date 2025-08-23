@@ -19,38 +19,6 @@ interface AdFormData {
   sort_order: number;
 }
 
-// Informasi ukuran untuk setiap posisi
-const AD_SIZE_INFO = {
-  banner: { 
-    recommended: '300x70px', 
-    description: 'Banner horizontal (4 slot dalam grid 2x2)',
-    ratio: '4.29:1',
-    maxWidth: 400,
-    minWidth: 200
-  },
-  content: { 
-    recommended: '300x70px', 
-    description: 'Banner di atas video player (mobile)',
-    ratio: '4.29:1',
-    maxWidth: 400,
-    minWidth: 200
-  },
-  sidebar: { 
-    recommended: '300x70px', 
-    description: 'Banner di atas rekomendasi (desktop)',
-    ratio: '4.29:1',
-    maxWidth: 400,
-    minWidth: 200
-  },
-  'video-grid': { 
-    recommended: '180x150px', 
-    description: 'Kartu kecil setiap 10 video (6 per baris)',
-    ratio: '1.2:1',
-    maxWidth: 250,
-    minWidth: 120
-  }
-};
-
 const AdsManagement = () => {
   const { ads, settings, isLoading, updateSetting, createAd, updateAd, deleteAd, uploadAdImage } = useAds();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,37 +35,6 @@ const AdsManagement = () => {
     sort_order: 0,
   });
 
-  const validateImageDimensions = (file: File, position: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = new HTMLImageElement();
-      img.onload = () => {
-        const sizeInfo = AD_SIZE_INFO[position as keyof typeof AD_SIZE_INFO];
-        if (!sizeInfo) return resolve(true);
-
-        const aspectRatio = img.width / img.height;
-        const [targetWidth, targetHeight] = sizeInfo.recommended.split('x').map(Number);
-        const targetRatio = targetWidth / targetHeight;
-        
-        // Allow 10% tolerance for aspect ratio
-        const tolerance = 0.1;
-        const ratioMatch = Math.abs(aspectRatio - targetRatio) <= (targetRatio * tolerance);
-        
-        if (!ratioMatch) {
-          toast.error(`Rasio gambar tidak sesuai. Untuk posisi ${position}, gunakan rasio ${sizeInfo.ratio} (disarankan: ${sizeInfo.recommended})`);
-          return resolve(false);
-        }
-        
-        if (img.width > sizeInfo.maxWidth || img.width < sizeInfo.minWidth) {
-          toast.error(`Lebar gambar ${img.width}px tidak sesuai. Untuk posisi ${position}, gunakan lebar ${sizeInfo.minWidth}-${sizeInfo.maxWidth}px`);
-          return resolve(false);
-        }
-        
-        resolve(true);
-      };
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
@@ -113,10 +50,6 @@ const AdsManagement = () => {
       toast.error('Ukuran file terlalu besar. Maksimal 5MB.');
       return;
     }
-
-    // Validate image dimensions
-    const isValidDimensions = await validateImageDimensions(file, formData.position);
-    if (!isValidDimensions) return;
 
     setIsUploading(true);
     try {
@@ -378,41 +311,12 @@ const AdsManagement = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(AD_SIZE_INFO).map(([key, info]) => (
-                        <SelectItem key={key} value={key}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {key === 'content' && 'Content'}
-                              {key === 'sidebar' && 'Sidebar'}
-                              {key === 'banner' && 'Banner'}
-                              {key === 'video-grid' && 'Setiap 10 Video'}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {info.recommended} • {info.description}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="content">Content</SelectItem>
+                      <SelectItem value="sidebar">Sidebar</SelectItem>
+                      <SelectItem value="banner">Banner</SelectItem>
+                      <SelectItem value="video-grid">Setiap 10 Video</SelectItem>
                     </SelectContent>
                   </Select>
-                  
-                  {formData.position && (
-                    <div className="mt-2 p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <div className="text-sm">
-                          <p className="font-medium text-primary">
-                            📐 Ukuran Optimal: {AD_SIZE_INFO[formData.position as keyof typeof AD_SIZE_INFO]?.recommended}
-                          </p>
-                          <p className="text-muted-foreground mt-1">
-                            {AD_SIZE_INFO[formData.position as keyof typeof AD_SIZE_INFO]?.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Rasio: {AD_SIZE_INFO[formData.position as keyof typeof AD_SIZE_INFO]?.ratio}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
                 
                 <div>
