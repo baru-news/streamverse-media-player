@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Key, Users, Star } from 'lucide-react';
 import SEO from '@/components/SEO';
+import TrakteerPaymentForm from '@/components/TrakteerPaymentForm';
+import PremiumRequestStatus from '@/components/PremiumRequestStatus';
 
 const Premium = () => {
   const navigate = useNavigate();
@@ -176,47 +178,10 @@ const Premium = () => {
         </div>
       </div>
 
-      {/* Pricing Section */}
-      <div className="max-w-4xl mx-auto mb-16">
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-50 to-yellow-100 opacity-50"></div>
-          <CardHeader className="relative z-10 text-center pb-8">
-            <Badge className="mx-auto mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black">
-              <Star className="w-4 h-4 mr-1" />
-              Best Value
-            </Badge>
-            <CardTitle className="text-3xl font-bold">Premium Membership</CardTitle>
-            <div className="text-4xl font-bold mt-4">
-              <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                Coming Soon
-              </span>
-            </div>
-            <CardDescription className="text-lg mt-2">
-              Lifetime access to all premium benefits
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <ul className="space-y-4 mb-8">
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                    <Check className="w-3 h-3 text-green-600" />
-                  </div>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="text-center">
-              <Button size="lg" className="bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-black font-bold px-8 py-3" disabled>
-                <Crown className="w-5 h-5 mr-2" />
-                Payment Integration Coming Soon
-              </Button>
-              <p className="text-sm text-muted-foreground mt-4">
-                We're working on payment integration. Premium subscriptions will be available soon!
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Trakteer Payment Section */}
+      <div className="max-w-4xl mx-auto mb-16 space-y-8">
+        <TrakteerPaymentForm />
+        <PremiumRequestStatus />
       </div>
 
       {/* FAQ Section */}

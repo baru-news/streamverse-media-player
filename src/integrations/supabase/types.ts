@@ -257,6 +257,51 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_subscription_requests: {
+        Row: {
+          admin_notes: string | null
+          admin_user_id: string | null
+          amount: number
+          created_at: string
+          id: string
+          payment_proof_url: string | null
+          processed_at: string | null
+          status: string
+          subscription_type: string
+          trakteer_transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_user_id?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          payment_proof_url?: string | null
+          processed_at?: string | null
+          status?: string
+          subscription_type?: string
+          trakteer_transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_user_id?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_proof_url?: string | null
+          processed_at?: string | null
+          status?: string
+          subscription_type?: string
+          trakteer_transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       premium_subscriptions: {
         Row: {
           created_at: string
@@ -915,6 +960,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: Json
       }
+      approve_premium_request: {
+        Args: { admin_notes_param?: string; request_id: string }
+        Returns: boolean
+      }
       can_user_claim_kitty_key_today: {
         Args: { user_id_param: string }
         Returns: boolean
@@ -952,6 +1001,10 @@ export type Database = {
       }
       make_user_admin: {
         Args: { user_email: string }
+        Returns: boolean
+      }
+      reject_premium_request: {
+        Args: { admin_notes_param: string; request_id: string }
         Returns: boolean
       }
       update_watch_progress: {

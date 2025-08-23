@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins, Megaphone, Users, Mail } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins, Megaphone, Users, Mail, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import QuickActions from "@/components/admin/QuickActions";
 import AdsManagement from "@/components/admin/AdsManagement";
 import UserManagement from "@/components/admin/UserManagement";
 import ContactMessageManagement from "@/components/admin/ContactMessageManagement";
+import PremiumRequestsManagement from "@/components/admin/PremiumRequestsManagement";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
 import { useContactMessages } from "@/hooks/useContactMessages";
@@ -81,6 +82,11 @@ const AdminUpload = () => {
                   <span className="hidden sm:inline">Kelola User</span>
                   <span className="sm:hidden">User</span>
                 </TabsTrigger>
+                <TabsTrigger value="premium" className="gap-2 whitespace-nowrap px-4 py-2" id="premium">
+                  <Crown className="w-4 h-4" />
+                  <span className="hidden sm:inline">Premium Requests</span>
+                  <span className="sm:hidden">Premium</span>
+                </TabsTrigger>
                 <TabsTrigger value="messages" className="gap-2 whitespace-nowrap px-4 py-2 relative" id="messages">
                   <Mail className="w-4 h-4" />
                   <span className="hidden sm:inline">Pesan Kontak</span>
@@ -142,6 +148,11 @@ const AdminUpload = () => {
             {/* User Management Tab */}
             <TabsContent value="users">
               <UserManagement />
+            </TabsContent>
+
+            {/* Premium Requests Tab */}
+            <TabsContent value="premium">
+              <PremiumRequestsManagement />
             </TabsContent>
 
             {/* Contact Messages Tab */}
