@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useKittyKeys } from '@/hooks/useKittyKeys';
 import { toast } from 'sonner';
+import { formatInTimeZone } from 'date-fns-tz';
 
 interface DailyTask {
   id: string;
@@ -67,14 +68,17 @@ export const useDailyTasks = () => {
   }, [user]);
 
   const getWIBDate = (): string => {
-    const now = new Date();
-
-    // Convert current time to WIB (UTC+7) - consistent with countdown
-    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const wibTime = new Date(utcTime + (7 * 60 * 60 * 1000));
-
-    // Return date in YYYY-MM-DD format
-    return wibTime.toISOString().split('T')[0];
+    try {
+      // Use proper timezone formatting for Jakarta/Asia timezone
+      return formatInTimeZone(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Error formatting WIB date:', error);
+      // Fallback to manual calculation if date-fns-tz fails
+      const now = new Date();
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const wibTime = new Date(utcTime + (7 * 60 * 60 * 1000));
+      return wibTime.toISOString().split('T')[0];
+    }
   };
 
   const fetchTasks = async () => {
