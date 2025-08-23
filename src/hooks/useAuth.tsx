@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, username?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
 }
@@ -167,6 +168,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl
+        }
+      });
+
+      if (error) {
+        if (error.message.includes('popup')) {
+          toast.error('Popup diblokir. Silakan aktifkan popup atau coba lagi.');
+        } else {
+          toast.error(error.message);
+        }
+      }
+
+      return { error };
+    } catch (err) {
+      console.error('Google signin error:', err);
+      toast.error('Terjadi kesalahan saat masuk dengan Google');
+      return { error: err };
+    }
+  };
+
   const signOut = async () => {
     try {
       // Clear local state first to ensure immediate UI update
@@ -196,6 +224,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loading,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       isAdmin
     }}>
