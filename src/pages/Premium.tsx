@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Check, Crown, Key, Users, Star, MessageSquare, ArrowRight, CheckCircle, CreditCard } from 'lucide-react';
 import SEO from '@/components/SEO';
 import TrakteerPaymentForm from '@/components/TrakteerPaymentForm';
@@ -63,21 +64,21 @@ const Premium = () => {
   };
 
   const steps = [
-    { number: 1, title: 'Link Telegram', description: 'Connect your Telegram account', completed: telegramLinked },
-    { number: 2, title: 'Make Payment', description: 'Pay via Trakteer', completed: false },
-    { number: 3, title: 'Submit Proof', description: 'Upload payment verification', completed: false }
+    { number: 1, title: 'Link Telegram', description: 'Hubungkan akun Telegram Anda', completed: telegramLinked },
+    { number: 2, title: 'Lakukan Pembayaran', description: 'Bayar melalui Trakteer', completed: false },
+    { number: 3, title: 'Submit Bukti', description: 'Upload verifikasi pembayaran', completed: false }
   ];
 
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <SEO 
-          title="Premium Subscription"
-          description="Upgrade to Premium for exclusive benefits"
+          title="Berlangganan Premium"
+          description="Upgrade ke Premium untuk benefit eksklusif"
         />
-        <h1 className="text-2xl font-bold mb-4">Premium Subscription</h1>
-        <p className="text-muted-foreground mb-4">Please log in to view premium subscription options.</p>
-        <Button onClick={() => navigate('/login')}>Log In</Button>
+        <h1 className="text-2xl font-bold mb-4">Berlangganan Premium</h1>
+        <p className="text-muted-foreground mb-4">Silakan masuk untuk melihat opsi berlangganan premium.</p>
+        <Button onClick={() => navigate('/login')}>Masuk</Button>
       </div>
     );
   }
@@ -85,36 +86,36 @@ const Premium = () => {
   const benefits = [
     {
       icon: <Users className="w-6 h-6" />,
-      title: "Exclusive Telegram Access",
-      description: "Join our premium Telegram channel with exclusive content and early access to new videos"
+      title: "Akses Telegram Eksklusif",
+      description: "Bergabung dengan channel Telegram premium kami dengan konten eksklusif dan akses awal ke video baru"
     },
     {
       icon: <Key className="w-6 h-6" />,
-      title: "Double Kitty Keys",
-      description: "Earn 2x Kitty Keys for life on every daily claim - double your rewards forever!"
+      title: "Kitty Keys Ganda",
+      description: "Dapatkan 2x Kitty Keys seumur hidup pada setiap klaim harian - gandakan reward Anda selamanya!"
     },
     {
       icon: <Crown className="w-6 h-6" />,
-      title: "Premium Badge",
-      description: "Display your exclusive Premium Member badge alongside your regular badges"
+      title: "Badge Premium",
+      description: "Tampilkan badge Premium Member eksklusif Anda bersama badge reguler lainnya"
     }
   ];
 
   const features = [
-    "Exclusive premium Telegram channel access",
-    "2x Kitty Key rewards on every daily claim",
-    "Premium Member badge (permanent display)",
-    "Priority support and feedback",
-    "Early access to new features",
-    "Lifetime benefits (never expires)"
+    "Akses channel Telegram premium eksklusif",
+    "Reward Kitty Key 2x pada setiap klaim harian",
+    "Badge Premium Member (tampilan permanen)",
+    "Dukungan prioritas dan feedback",
+    "Akses awal ke fitur baru",
+    "Benefit seumur hidup (tidak pernah kedaluwarsa)"
   ];
 
   if (loading || profileLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <SEO 
-          title="Premium Subscription"
-          description="Upgrade to Premium for exclusive benefits"
+          title="Berlangganan Premium"
+          description="Upgrade ke Premium untuk benefit eksklusif"
         />
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -127,20 +128,20 @@ const Premium = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <SEO 
-          title="Premium Subscription - Active"
-          description="Your premium subscription is active"
+          title="Berlangganan Premium - Aktif"
+          description="Berlangganan premium Anda aktif"
         />
         
         <div className="text-center mb-12">
           <Badge variant="default" className="mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black">
             <Crown className="w-4 h-4 mr-1" />
-            Premium Active
+            Premium Aktif
           </Badge>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-            Premium Member
+            Member Premium
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Thank you for being a premium member! You're enjoying all the exclusive benefits.
+            Terima kasih telah menjadi member premium! Anda menikmati semua benefit eksklusif.
           </p>
         </div>
 
@@ -149,10 +150,10 @@ const Premium = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-yellow-500" />
-                Your Premium Benefits
+                Benefit Premium Anda
               </CardTitle>
               <CardDescription>
-                Active since: {new Date(subscription?.start_date || '').toLocaleDateString()}
+                Aktif sejak: {new Date(subscription?.start_date || '').toLocaleDateString('id-ID')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -172,14 +173,14 @@ const Premium = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Need Help?</CardTitle>
+              <CardTitle>Butuh Bantuan?</CardTitle>
               <CardDescription>
-                Having issues with your premium benefits? Contact our support team.
+                Mengalami masalah dengan benefit premium Anda? Hubungi tim dukungan kami.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => navigate('/contact')} variant="outline">
-                Contact Support
+                Hubungi Dukungan
               </Button>
             </CardContent>
           </Card>
@@ -191,8 +192,8 @@ const Premium = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEO 
-        title="Premium Subscription"
-        description="Upgrade to Premium for exclusive Telegram access, double Kitty Keys, and premium badge"
+        title="Berlangganan Premium"
+        description="Upgrade ke Premium untuk akses Telegram eksklusif, Kitty Keys ganda, dan badge premium"
       />
       
       {/* Promotional Banner */}
@@ -201,12 +202,12 @@ const Premium = () => {
         <div className="relative z-10 text-center text-white">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
             <Star className="w-5 h-5 animate-pulse" />
-            <span className="font-semibold">LIMITED TIME OFFER</span>
+            <span className="font-semibold">PENAWARAN TERBATAS</span>
             <Star className="w-5 h-5 animate-pulse" />
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Premium Membership
+            Membership Premium
           </h1>
           
           <div className="flex items-center justify-center gap-4 mb-6">
@@ -214,33 +215,33 @@ const Premium = () => {
               <div className="text-3xl md:text-5xl font-bold">
                 IDR 50,000
               </div>
-              <div className="text-sm opacity-80">One-time payment</div>
+              <div className="text-sm opacity-80">Pembayaran sekali</div>
             </div>
             <div className="w-px h-12 bg-white/30"></div>
             <div className="text-center">
               <div className="text-2xl md:text-3xl font-bold text-yellow-300">
-                LIFETIME
+                SEUMUR HIDUP
               </div>
-              <div className="text-sm opacity-80">Access forever</div>
+              <div className="text-sm opacity-80">Akses selamanya</div>
             </div>
           </div>
           
           <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto mb-8">
-            🎉 Get exclusive Telegram access, 2x Kitty Keys, and premium badge - <strong>Forever!</strong>
+            🎉 Dapatkan akses Telegram eksklusif, 2x Kitty Keys, dan badge premium - <strong>Selamanya!</strong>
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <Users className="w-4 h-4" />
-              <span>Exclusive Telegram Channel</span>
+              <span>Channel Telegram Eksklusif</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <Key className="w-4 h-4" />
-              <span>2x Kitty Keys Forever</span>
+              <span>2x Kitty Keys Selamanya</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <Crown className="w-4 h-4" />
-              <span>Premium Badge</span>
+              <span>Badge Premium</span>
             </div>
           </div>
         </div>
@@ -256,13 +257,13 @@ const Premium = () => {
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-200 text-emerald-800 px-6 py-3 rounded-full mb-6 shadow-lg">
           <Crown className="w-5 h-5" />
-          <span className="font-semibold">Join 1000+ Premium Members</span>
+          <span className="font-semibold">Bergabung dengan 1000+ Member Premium</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-          Simple 3-Step Process
+          Proses 3 Langkah Sederhana
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Follow these easy steps to unlock your lifetime premium benefits
+          Ikuti langkah-langkah mudah ini untuk membuka benefit premium seumur hidup Anda
         </p>
       </div>
 
@@ -270,7 +271,7 @@ const Premium = () => {
       <div className="max-w-6xl mx-auto mb-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            What You Get With Premium
+            Apa yang Anda Dapatkan dengan Premium
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mx-auto"></div>
         </div>
@@ -306,7 +307,7 @@ const Premium = () => {
         
         {/* Additional Benefits Grid */}
         <div className="mt-12 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
-          <h3 className="text-2xl font-bold text-center mb-8">Plus Even More Benefits</h3>
+          <h3 className="text-2xl font-bold text-center mb-8">Plus Benefit Lainnya</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div key={index} className="flex items-center gap-3 p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl hover:bg-white/80 dark:hover:bg-gray-700/80 transition-colors">
@@ -327,10 +328,10 @@ const Premium = () => {
               <div className="p-2 bg-white/20 rounded-lg">
                 <Crown className="w-6 h-6" />
               </div>
-              Premium Upgrade Process
+              Proses Upgrade Premium
             </CardTitle>
             <CardDescription className="text-blue-100">
-              Follow these simple steps to unlock your lifetime premium membership
+              Ikuti langkah-langkah sederhana ini untuk membuka membership premium seumur hidup Anda
             </CardDescription>
           </CardHeader>
           <CardContent className="p-8">
@@ -382,16 +383,16 @@ const Premium = () => {
                           {step.completed ? (
                             <Badge className="bg-green-100 text-green-700 border-green-200">
                               <CheckCircle className="w-3 h-3 mr-1" />
-                              Completed
+                              Selesai
                             </Badge>
                           ) : currentStep === step.number ? (
                             <Badge className="bg-blue-100 text-blue-700 border-blue-200">
                               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse mr-2"></div>
-                              Current Step
+                              Langkah Saat Ini
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="text-gray-500">
-                              Pending
+                              Tertunda
                             </Badge>
                           )}
                         </div>
@@ -408,8 +409,8 @@ const Premium = () => {
                     <Alert className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
                       <MessageSquare className="h-5 w-5 text-purple-600" />
                       <AlertDescription className="text-purple-800 dark:text-purple-200">
-                        <strong>🔗 Step 1: Link Your Telegram</strong><br />
-                        Connect your Telegram account to receive automatic premium group access after payment approval.
+                        <strong>🔗 Langkah 1: Link Telegram Anda</strong><br />
+                        Hubungkan akun Telegram Anda untuk mendapat akses grup premium otomatis setelah pembayaran disetujui.
                       </AlertDescription>
                     </Alert>
                     <TelegramLinkForm 
@@ -424,8 +425,8 @@ const Premium = () => {
                     <Alert className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
                       <CheckCircle className="h-5 w-5 text-green-600" />
                       <AlertDescription className="text-green-800 dark:text-green-200">
-                        <strong>✅ Telegram Connected:</strong> @{telegramUsername}<br />
-                        Your account is ready! Now proceed with the payment to unlock premium benefits.
+                        <strong>✅ Telegram Terhubung:</strong> @{telegramUsername}<br />
+                        Akun Anda siap! Sekarang lanjutkan dengan pembayaran untuk membuka benefit premium.
                       </AlertDescription>
                     </Alert>
                     
@@ -436,7 +437,7 @@ const Premium = () => {
                           IDR 50,000
                         </div>
                         <div className="text-sm text-yellow-600 dark:text-yellow-400">
-                          One-time payment • Lifetime access
+                          Pembayaran sekali • Akses seumur hidup
                         </div>
                       </div>
                     </div>
@@ -456,82 +457,73 @@ const Premium = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Frequently Asked Questions
+            Pertanyaan yang Sering Diajukan
           </h2>
-          <p className="text-muted-foreground">Everything you need to know about our premium membership</p>
+          <p className="text-muted-foreground">Semua yang perlu Anda ketahui tentang membership premium kami</p>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mx-auto mt-4"></div>
         </div>
-        <div className="space-y-4">
-           <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-             <CardHeader>
-               <CardTitle className="text-lg flex items-center gap-2 group-hover:text-blue-600 transition-colors">
-                 <Crown className="w-5 h-5" />
-                 What do I get with Premium membership?
-               </CardTitle>
-             </CardHeader>
-             <CardContent>
-               <p className="text-muted-foreground leading-relaxed">
-                 Premium members get exclusive access to our Telegram channel with early content, <strong>2x Kitty Key rewards on every daily claim</strong>, and a special Premium badge that displays alongside your regular badges.
-               </p>
-             </CardContent>
-           </Card>
-           
-           <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
-             <CardHeader>
-               <CardTitle className="text-lg flex items-center gap-2 group-hover:text-emerald-600 transition-colors">
-                 <CreditCard className="w-5 h-5" />
-                 Is the Premium membership a one-time payment?
-               </CardTitle>
-             </CardHeader>
-             <CardContent>
-               <p className="text-muted-foreground leading-relaxed">
-                 Yes! Premium membership is a <strong>lifetime purchase for only IDR 50,000</strong>. Once you upgrade, you'll have permanent access to all premium benefits including the 2x Kitty Key bonus and exclusive Telegram content.
-               </p>
-             </CardContent>
-           </Card>
-           
-           <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-             <CardHeader>
-               <CardTitle className="text-lg flex items-center gap-2 group-hover:text-purple-600 transition-colors">
-                 <MessageSquare className="w-5 h-5" />
-                 How do I access the premium Telegram channel?
-               </CardTitle>
-             </CardHeader>
-             <CardContent>
-               <p className="text-muted-foreground leading-relaxed">
-                 You must first link your Telegram account using our verification system, then purchase Premium membership through Trakteer. Our team will <strong>automatically invite</strong> your verified Telegram account to the exclusive premium channel within 24 hours of payment approval.
-               </p>
-             </CardContent>
-           </Card>
-           
-           <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20">
-             <CardHeader>
-               <CardTitle className="text-lg flex items-center gap-2 group-hover:text-orange-600 transition-colors">
-                 <CheckCircle className="w-5 h-5" />
-                 What's the payment verification process?
-               </CardTitle>
-             </CardHeader>
-             <CardContent>
-               <p className="text-muted-foreground leading-relaxed">
-                 <strong>Simple 3 steps:</strong> First link your Telegram account, then make payment via Trakteer, and finally submit your transaction ID and payment proof. Our team verifies each payment within 24 hours and automatically invites your linked Telegram account to the premium channel.
-               </p>
-             </CardContent>
-           </Card>
-           
-           <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20">
-             <CardHeader>
-               <CardTitle className="text-lg flex items-center gap-2 group-hover:text-yellow-600 transition-colors">
-                 <Star className="w-5 h-5" />
-                 Why do I need to link my Telegram account first?
-               </CardTitle>
-             </CardHeader>
-             <CardContent>
-               <p className="text-muted-foreground leading-relaxed">
-                 Linking your Telegram account ensures <strong>secure access</strong> to the premium channel. It prevents unauthorized users from accessing premium content and allows us to automatically invite only verified premium members.
-               </p>
-             </CardContent>
-           </Card>
-        </div>
+        
+        <Accordion type="single" collapsible className="space-y-4">
+          <AccordionItem value="item-1" className="border border-blue-200 rounded-lg px-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2 text-left">
+                <Crown className="w-5 h-5 text-blue-600" />
+                <span className="font-semibold">Apa yang saya dapatkan dengan membership Premium?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed pt-4">
+              Member premium mendapat akses eksklusif ke channel Telegram kami dengan konten awal, <strong>reward Kitty Key 2x pada setiap klaim harian</strong>, dan badge Premium khusus yang ditampilkan bersama badge reguler lainnya.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-2" className="border border-emerald-200 rounded-lg px-6 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2 text-left">
+                <CreditCard className="w-5 h-5 text-emerald-600" />
+                <span className="font-semibold">Apakah membership Premium adalah pembayaran sekali?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed pt-4">
+              Ya! Membership premium adalah <strong>pembelian seumur hidup seharga IDR 50,000</strong>. Setelah upgrade, Anda akan memiliki akses permanen ke semua benefit premium termasuk bonus Kitty Key 2x dan konten Telegram eksklusif.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-3" className="border border-purple-200 rounded-lg px-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2 text-left">
+                <MessageSquare className="w-5 h-5 text-purple-600" />
+                <span className="font-semibold">Bagaimana cara mengakses channel Telegram premium?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed pt-4">
+              Anda harus terlebih dahulu menghubungkan akun Telegram menggunakan sistem verifikasi kami, kemudian membeli membership Premium melalui Trakteer. Tim kami akan <strong>secara otomatis mengundang</strong> akun Telegram terverifikasi Anda ke channel premium eksklusif dalam 24 jam setelah pembayaran disetujui.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-4" className="border border-orange-200 rounded-lg px-6 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2 text-left">
+                <CheckCircle className="w-5 h-5 text-orange-600" />
+                <span className="font-semibold">Bagaimana proses verifikasi pembayaran?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed pt-4">
+              <strong>3 langkah sederhana:</strong> Pertama hubungkan akun Telegram Anda, kemudian lakukan pembayaran via Trakteer, dan terakhir submit ID transaksi dan bukti pembayaran. Tim kami memverifikasi setiap pembayaran dalam 24 jam dan secara otomatis mengundang akun Telegram terhubung Anda ke channel premium.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-5" className="border border-yellow-200 rounded-lg px-6 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2 text-left">
+                <Star className="w-5 h-5 text-yellow-600" />
+                <span className="font-semibold">Mengapa saya harus menghubungkan akun Telegram dulu?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed pt-4">
+              Menghubungkan akun Telegram memastikan <strong>akses aman</strong> ke channel premium. Ini mencegah pengguna yang tidak berwenang mengakses konten premium dan memungkinkan kami secara otomatis mengundang hanya member premium yang terverifikasi.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );
