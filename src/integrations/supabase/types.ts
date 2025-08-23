@@ -354,6 +354,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          profile_complete: boolean
           telegram_chat_id: number | null
           telegram_user_id: number | null
           telegram_username: string | null
@@ -366,6 +367,7 @@ export type Database = {
           created_at?: string
           email: string
           id: string
+          profile_complete?: boolean
           telegram_chat_id?: number | null
           telegram_user_id?: number | null
           telegram_username?: string | null
@@ -378,6 +380,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          profile_complete?: boolean
           telegram_chat_id?: number | null
           telegram_user_id?: number | null
           telegram_username?: string | null
