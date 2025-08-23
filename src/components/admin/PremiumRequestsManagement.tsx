@@ -49,24 +49,66 @@ const PremiumRequestsManagement = () => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Try the standard query format first
+      let { data, error } = await supabase
         .from('premium_subscription_requests')
         .select(`
           *,
-          profiles!premium_subscription_requests_user_id_fkey (
-            username,
-            email
-          )
+          profiles(username, email)
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      // If that fails, try fallback approach with manual JOIN
+      if (error) {
+        console.warn('Standard query failed, trying fallback approach:', error.message);
+        
+        // Get requests first
+        const { data: requestsData, error: requestsError } = await supabase
+          .from('premium_subscription_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (requestsError) {
+          throw requestsError;
+        }
+
+        if (requestsData && requestsData.length > 0) {
+          // Get unique user IDs
+          const userIds = [...new Set(requestsData.map(r => r.user_id))];
+          
+          // Fetch profiles for these users
+          const { data: profilesData, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, username, email')
+            .in('id', userIds);
+
+          if (profilesError) {
+            console.error('Error fetching profiles:', profilesError);
+            // Continue without profiles data
+          }
+
+          // Combine the data
+          data = requestsData.map(request => ({
+            ...request,
+            profiles: profilesData?.find(p => p.id === request.user_id) || null
+          })) as any;
+        } else {
+          data = [];
+        }
+        
+        error = null; // Clear the error since fallback worked
+      }
+
+      if (error) {
+        throw error;
+      }
+
       setRequests((data as any) || []);
     } catch (error) {
       console.error('Error fetching premium requests:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch premium requests",
+        description: `Failed to fetch premium requests: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
