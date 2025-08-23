@@ -129,16 +129,18 @@ const HelloKittySpinWheel: React.FC<HelloKittySpinWheelProps> = ({
         </div>
 
         {/* Enhanced Arrow Pointer */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-50">
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 z-50">
           <div className="relative">
             {/* Glow effect */}
-            <div className="absolute inset-0 bg-yellow-300 rounded-full blur-sm opacity-60 scale-125"></div>
+            <div className="absolute inset-0 bg-yellow-300 rounded-full blur-md opacity-70 scale-150"></div>
             {/* Arrow */}
-            <div className="relative w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-yellow-500 drop-shadow-2xl">
-              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-300"></div>
+            <div className="relative w-0 h-0 border-l-8 border-r-8 border-b-16 border-l-transparent border-r-transparent border-b-yellow-500 drop-shadow-2xl">
+              <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-5 border-r-5 border-b-10 border-l-transparent border-r-transparent border-b-yellow-300"></div>
             </div>
+            {/* Additional shadow for depth */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-16 border-l-transparent border-r-transparent border-b-yellow-600/30 blur-sm"></div>
           </div>
-          <div className="text-2xl text-center mt-2 drop-shadow-lg animate-pulse">🎀</div>
+          <div className="text-3xl text-center mt-3 drop-shadow-lg animate-pulse">🎀</div>
         </div>
 
         {/* Spin Wheel with Enhanced Design */}
