@@ -53,7 +53,7 @@ const PremiumRequestsManagement = () => {
         .from('premium_subscription_requests')
         .select(`
           *,
-          profiles!inner (
+          profiles!premium_subscription_requests_user_id_fkey (
             username,
             email
           )
