@@ -304,16 +304,6 @@ async function handleVideoUpload(update: TelegramUpdate) {
         message.message_id
       );
       
-      // Log unauthorized attempt
-      await supabase.from('upload_logs').insert({
-        user_id: null, // No user_id since not authorized
-        filename: 'unauthorized_attempt',
-        success: false,
-        upload_type: 'telegram_unauthorized',
-        error_message: `Unauthorized upload from chat ${chatId}, user ${userId}`,
-        ip_address: 'telegram_bot'
-      });
-      
       return;
     }
   } catch (authError) {
@@ -332,17 +322,47 @@ async function handleVideoUpload(update: TelegramUpdate) {
       return;
     }
 
-    const fileUrl = await getTelegramFile(telegramFile.file_id);
-    const fileBuffer = await downloadFile(fileUrl);
+    // 1. FILE SIZE VALIDATION (19.5MB limit to be safe)
+    const maxFileSize = 19.5 * 1024 * 1024; // 19.5MB in bytes
+    if (telegramFile.file_size && telegramFile.file_size > maxFileSize) {
+      await sendTelegramMessage(chatId, 
+        `❌ File terlalu besar!\n\n` +
+        `📏 Ukuran file: ${(telegramFile.file_size / (1024 * 1024)).toFixed(1)}MB\n` +
+        `⚠️ Maksimal: 19.5MB\n\n` +
+        `💡 Silakan kompres video atau gunakan file yang lebih kecil.`,
+        message.message_id
+      );
+      return;
+    }
+
     const fileName = telegramFile.file_name || `video_${telegramFile.file_unique_id}`;
     const videoTitle = message.text || fileName;
 
     console.log(`📁 Processing file: ${fileName} (${telegramFile.file_size} bytes) from ${uploadSource}`);
 
-    // Save telegram upload metadata for tracking
+    // 2. CHECK FOR DUPLICATE FILES
+    const { data: existingUpload } = await supabase
+      .from('telegram_uploads')
+      .select('*, videos(*)')
+      .eq('telegram_file_unique_id', telegramFile.file_unique_id)
+      .eq('upload_status', 'completed')
+      .maybeSingle();
+
+    if (existingUpload && existingUpload.videos) {
+      await sendTelegramMessage(chatId, 
+        `🔄 File sudah pernah diupload sebelumnya!\n\n` +
+        `📝 Judul: ${existingUpload.videos.title}\n` +
+        `🔗 ID Video: ${existingUpload.videos.id}\n\n` +
+        `✅ File sudah tersedia di sistem.`,
+        message.message_id
+      );
+      return;
+    }
+
+    // 3. SAVE TELEGRAM UPLOAD METADATA (WITH UPSERT TO HANDLE DUPLICATES)
     const { data: telegramUpload, error: telegramError } = await supabase
       .from('telegram_uploads')
-      .insert({
+      .upsert({
         telegram_user_id: userId!,
         telegram_chat_id: chatId,
         telegram_message_id: message.message_id,
@@ -352,40 +372,91 @@ async function handleVideoUpload(update: TelegramUpdate) {
         mime_type: telegramFile.mime_type,
         file_size: telegramFile.file_size,
         upload_status: 'processing'
+      }, {
+        onConflict: 'telegram_file_unique_id'
       })
       .select()
       .single();
 
     if (telegramError) {
       console.error('Error saving telegram upload metadata:', telegramError);
-      // Continue with upload even if metadata save fails
+      await sendTelegramMessage(chatId, 
+        `❌ Gagal menyimpan metadata file: ${telegramError.message}`,
+        message.message_id
+      );
+      return;
     }
+
+    // 4. DOWNLOAD AND PROCESS FILE
+    const fileUrl = await getTelegramFile(telegramFile.file_id);
+    const fileBuffer = await downloadFile(fileUrl);
 
     // Upload to both Doodstream accounts
     console.log('🚀 Uploading to both Doodstream accounts...');
     const uploadResult = await uploadToBothDoodstream(fileBuffer, fileName, videoTitle);
 
+    // 5. VALIDATE UPLOAD RESULTS BEFORE DATABASE INSERT
+    const hasRegularSuccess = uploadResult.results.regular?.file_code;
+    const hasPremiumSuccess = uploadResult.results.premium?.file_code;
+    const hasAnySuccess = hasRegularSuccess || hasPremiumSuccess;
+
+    // If both uploads failed, save to upload_failures and don't create video record
+    if (!hasAnySuccess) {
+      console.error('Both uploads failed completely');
+      
+      // Save failed upload details for manual retry
+      await supabase.from('upload_failures').insert({
+        upload_type: 'telegram_dual_upload',
+        attempt_count: 1,
+        error_details: { 
+          errors: uploadResult.errors,
+          telegram_file: telegramFile,
+          upload_source: uploadSource 
+        },
+        requires_manual_upload: true
+      });
+
+      // Update telegram upload record as failed
+      await supabase
+        .from('telegram_uploads')
+        .update({
+          upload_status: 'failed',
+          processed_at: new Date().toISOString(),
+          error_message: JSON.stringify(uploadResult.errors)
+        })
+        .eq('id', telegramUpload.id);
+
+      await sendTelegramMessage(chatId, 
+        `❌ Upload gagal ke semua akun!\n\n` +
+        `📝 File: ${fileName}\n` +
+        `🛠️ Regular: ${uploadResult.errors.regular}\n` +
+        `🛠️ Premium: ${uploadResult.errors.premium}\n\n` +
+        `⚠️ Admin akan melakukan retry manual.`,
+        message.message_id
+      );
+      return;
+    }
+
     // Prepare upload status and file codes
-    const hasErrors = uploadResult.hasErrors || false;
     const uploadStatus = {
-      regular: uploadResult.results.regular ? 'success' : 'failed',
-      premium: uploadResult.results.premium ? 'success' : 'failed'
+      regular: hasRegularSuccess ? 'success' : 'failed',
+      premium: hasPremiumSuccess ? 'success' : 'failed'
     };
     
-    const failedUploads = hasErrors ? uploadResult.errors : {};
+    const failedUploads = uploadResult.hasErrors ? uploadResult.errors : {};
 
-    // Save to database with dual file codes
+    // 6. SAVE TO DATABASE (only if at least one upload succeeded)
     const { data: videoData, error: dbError } = await supabase
       .from('videos')
       .insert({
         title: videoTitle,
         description: `Uploaded from Telegram ${uploadSource} by ${username || 'Unknown'}`,
-        file_code: uploadResult.results.regular?.file_code || null,
-        regular_file_code: uploadResult.results.regular?.file_code || null,
-        premium_file_code: uploadResult.results.premium?.file_code || null,
-        doodstream_file_code: uploadResult.results.regular?.file_code || uploadResult.results.premium?.file_code,
+        file_code: hasRegularSuccess || hasPremiumSuccess, // Use whichever succeeded
+        regular_file_code: hasRegularSuccess || null,
+        premium_file_code: hasPremiumSuccess || null,
+        doodstream_file_code: hasRegularSuccess || hasPremiumSuccess,
         file_size: telegramFile.file_size,
-        status: hasErrors ? 'partial' : 'active',
+        status: uploadResult.hasErrors ? 'partial' : 'active',
         upload_date: new Date().toISOString(),
         provider: 'doodstream',
         upload_status: uploadStatus,
@@ -403,9 +474,9 @@ async function handleVideoUpload(update: TelegramUpdate) {
         .update({
           video_id: videoData.id,
           doodstream_file_code: videoData.doodstream_file_code,
-          upload_status: hasErrors ? 'partial_success' : 'completed',
+          upload_status: uploadResult.hasErrors ? 'partial_success' : 'completed',
           processed_at: new Date().toISOString(),
-          error_message: hasErrors ? JSON.stringify(uploadResult.errors) : null
+          error_message: uploadResult.hasErrors ? JSON.stringify(uploadResult.errors) : null
         })
         .eq('id', telegramUpload.id);
     }
@@ -414,9 +485,9 @@ async function handleVideoUpload(update: TelegramUpdate) {
     await supabase.from('upload_logs').insert({
       user_id: null, // Telegram uploads don't have direct user mapping
       filename: fileName,
-      success: !hasErrors,
+      success: !uploadResult.hasErrors,
       upload_type: `telegram_${uploadSource}`,
-      error_message: hasErrors ? `Partial upload: ${JSON.stringify(uploadResult.errors)}` : null,
+      error_message: uploadResult.hasErrors ? `Partial upload: ${JSON.stringify(uploadResult.errors)}` : null,
       ip_address: 'telegram_bot',
       file_size: telegramFile.file_size
     });
@@ -424,7 +495,7 @@ async function handleVideoUpload(update: TelegramUpdate) {
     // Send success/partial success message with retry buttons for failures
     let successMessage = '';
     
-    if (!hasErrors) {
+    if (!uploadResult.hasErrors) {
       successMessage = `✅ Video berhasil diupload ke kedua akun!\n\n📝 Judul: ${videoTitle}\n🔗 Link: https://your-site.com/video/${videoData.id}`;
       successMessage += `\n📁 Regular: ${uploadResult.results.regular?.file_code}`;
       successMessage += `\n✨ Premium: ${uploadResult.results.premium?.file_code}`;
@@ -473,7 +544,7 @@ async function handleVideoUpload(update: TelegramUpdate) {
     }
 
     // Log failed uploads for admin follow-up
-    if (hasErrors) {
+    if (uploadResult.hasErrors) {
       for (const [accountType, error] of Object.entries(uploadResult.errors)) {
         await supabase.from('upload_failures').insert({
           video_id: videoData.id,
