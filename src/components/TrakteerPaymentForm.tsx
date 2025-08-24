@@ -15,15 +15,17 @@ const TRAKTEER_AMOUNT = 50000; // IDR 50,000
 const TRAKTEER_URL = "https://trakteer.id/your-username"; // Replace with actual Trakteer URL
 
 interface TrakteerPaymentFormProps {
-  telegramUsername: string;
+  telegramUsername?: string;
+  amount?: number;
+  subscriptionType?: string;
 }
 
-const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => {
+const TrakteerPaymentForm = ({ telegramUsername, amount = 50000, subscriptionType = 'telegram_lifetime' }: TrakteerPaymentFormProps) => {
   const { submitRequest, loading } = usePremiumRequests();
   const [formData, setFormData] = useState({
     trakteer_transaction_id: '',
     payment_proof_url: '',
-    amount: TRAKTEER_AMOUNT,
+    amount: amount,
   });
   const [step, setStep] = useState<'payment' | 'proof'>('payment');
   const [submitting, setSubmitting] = useState(false);
@@ -40,8 +42,11 @@ const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => 
 
     setSubmitting(true);
     const result = await submitRequest({
-      ...formData,
-      telegram_username: telegramUsername,
+      trakteer_transaction_id: formData.trakteer_transaction_id,
+      payment_proof_url: formData.payment_proof_url,
+      amount: formData.amount,
+      subscription_type: subscriptionType,
+      telegram_username: telegramUsername || ''
     });
     
     if (!result.error) {
@@ -53,7 +58,7 @@ const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => 
       setFormData({
         trakteer_transaction_id: '',
         payment_proof_url: '',
-        amount: TRAKTEER_AMOUNT,
+        amount: amount,
       });
     }
     setSubmitting(false);
@@ -75,8 +80,8 @@ const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => 
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Make sure your payment amount matches exactly <strong>IDR {TRAKTEER_AMOUNT.toLocaleString('id-ID')}</strong> 
-              for lifetime premium membership verification.
+              Make sure your payment amount matches exactly <strong>IDR {amount.toLocaleString('id-ID')}</strong> 
+              for {subscriptionType.includes('streaming') ? 'streaming premium' : 'lifetime premium membership'} verification.
             </AlertDescription>
           </Alert>
 
@@ -118,7 +123,7 @@ const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => 
             <div>
               <Label>Payment Amount</Label>
               <div className="mt-1 p-3 bg-muted rounded-md">
-                <span className="text-lg font-semibold">IDR {TRAKTEER_AMOUNT.toLocaleString('id-ID')}</span>
+                <span className="text-lg font-semibold">IDR {amount.toLocaleString('id-ID')}</span>
               </div>
             </div>
           </div>
@@ -158,20 +163,28 @@ const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => 
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Alert>
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Lifetime Premium Membership</strong> - One-time payment for permanent access to all premium features including 2x Kitty Keys, exclusive Telegram access, and premium badge.
-          </AlertDescription>
-        </Alert>
+          <Alert>
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>{subscriptionType === 'telegram_lifetime' ? 'Lifetime Telegram Premium' : 'Streaming Premium'}</strong> - 
+              {subscriptionType === 'telegram_lifetime' 
+                ? ' One-time payment for permanent access to all premium features including 2x Kitty Keys, exclusive Telegram access, and premium badge.'
+                : ' Streaming tanpa iklan dengan kualitas premium dan loading cepat.'
+              }
+            </AlertDescription>
+          </Alert>
 
         <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6">
           <div className="text-center mb-4">
             <div className="text-3xl font-bold text-green-700 mb-2">
-              IDR {TRAKTEER_AMOUNT.toLocaleString('id-ID')}
+              IDR {amount.toLocaleString('id-ID')}
             </div>
             <Badge variant="secondary" className="bg-green-100 text-green-800">
-              Lifetime Access
+              {subscriptionType === 'telegram_lifetime' ? 'Lifetime Access' : 
+               subscriptionType.includes('1month') ? '30 Hari' :
+               subscriptionType.includes('3month') ? '90 Hari' :
+               subscriptionType.includes('6month') ? '180 Hari' :
+               subscriptionType.includes('1year') ? '365 Hari' : 'Premium'}
             </Badge>
           </div>
           
@@ -204,7 +217,7 @@ const TrakteerPaymentForm = ({ telegramUsername }: TrakteerPaymentFormProps) => 
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-medium">2</span>
-              <span>Support us with exactly <strong>IDR {TRAKTEER_AMOUNT.toLocaleString('id-ID')}</strong></span>
+              <span>Support us with exactly <strong>IDR {amount.toLocaleString('id-ID')}</strong></span>
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-medium">3</span>

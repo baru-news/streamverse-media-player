@@ -16,7 +16,7 @@ import ContactMessageManagement from "@/components/admin/ContactMessageManagemen
 import PremiumRequestsManagement from "@/components/admin/PremiumRequestsManagement";
 import { TelegramAdminManagement } from "@/components/admin/TelegramAdminManagement";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
-import EnhancedVideoManager from "@/components/admin/EnhancedVideoManager";
+import { UploadFailuresManagement } from "@/components/admin/UploadFailuresManagement";
 import { useContactMessages } from "@/hooks/useContactMessages";
 
 const AdminUpload = () => {
@@ -103,6 +103,11 @@ const AdminUpload = () => {
                     </span>
                   )}
                 </TabsTrigger>
+                <TabsTrigger value="upload-failures" className="gap-2 whitespace-nowrap px-4 py-2" id="upload-failures">
+                  <List className="w-4 h-4" />
+                  <span className="hidden sm:inline">Upload Failures</span>
+                  <span className="sm:hidden">Uploads</span>
+                </TabsTrigger>
                 <TabsTrigger value="videos" className="gap-2 whitespace-nowrap px-4 py-2" id="videos">
                   <List className="w-4 h-4" />
                   <span className="hidden sm:inline">Kelola Video</span>
@@ -171,9 +176,16 @@ const AdminUpload = () => {
               <ContactMessageManagement />
             </TabsContent>
 
+            {/* Upload Failures Tab */}
+            <TabsContent value="upload-failures">
+              <UploadFailuresManagement />
+            </TabsContent>
+
             {/* Videos Tab */}
             <TabsContent value="videos">
-              <EnhancedVideoManager />
+              <div className="text-center py-8 text-muted-foreground">
+                Enhanced Video Manager coming soon...
+              </div>
             </TabsContent>
 
             {/* Settings Tab */}

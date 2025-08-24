@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, XCircle, Clock, Eye, MessageSquare, RefreshCw, Users, DollarSign } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, MessageSquare, RefreshCw, Users, DollarSign, Crown, Play } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -265,6 +265,35 @@ const PremiumRequestsManagement = () => {
     }
   };
 
+  const getSubscriptionTypeIcon = (type: string) => {
+    if (type.startsWith('streaming_')) {
+      return <Play className="w-4 h-4 text-purple-500" />;
+    } else if (type === 'telegram_lifetime') {
+      return <Crown className="w-4 h-4 text-yellow-500" />;
+    }
+    return <Users className="w-4 h-4 text-blue-500" />;
+  };
+
+  const getSubscriptionTypeName = (type: string) => {
+    const typeMap = {
+      'telegram_lifetime': 'Telegram Lifetime',
+      'streaming_1month': 'Streaming 1 Bulan',
+      'streaming_3month': 'Streaming 3 Bulan', 
+      'streaming_6month': 'Streaming 6 Bulan',
+      'streaming_1year': 'Streaming 1 Tahun'
+    };
+    return typeMap[type as keyof typeof typeMap] || type;
+  };
+
+  const getSubscriptionTypeColor = (type: string) => {
+    if (type.startsWith('streaming_')) {
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    } else if (type === 'telegram_lifetime') {
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    }
+    return 'bg-blue-100 text-blue-800 border-blue-200';
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -321,6 +350,10 @@ const PremiumRequestsManagement = () => {
           <div className="flex items-center gap-2">
             <Badge className={getStatusColor(request.status)}>
               {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+            </Badge>
+            <Badge className={getSubscriptionTypeColor(request.subscription_type)}>
+              {getSubscriptionTypeIcon(request.subscription_type)}
+              <span className="ml-1">{getSubscriptionTypeName(request.subscription_type)}</span>
             </Badge>
           </div>
         </div>
@@ -412,18 +445,20 @@ const PremiumRequestsManagement = () => {
 
         {request.status === 'pending' && (
           <>
-            {!request.profiles?.telegram_user_id ? (
+            {request.status === 'pending' && !request.profiles?.telegram_user_id ? (
               <Alert className="mb-4 border-red-200 bg-red-50">
                 <MessageSquare className="h-4 w-4 text-red-500" />
                 <AlertDescription className="text-red-700">
-                  <strong>⚠ Telegram Not Linked:</strong> User must link their Telegram account before approval. Premium invitation will fail without proper Telegram linking.
+                  <strong>⚠ Telegram Not Linked:</strong> User must link their Telegram account before approval. 
+                  {request.subscription_type === 'telegram_lifetime' && " Telegram Premium requires linked account."}
+                  {request.subscription_type.startsWith('streaming_') && " Streaming Premium can be approved without Telegram."}
                 </AlertDescription>
               </Alert>
-            ) : (
+            ) : request.status === 'pending' && (
               <Alert className="mb-4 border-green-200 bg-green-50">
                 <MessageSquare className="h-4 w-4 text-green-500" />
                 <AlertDescription className="text-green-700">
-                  <strong>✓ Telegram Ready:</strong> User has linked Telegram account. Premium invitation will be sent automatically upon approval.
+                  <strong>✓ Ready for Approval:</strong> All requirements met for {getSubscriptionTypeName(request.subscription_type)}.
                 </AlertDescription>
               </Alert>
             )}
@@ -431,7 +466,10 @@ const PremiumRequestsManagement = () => {
               <Button
                 size="sm"
                 onClick={() => openDialog(request, 'approve')}
-                disabled={processingId === request.id || !request.profiles?.telegram_user_id}
+                disabled={
+                  processingId === request.id || 
+                  (request.subscription_type === 'telegram_lifetime' && !request.profiles?.telegram_user_id)
+                }
                 className="flex-1"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
