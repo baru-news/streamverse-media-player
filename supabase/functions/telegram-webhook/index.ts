@@ -109,18 +109,20 @@ async function handleChatMemberUpdate(update: TelegramUpdate) {
   const userId = update.chat_member!.new_chat_member.user.id;
   const username = update.chat_member!.new_chat_member.user.username;
 
+  console.log(`Chat member update - Chat: ${chatId}, User: ${userId}, Status: ${newStatus}`);
+
   if (newStatus === 'member' || newStatus === 'administrator') {
-    // Grant premium role to the user
+    // Update user profile in profiles table
     const { data, error } = await supabase
-      .from('users')
-      .update({ telegram_user_id: userId, username: username })
+      .from('profiles')
+      .update({ telegram_user_id: userId, telegram_username: username })
       .eq('telegram_user_id', userId);
 
     if (error) {
       console.error('Supabase update error:', error);
-      await sendTelegramMessage(chatId, `Failed to update user role: ${error.message}`);
+      await sendTelegramMessage(chatId, `❌ Gagal update user: ${error.message}`);
     } else {
-      await sendTelegramMessage(chatId, `User ${username} added/rejoined and linked.`);
+      await sendTelegramMessage(chatId, `✅ User ${username || userId} berhasil ditambahkan!`);
     }
   }
 }
@@ -130,40 +132,103 @@ async function handleLinkCommand(update: TelegramUpdate) {
   const userId = update.message!.from!.id;
   const username = update.message!.from!.username;
 
-  const { data, error } = await supabase
-    .from('users')
-    .update({ telegram_user_id: userId, username: username })
-    .eq('telegram_user_id', userId);
+  console.log(`Link command from user ${userId} (${username})`);
 
-  if (error) {
-    console.error('Supabase update error:', error);
-    await sendTelegramMessage(chatId, `Failed to link account: ${error.message}`);
-  } else {
-    await sendTelegramMessage(chatId, `Account linked successfully!`);
+  try {
+    // Generate 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Save to telegram_link_codes table
+    const { error: codeError } = await supabase
+      .from('telegram_link_codes')
+      .insert({
+        code: code,
+        telegram_user_id: userId,
+        telegram_username: username,
+        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 minutes
+      });
+
+    if (codeError) {
+      console.error('Error saving verification code:', codeError);
+      await sendTelegramMessage(chatId, `❌ Gagal membuat kode verifikasi: ${codeError.message}`);
+      return;
+    }
+
+    await sendTelegramMessage(chatId, 
+      `🔗 Kode verifikasi akun Telegram:\n\n` +
+      `📱 Kode: \`${code}\`\n\n` +
+      `⏰ Kode berlaku 10 menit\n` +
+      `💻 Masukkan kode ini di website untuk menghubungkan akun Telegram Anda`
+    );
+  } catch (error) {
+    console.error('Link command error:', error);
+    await sendTelegramMessage(chatId, `❌ Terjadi kesalahan: ${error.message}`);
   }
 }
 
 async function handlePremiumCommand(update: TelegramUpdate) {
   const chatId = update.message!.chat.id;
   const userId = update.message!.from!.id;
+  const username = update.message!.from!.username;
 
-  // Check if the user has a premium subscription
-  const { data: premium, error: premiumError } = await supabase
-    .from('premium_subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+  console.log(`Premium command from user ${userId} (${username})`);
 
-  if (premiumError) {
-    console.error('Supabase premium check error:', premiumError);
-    await sendTelegramMessage(chatId, `Failed to check premium status: ${premiumError.message}`);
-    return;
-  }
+  try {
+    // First find user profile by telegram_user_id
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, username, telegram_username')
+      .eq('telegram_user_id', userId)
+      .maybeSingle();
 
-  if (premium) {
-    await sendTelegramMessage(chatId, `You have a premium subscription!`);
-  } else {
-    await sendTelegramMessage(chatId, `You do not have a premium subscription.`);
+    if (profileError) {
+      console.error('Error finding user profile:', profileError);
+      await sendTelegramMessage(chatId, `❌ Error cek profil: ${profileError.message}`);
+      return;
+    }
+
+    if (!profile) {
+      await sendTelegramMessage(chatId, 
+        `❌ Akun belum terhubung!\n\n` +
+        `🔗 Ketik /link untuk menghubungkan akun Telegram dengan website`
+      );
+      return;
+    }
+
+    // Check premium subscription using profile.id (not telegram user id)
+    const { data: premiums, error: premiumError } = await supabase
+      .from('premium_subscriptions')
+      .select('subscription_type, is_active, start_date, end_date')
+      .eq('user_id', profile.id)
+      .eq('is_active', true);
+
+    if (premiumError) {
+      console.error('Error checking premium status:', premiumError);
+      await sendTelegramMessage(chatId, `❌ Error cek premium: ${premiumError.message}`);
+      return;
+    }
+
+    if (premiums && premiums.length > 0) {
+      const premium = premiums[0];
+      const endDate = premium.end_date ? new Date(premium.end_date).toLocaleDateString('id-ID') : 'Selamanya';
+      
+      await sendTelegramMessage(chatId, 
+        `✨ Status Premium Aktif!\n\n` +
+        `👤 User: ${profile.username || profile.telegram_username}\n` +
+        `📦 Paket: ${premium.subscription_type}\n` +
+        `📅 Berlaku hingga: ${endDate}\n\n` +
+        `🎉 Nikmati akses premium Anda!`
+      );
+    } else {
+      await sendTelegramMessage(chatId, 
+        `❌ Belum berlangganan premium\n\n` +
+        `👤 User: ${profile.username || profile.telegram_username}\n\n` +
+        `💎 Upgrade ke premium di website untuk akses unlimited!`
+      );
+    }
+  } catch (error) {
+    console.error('Premium command error:', error);
+    await sendTelegramMessage(chatId, `❌ Terjadi kesalahan: ${error.message}`);
   }
 }
 
@@ -340,11 +405,42 @@ serve(async (req) => {
     } else if (update.message?.video || update.message?.document) {
       await handleVideoUpload(update);
     } else if (update.message?.text) {
-      const text = update.message.text;
-      if (text.startsWith('/link')) {
+      const text = update.message.text.toLowerCase();
+      const chatId = update.message.chat.id;
+      
+      if (text.startsWith('/start')) {
+        await sendTelegramMessage(chatId, 
+          `🤖 Selamat datang di Bot Premium!\n\n` +
+          `✨ Perintah yang tersedia:\n` +
+          `/link - Hubungkan akun Telegram ke website\n` +
+          `/premium - Cek status premium Anda\n` +
+          `/help - Tampilkan pesan bantuan ini\n\n` +
+          `📞 Butuh bantuan? Hubungi admin!`
+        );
+      } else if (text.startsWith('/help')) {
+        await sendTelegramMessage(chatId,
+          `📖 Panduan Bot Premium:\n\n` +
+          `🔗 /link\n` +
+          `   Menghubungkan akun Telegram Anda dengan website.\n` +
+          `   Bot akan memberikan kode 6 digit yang harus dimasukkan di website.\n\n` +
+          `💎 /premium\n` +
+          `   Mengecek status berlangganan premium Anda.\n` +
+          `   Pastikan akun sudah terhubung dengan /link terlebih dahulu.\n\n` +
+          `🏁 /start\n` +
+          `   Menampilkan pesan selamat datang.\n\n` +
+          `❓ Masalah?\n` +
+          `   Pastikan akun Telegram sudah terhubung ke website sebelum menggunakan fitur premium.`
+        );
+      } else if (text.startsWith('/link')) {
         await handleLinkCommand(update);
       } else if (text.startsWith('/premium')) {
         await handlePremiumCommand(update);
+      } else if (text.startsWith('/')) {
+        // Unknown command
+        await sendTelegramMessage(chatId,
+          `❓ Perintah tidak dikenali.\n\n` +
+          `Ketik /help untuk melihat perintah yang tersedia.`
+        );
       }
     }
 
