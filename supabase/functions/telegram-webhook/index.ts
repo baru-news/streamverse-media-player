@@ -65,11 +65,39 @@ interface TelegramUpdate {
   };
 }
 
+// Helper function to sanitize and create unique filename
+function sanitizeFilename(filename: string): string {
+  // Remove unsafe characters and limit length
+  return filename
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .substring(0, 100);
+}
+
+function generateUniqueTitle(originalName?: string, chatId?: number, userId?: number): string {
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 8);
+  
+  if (originalName && originalName.trim() !== '') {
+    const cleanName = sanitizeFilename(originalName);
+    return `${timestamp}_${randomString}_${cleanName}`;
+  }
+  
+  // Fallback with chat/user info
+  const prefix = chatId ? `TG_${Math.abs(chatId)}_` : 'TG_';
+  const userSuffix = userId ? `_U${Math.abs(userId)}` : '';
+  return `${prefix}${timestamp}_${randomString}${userSuffix}`;
+}
+
 async function downloadTelegramFile(fileId: string): Promise<{ buffer: ArrayBuffer; fileName: string; mimeType: string; }> {
+  console.log(`Downloading Telegram file: ${fileId}`);
+  
   // Get file info from Telegram
   const fileInfoUrl = `https://api.telegram.org/bot${telegramBotToken}/getFile?file_id=${fileId}`;
   const fileInfoResponse = await fetch(fileInfoUrl);
   const fileInfo = await fileInfoResponse.json();
+  
+  console.log(`Telegram file info:`, fileInfo);
   
   if (!fileInfo.ok) {
     throw new Error(`Failed to get file info: ${fileInfo.description}`);
@@ -77,6 +105,8 @@ async function downloadTelegramFile(fileId: string): Promise<{ buffer: ArrayBuff
   
   // Download file from Telegram
   const fileUrl = `https://api.telegram.org/file/bot${telegramBotToken}/${fileInfo.result.file_path}`;
+  console.log(`Downloading from URL: ${fileUrl}`);
+  
   const fileResponse = await fetch(fileUrl);
   
   if (!fileResponse.ok) {
@@ -87,10 +117,14 @@ async function downloadTelegramFile(fileId: string): Promise<{ buffer: ArrayBuff
   const fileName = fileInfo.result.file_path.split('/').pop() || 'video';
   const mimeType = 'video/mp4'; // Default for videos
   
+  console.log(`Downloaded file - Size: ${buffer.byteLength} bytes, Name: ${fileName}`);
+  
   return { buffer, fileName, mimeType };
 }
 
 async function uploadToDoodstream(fileBuffer: ArrayBuffer, fileName: string, title?: string): Promise<any> {
+  console.log(`Preparing upload to Doodstream - File: ${fileName}, Title: ${title}`);
+  
   const blob = new Blob([fileBuffer]);
   const file = new File([blob], fileName);
   
@@ -98,14 +132,20 @@ async function uploadToDoodstream(fileBuffer: ArrayBuffer, fileName: string, tit
   formData.append('file', file);
   formData.append('title', title || fileName);
   
+  console.log(`FormData prepared - File size: ${file.size}, Name: ${file.name}, Title: ${title}`);
+  
   const response = await supabase.functions.invoke('doodstream-api', {
     body: formData
   });
   
+  console.log(`Doodstream API response:`, response);
+  
   if (response.error) {
+    console.error(`Doodstream upload error:`, response.error);
     throw new Error(`Doodstream upload failed: ${response.error.message}`);
   }
   
+  console.log(`Upload successful - File code: ${response.data?.file_code}`);
   return response.data;
 }
 
@@ -172,7 +212,11 @@ async function handleVideoUpload(update: TelegramUpdate) {
   );
   
   try {
-    // Record upload attempt in database
+    // Generate unique title with better naming logic
+    const uniqueTitle = generateUniqueTitle(fileInfo.file_name, chatId, telegramUserId);
+    console.log(`Generated unique title: ${uniqueTitle} from original: ${fileInfo.file_name}`);
+    
+    // Record upload attempt in database with enhanced tracking
     const { data: uploadRecord, error: insertError } = await supabase
       .from('telegram_uploads')
       .insert({
@@ -181,7 +225,7 @@ async function handleVideoUpload(update: TelegramUpdate) {
         telegram_message_id: messageId,
         telegram_chat_id: chatId,
         telegram_user_id: telegramUserId,
-        original_filename: fileInfo.file_name || 'video',
+        original_filename: fileInfo.file_name || 'unknown',
         file_size: fileInfo.file_size || 0,
         mime_type: fileInfo.mime_type || 'video/mp4',
         upload_status: 'processing'
@@ -194,15 +238,20 @@ async function handleVideoUpload(update: TelegramUpdate) {
       throw new Error('Database error');
     }
     
+    console.log(`Upload record created with ID: ${uploadRecord.id}`);
+    
     // Download file from Telegram
     const { buffer, fileName } = await downloadTelegramFile(fileInfo.file_id);
     
-    // Upload to Doodstream
-    const title = fileInfo.file_name || `Video_${Date.now()}`;
-    const doodstreamResult = await uploadToDoodstream(buffer, fileName, title);
+    // Create sanitized filename for file object
+    const sanitizedFileName = sanitizeFilename(fileName);
+    console.log(`Sanitized filename: ${sanitizedFileName}`);
     
-    // Update upload record with success
-    await supabase
+    // Upload to Doodstream with unique title
+    const doodstreamResult = await uploadToDoodstream(buffer, sanitizedFileName, uniqueTitle);
+    
+    // Update upload record with success and processed filename
+    const updateResult = await supabase
       .from('telegram_uploads')
       .update({
         doodstream_file_code: doodstreamResult.file_code,
@@ -211,12 +260,16 @@ async function handleVideoUpload(update: TelegramUpdate) {
       })
       .eq('id', uploadRecord.id);
       
-    // Send success message
+    console.log(`Upload record updated:`, updateResult);
+      
+    // Send success message with processed title
     await sendTelegramMessage(
       chatId,
-      `✅ Video berhasil diunggah!\n📹 Judul: ${title}\n🔗 File Code: ${doodstreamResult.file_code}`,
+      `✅ Video berhasil diunggah!\n📹 Judul: ${uniqueTitle}\n📝 File asli: ${fileInfo.file_name || 'tidak ada nama'}\n🔗 File Code: ${doodstreamResult.file_code}`,
       messageId
     );
+    
+    console.log(`Upload completed successfully for file: ${uniqueTitle}`);
     
   } catch (error) {
     console.error('Error uploading video:', error);
