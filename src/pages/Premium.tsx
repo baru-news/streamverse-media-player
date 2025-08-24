@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, Crown, Users, Star, MessageSquare, ArrowLeft, Play, Zap, Clock, Gift } from 'lucide-react';
+import { Check, Crown, Users, Star, MessageSquare, ArrowLeft, Play, Zap, Clock, Gift, Shield } from 'lucide-react';
 import SEO from '@/components/SEO';
 import TrakteerPaymentForm from '@/components/TrakteerPaymentForm';
 import PremiumRequestStatus from '@/components/PremiumRequestStatus';
@@ -584,9 +584,15 @@ const Premium = () => {
                   
                   {!hasTelegram ? (
                     telegramLinked ? (
-                      <div className="space-y-4">
-                        <div className="text-center text-white/80 text-sm mb-4">
-                          🚀 Siap untuk bergabung dengan elite members?
+                      <div className="space-y-6">
+                        <div className="text-center space-y-2 mb-6">
+                          <div className="inline-flex items-center gap-2 bg-green-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-green-400/30">
+                            <Check className="w-4 h-4 text-green-400" />
+                            <span className="text-green-300 font-medium text-sm">Telegram Berhasil Terhubung</span>
+                          </div>
+                          <div className="text-white/90 text-lg font-semibold">
+                            🚀 Siap untuk bergabung dengan elite members?
+                          </div>
                         </div>
                         <TrakteerPaymentForm 
                           telegramUsername={telegramUsername}
@@ -596,14 +602,46 @@ const Premium = () => {
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        <Alert className="bg-white/20 border-white/30 text-white">
-                          <MessageSquare className="h-5 w-5 text-white" />
-                          <AlertDescription className="text-white font-medium">
-                            🔗 Hubungkan akun Telegram Anda terlebih dahulu untuk melanjutkan ke pembayaran elite
-                          </AlertDescription>
-                        </Alert>
-                        <div className="p-6 bg-white/10 backdrop-blur-sm rounded-2xl">
-                          <TelegramLinkForm onSuccess={handleTelegramSuccess} />
+                        {/* Step-by-step verification header */}
+                        <div className="text-center space-y-4 mb-8">
+                          <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-amber-400/30">
+                            <MessageSquare className="w-5 h-5 text-amber-300" />
+                            <span className="text-amber-200 font-bold text-lg">STEP 1: Verifikasi Telegram</span>
+                          </div>
+                          <p className="text-white/80 text-sm max-w-md mx-auto leading-relaxed">
+                            Untuk keamanan dan akses eksklusif, Anda perlu menghubungkan akun Telegram terlebih dahulu
+                          </p>
+                        </div>
+
+                        {/* Enhanced verification process */}
+                        <div className="relative">
+                          {/* Glowing border effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-3xl blur-sm"></div>
+                          <div className="relative bg-white/15 backdrop-blur-md rounded-3xl p-8 border border-white/20">
+                            <TelegramLinkForm onSuccess={handleTelegramSuccess} />
+                          </div>
+                        </div>
+
+                        {/* Next step preview */}
+                        <div className="text-center space-y-3 mt-8 p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                          <div className="inline-flex items-center gap-2 text-white/60">
+                            <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                            <span className="text-sm font-medium">Selanjutnya: Pembayaran Elite</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-6 text-xs text-white/50">
+                            <div className="flex items-center gap-1">
+                              <Shield className="w-3 h-3" />
+                              <span>Pembayaran Aman</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Zap className="w-3 h-3" />
+                              <span>Akses Instan</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Crown className="w-3 h-3" />
+                              <span>Elite Forever</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )
