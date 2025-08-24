@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Loader2, AlertCircle, Clock, RotateCcw, Wifi } from 'lucide-react';
 import { useWatchTime } from '@/hooks/useWatchTime';
-import { usePremiumStreaming } from '@/hooks/usePremiumStreaming';
+import { usePremium } from '@/hooks/usePremium';
 
 interface DoodstreamPlayerProps {
   fileCode: string;
@@ -34,7 +34,7 @@ const DoodstreamPlayer: React.FC<DoodstreamPlayerProps> = ({
   const [currentFileCode, setCurrentFileCode] = useState<string>(fileCode);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { startWatchTime } = useWatchTime(videoId);
-  const { isPremiumStreaming, isInGracePeriod, loading: streamingLoading } = usePremiumStreaming();
+  const { isPremiumStreaming, isInGracePeriod, status } = usePremium();
 
   useEffect(() => {
     if (isPlaying && videoId) {
@@ -44,7 +44,7 @@ const DoodstreamPlayer: React.FC<DoodstreamPlayerProps> = ({
 
   // Determine which file code to use based on premium status
   useEffect(() => {
-    if (streamingLoading) return;
+    if (status.streaming.loading) return;
     
     if (isPremiumStreaming && premiumFileCode && !premiumError) {
       setCurrentFileCode(premiumFileCode);
@@ -54,7 +54,7 @@ const DoodstreamPlayer: React.FC<DoodstreamPlayerProps> = ({
         setShowFallbackUI(true);
       }
     }
-  }, [isPremiumStreaming, premiumFileCode, fileCode, premiumError, streamingLoading]);
+  }, [isPremiumStreaming, premiumFileCode, fileCode, premiumError, status.streaming.loading]);
 
   const handlePlay = () => {
     setIsLoading(true);

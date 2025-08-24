@@ -4,7 +4,7 @@ import { Search, User, LogOut, Shield, X, Menu, Heart, Target, Settings, Crown }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from '@/hooks/useAuth';
-import { usePremiumSubscription } from '@/hooks/usePremiumSubscription';
+import { usePremium } from '@/hooks/usePremium';
 import { CoinDisplay } from './CoinDisplay';
 import KittyKeyDisplay from './KittyKeyDisplay';
 import SpinWheelButton from "@/components/SpinWheelButton";
@@ -32,7 +32,7 @@ const Header = ({ onSearchChange, searchQuery: externalSearchQuery }: HeaderProp
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
-  const { isPremium } = usePremiumSubscription();
+  const { isPremium } = usePremium();
   const { settings, isLoading } = useWebsiteSettings();
 
   const searchQuery = externalSearchQuery ?? internalSearchQuery;

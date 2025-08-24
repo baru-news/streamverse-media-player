@@ -1,12 +1,12 @@
 import React from 'react';
 import { useKittyKeys } from '@/hooks/useKittyKeys';
-import { usePremiumSubscription } from '@/hooks/usePremiumSubscription';
+import { usePremium } from '@/hooks/usePremium';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Crown } from 'lucide-react';
 
 const KittyKeyDisplay: React.FC = () => {
   const { kittyKeys, loading } = useKittyKeys();
-  const { isPremium } = usePremiumSubscription();
+  const { isPremium } = usePremium();
 
   if (loading) {
     return (
