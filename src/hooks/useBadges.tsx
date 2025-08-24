@@ -22,6 +22,8 @@ interface UserBadge {
   id: string;
   user_id: string;
   badge_key: string;
+  badge_slot: number | null;
+  expires_at: string | null;
   is_active: boolean;
   purchased_at: string;
 }
@@ -31,11 +33,18 @@ interface BadgeWithOwnership extends Badge {
   user_badge?: UserBadge;
 }
 
+interface SlotBadges {
+  slot1?: BadgeWithOwnership; // Telegram Premium (permanent)
+  slot2?: BadgeWithOwnership; // Streaming Premium (temporary)
+  slot3?: BadgeWithOwnership; // Badge Store (user choice)
+}
+
 export const useBadges = () => {
   const { user } = useAuth();
   const { spendCoins } = useCoins();
   const [badges, setBadges] = useState<BadgeWithOwnership[]>([]);
-  const [activeBadge, setActiveBadge] = useState<BadgeWithOwnership | null>(null);
+  const [slotBadges, setSlotBadges] = useState<SlotBadges>({});
+  const [availableSlot3Badges, setAvailableSlot3Badges] = useState<BadgeWithOwnership[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +57,9 @@ export const useBadges = () => {
     if (!user) return;
 
     try {
+      // Clean up expired badges first
+      await supabase.rpc('cleanup_expired_streaming_badges');
+
       // Fetch all available badges
       const { data: allBadges, error: badgesError } = await supabase
         .from('badge_store')
@@ -77,9 +89,29 @@ export const useBadges = () => {
 
       setBadges(badgesWithOwnership);
 
-      // Set active badge
-      const active = badgesWithOwnership.find(b => b.user_badge?.is_active);
-      setActiveBadge(active || null);
+      // Organize badges by slots
+      const slots: SlotBadges = {};
+      
+      // Find slot badges (1=telegram, 2=streaming, 3=badge_store)
+      userBadges?.forEach(userBadge => {
+        const badge = badgesWithOwnership.find(b => b.badge_key === userBadge.badge_key);
+        if (badge && userBadge.badge_slot) {
+          if (userBadge.badge_slot === 1) slots.slot1 = badge;
+          if (userBadge.badge_slot === 2) slots.slot2 = badge;
+          if (userBadge.badge_slot === 3) slots.slot3 = badge;
+        }
+      });
+
+      setSlotBadges(slots);
+
+      // Find available slot 3 badges (purchased but not equipped)
+      const availableForSlot3 = badgesWithOwnership.filter(badge => 
+        badge.owned && 
+        badge.price_coins > 0 && // Not premium badges
+        !userBadges?.find(ub => ub.badge_key === badge.badge_key && ub.badge_slot === 3)
+      );
+      
+      setAvailableSlot3Badges(availableForSlot3);
     } catch (error) {
       console.error('Error fetching badges:', error);
     } finally {
@@ -118,23 +150,27 @@ export const useBadges = () => {
     }
   };
 
-  const setActiveBadgeKey = async (badgeKey: string | null) => {
+  const setSlot3Badge = async (badgeKey: string | null) => {
     if (!user) return false;
 
     try {
-      // First, deactivate all badges
+      // Remove current slot 3 badge
       await supabase
         .from('user_badges')
-        .update({ is_active: false })
-        .eq('user_id', user.id);
+        .delete()
+        .eq('user_id', user.id)
+        .eq('badge_slot', 3);
 
-      // Then activate the selected badge (if any)
+      // Set new slot 3 badge (if any)
       if (badgeKey) {
         const { error } = await supabase
           .from('user_badges')
-          .update({ is_active: true })
-          .eq('user_id', user.id)
-          .eq('badge_key', badgeKey);
+          .insert({
+            user_id: user.id,
+            badge_key: badgeKey,
+            badge_slot: 3,
+            is_active: true
+          });
 
         if (error) throw error;
       }
@@ -142,37 +178,52 @@ export const useBadges = () => {
       await fetchBadges();
       return true;
     } catch (error) {
-      console.error('Error setting active badge:', error);
+      console.error('Error setting slot 3 badge:', error);
       return false;
     }
   };
 
-  const getUserActiveBadge = async (userId: string): Promise<BadgeWithOwnership | null> => {
+  const getUserSlotBadges = async (userId: string): Promise<SlotBadges> => {
     try {
-      const { data: userBadge, error: userBadgeError } = await supabase
+      // Clean up expired badges first
+      await supabase.rpc('cleanup_expired_streaming_badges');
+
+      const { data: userBadges, error: userBadgesError } = await supabase
         .from('user_badges')
-        .select('badge_key')
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .single();
-
-      if (userBadgeError || !userBadge) return null;
-
-      const { data: badge, error: badgeError } = await supabase
-        .from('badge_store')
         .select('*')
-        .eq('badge_key', userBadge.badge_key)
-        .single();
+        .eq('user_id', userId);
 
-      if (badgeError || !badge) return null;
+      if (userBadgesError || !userBadges) return {};
 
-      return {
-        ...badge,
-        owned: true
-      };
+      const slots: SlotBadges = {};
+
+      // Fetch badge details for each slot
+      for (const userBadge of userBadges) {
+        if (!userBadge.badge_slot) continue;
+
+        const { data: badge, error: badgeError } = await supabase
+          .from('badge_store')
+          .select('*')
+          .eq('badge_key', userBadge.badge_key)
+          .single();
+
+        if (!badgeError && badge) {
+          const badgeWithOwnership: BadgeWithOwnership = {
+            ...badge,
+            owned: true,
+            user_badge: userBadge
+          };
+
+          if (userBadge.badge_slot === 1) slots.slot1 = badgeWithOwnership;
+          if (userBadge.badge_slot === 2) slots.slot2 = badgeWithOwnership;
+          if (userBadge.badge_slot === 3) slots.slot3 = badgeWithOwnership;
+        }
+      }
+
+      return slots;
     } catch (error) {
-      console.error('Error fetching user active badge:', error);
-      return null;
+      console.error('Error fetching user slot badges:', error);
+      return {};
     }
   };
 
@@ -188,11 +239,12 @@ export const useBadges = () => {
 
   return {
     badges,
-    activeBadge,
+    slotBadges,
+    availableSlot3Badges,
     loading,
     purchaseBadge,
-    setActiveBadgeKey,
-    getUserActiveBadge,
+    setSlot3Badge,
+    getUserSlotBadges,
     getRarityColor,
     refreshBadges: fetchBadges
   };

@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
-import { usePremiumSubscription } from '@/hooks/usePremiumSubscription';
+import { useBadges } from '@/hooks/useBadges';
 
 interface UserBadgeDisplayProps {
   userId: string;
@@ -9,177 +7,89 @@ interface UserBadgeDisplayProps {
   showTooltip?: boolean;
 }
 
-interface BadgeData {
-  icon: string;
-  name: string;
-  rarity: string;
-  color: string;
-  image_url: string | null;
-  badge_key?: string;
-}
-
-export const UserBadgeDisplay = ({ userId, className, showTooltip = true }: UserBadgeDisplayProps) => {
-  const [badge, setBadge] = useState<BadgeData | null>(null);
-  const [premiumBadge, setPremiumBadge] = useState<BadgeData | null>(null);
+export const UserBadgeDisplay = ({ userId, className = "", showTooltip = true }: UserBadgeDisplayProps) => {
+  const [slotBadges, setSlotBadges] = useState<any>({});
   const [loading, setLoading] = useState(true);
-  const { checkPremiumStatus } = usePremiumSubscription();
+  const { getUserSlotBadges, getRarityColor } = useBadges();
 
   useEffect(() => {
-    const fetchBadges = async () => {
+    const fetchUserBadges = async () => {
       try {
-        // Fetch all active badges for the user
-        const { data: userBadges, error: userBadgeError } = await supabase
-          .from('user_badges')
-          .select('badge_key')
-          .eq('user_id', userId)
-          .eq('is_active', true);
-
-        if (userBadgeError) {
-          console.error('Error fetching user badges:', userBadgeError);
-          return;
-        }
-
-        if (!userBadges || userBadges.length === 0) {
-          setBadge(null);
-          setPremiumBadge(null);
-          return;
-        }
-
-        // Separate premium and regular badges
-        const premiumBadgeKey = userBadges.find(b => b.badge_key === 'premium_subscriber');
-        const regularBadgeKey = userBadges.find(b => b.badge_key !== 'premium_subscriber');
-
-        // Fetch badge details from badge_store
-        const badgeKeys = userBadges.map(b => b.badge_key);
-        const { data: badgeStore, error: badgeError } = await supabase
-          .from('badge_store')
-          .select('*')
-          .in('badge_key', badgeKeys)
-          .eq('is_active', true);
-
-        if (badgeError || !badgeStore) {
-          setBadge(null);
-          setPremiumBadge(null);
-          return;
-        }
-
-        // Set premium badge if exists
-        if (premiumBadgeKey) {
-          const premiumBadgeData = badgeStore.find(b => b.badge_key === 'premium_subscriber');
-          if (premiumBadgeData) {
-            setPremiumBadge({
-              icon: premiumBadgeData.icon,
-              name: premiumBadgeData.name,
-              rarity: premiumBadgeData.rarity,
-              color: premiumBadgeData.color,
-              image_url: premiumBadgeData.image_url,
-              badge_key: premiumBadgeData.badge_key
-            });
-          }
-        }
-
-        // Set regular badge if exists
-        if (regularBadgeKey) {
-          const regularBadgeData = badgeStore.find(b => b.badge_key === regularBadgeKey.badge_key);
-          if (regularBadgeData) {
-            setBadge({
-              icon: regularBadgeData.icon,
-              name: regularBadgeData.name,
-              rarity: regularBadgeData.rarity,
-              color: regularBadgeData.color,
-              image_url: regularBadgeData.image_url,
-              badge_key: regularBadgeData.badge_key
-            });
-          }
-        }
+        const badges = await getUserSlotBadges(userId);
+        setSlotBadges(badges);
       } catch (error) {
-        console.error('Error fetching user badges:', error);
-        setBadge(null);
-        setPremiumBadge(null);
+        console.error('Error in fetchUserBadges:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBadges();
-  }, [userId]);
-
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'common': return 'text-green-500';
-      case 'rare': return 'text-blue-500';
-      case 'epic': return 'text-purple-500';
-      case 'legendary': return 'text-yellow-500';
-      case 'premium': return 'text-yellow-400';
-      default: return 'text-gray-500';
+    if (userId) {
+      fetchUserBadges();
     }
-  };
+  }, [userId, getUserSlotBadges]);
 
-  const createBadgeElement = (badgeData: BadgeData, isPremium = false) => (
-    <div className={cn(
-      "inline-flex items-center justify-center w-5 h-5 text-sm rounded-full border-2 transition-transform hover:scale-110 overflow-hidden",
-      getRarityColor(badgeData.rarity),
-      isPremium && "ring-2 ring-yellow-400 ring-opacity-50",
-      className
-    )}
-    style={{ borderColor: badgeData.color }}
-    >
-      {badgeData.image_url ? (
-        <img 
-          src={badgeData.image_url} 
-          alt={badgeData.name}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        badgeData.icon
-      )}
-    </div>
-  );
+  const createBadgeElement = (badge: any, slotNumber: number) => {
+    const isExpiring = badge.user_badge?.expires_at && 
+      new Date(badge.user_badge.expires_at) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    
+    return (
+      <div
+        key={`slot-${slotNumber}`}
+        className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold shadow-sm ${
+          isExpiring ? 'opacity-75 ring-2 ring-yellow-400' : ''
+        } ${className}`}
+        style={{ backgroundColor: badge.color, color: 'white' }}
+        title={showTooltip ? `${badge.name}${isExpiring ? ' (Expires Soon)' : ''}` : undefined}
+      >
+        {badge.image_url ? (
+          <img 
+            src={badge.image_url} 
+            alt={badge.name}
+            className="w-4 h-4 rounded-full object-cover"
+          />
+        ) : (
+          <span className="text-white">
+            {badge.icon}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
-      <div className={cn("w-5 h-5 animate-pulse bg-muted rounded-full", className)} />
+      <div className={`inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 animate-pulse ${className}`} />
     );
   }
 
-  // If no badges, return null
-  if (!badge && !premiumBadge) return null;
+  // Get active badges in order: slot1 (telegram), slot2 (streaming), slot3 (badge store)
+  const activeBadges = [];
+  if (slotBadges.slot1) activeBadges.push({ badge: slotBadges.slot1, slot: 1 });
+  if (slotBadges.slot2) activeBadges.push({ badge: slotBadges.slot2, slot: 2 });
+  if (slotBadges.slot3) activeBadges.push({ badge: slotBadges.slot3, slot: 3 });
 
-  // If we have both badges, show them side by side
-  if (badge && premiumBadge) {
-    const dualBadgeElement = (
-      <div className="flex items-center gap-1">
-        {createBadgeElement(badge)}
-        {createBadgeElement(premiumBadge, true)}
-      </div>
-    );
-
-    if (!showTooltip) return dualBadgeElement;
-
-    return (
-      <div className="group relative">
-        {dualBadgeElement}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-card text-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-          {badge.name} + {premiumBadge.name}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-card"></div>
-        </div>
-      </div>
-    );
+  if (activeBadges.length === 0) {
+    return null;
   }
 
-  // Show single badge (either regular or premium)
-  const singleBadge = badge || premiumBadge!;
-  const badgeElement = createBadgeElement(singleBadge, singleBadge.badge_key === 'premium_subscriber');
+  if (activeBadges.length === 1) {
+    return createBadgeElement(activeBadges[0].badge, activeBadges[0].slot);
+  }
 
-  if (!showTooltip) return badgeElement;
-
+  // Multiple badges - show them side by side with slight overlap
   return (
-    <div className="group relative">
-      {badgeElement}
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-card text-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-        {singleBadge.name}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-card"></div>
-      </div>
+    <div className={`inline-flex items-center -space-x-1 ${className}`}>
+      {activeBadges.map(({ badge, slot }, index) => (
+        <div key={`slot-${slot}`} style={{ zIndex: activeBadges.length - index }}>
+          {createBadgeElement(badge, slot)}
+        </div>
+      ))}
+      {showTooltip && (
+        <div className="sr-only">
+          {activeBadges.map(({ badge }) => badge.name).join(', ')}
+        </div>
+      )}
     </div>
   );
 };

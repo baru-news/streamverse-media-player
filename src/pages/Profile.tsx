@@ -20,7 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const Profile = () => {
   const { user } = useAuth();
-  const { badges, activeBadge } = useBadges();
+  const { badges } = useBadges();
   const { coins } = useCoins();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'email' | 'telegram'>('profile');
   const [profile, setProfile] = useState<{ username: string | null; avatar_url: string | null; telegram_username: string | null } | null>(null);
@@ -178,11 +178,6 @@ const Profile = () => {
                     <Badge variant="outline" className="bg-secondary/10">
                       Member sejak {new Date(user.created_at).getFullYear()}
                     </Badge>
-                    {activeBadge && (
-                      <Badge variant="outline" className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
-                        Badge Aktif: {activeBadge.name}
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>

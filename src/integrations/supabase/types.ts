@@ -760,6 +760,8 @@ export type Database = {
       user_badges: {
         Row: {
           badge_key: string
+          badge_slot: number | null
+          expires_at: string | null
           id: string
           is_active: boolean
           purchased_at: string
@@ -767,6 +769,8 @@ export type Database = {
         }
         Insert: {
           badge_key: string
+          badge_slot?: number | null
+          expires_at?: string | null
           id?: string
           is_active?: boolean
           purchased_at?: string
@@ -774,6 +778,8 @@ export type Database = {
         }
         Update: {
           badge_key?: string
+          badge_slot?: number | null
+          expires_at?: string | null
           id?: string
           is_active?: boolean
           purchased_at?: string
@@ -1279,6 +1285,10 @@ export type Database = {
       claim_kitty_key: {
         Args: { user_id_param: string }
         Returns: boolean
+      }
+      cleanup_expired_streaming_badges: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_avatar: {
         Args: { new_avatar_path: string; user_id_param: string }

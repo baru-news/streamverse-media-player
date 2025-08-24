@@ -5,13 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBadges } from '@/hooks/useBadges';
+import { BadgeSlotManager } from '@/components/BadgeSlotManager';
 import { useCoins } from '@/hooks/useCoins';
 import { ShoppingBag, Crown, Star, Gem, Award, Check, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export const BadgeStore = () => {
-  const { badges, activeBadge, loading, purchaseBadge, setActiveBadgeKey, getRarityColor } = useBadges();
+  const { badges, slotBadges, loading, purchaseBadge, getRarityColor } = useBadges();
   const { coins } = useCoins();
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
@@ -25,10 +26,8 @@ export const BadgeStore = () => {
   };
 
   const handleSetActive = async (badgeKey: string | null) => {
-    const success = await setActiveBadgeKey(badgeKey);
-    if (success) {
-      toast.success(badgeKey ? 'Badge equipped!' : 'Badge unequipped!');
-    }
+    // This functionality is now handled in BadgeSlotManager
+    toast.info('Use Badge Manager to equip/unequip badges');
   };
 
   // BadgeIcon component to support custom images
@@ -134,7 +133,7 @@ export const BadgeStore = () => {
               <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20 w-full sm:w-auto">
                 <Crown className="w-4 h-4 text-primary flex-shrink-0" />
                 <span className="font-medium truncate">
-                  {activeBadge ? activeBadge.name : 'No badge equipped'}
+                  Badge Manager Available
                 </span>
               </div>
               {coins && (
@@ -278,9 +277,13 @@ export const BadgeStore = () => {
           </TabsContent>
 
           <TabsContent value="inventory" className="space-y-6 animate-fade-in">
+            <div className="mb-4">
+              <BadgeSlotManager />
+            </div>
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {badges
-                .filter(badge => badge.owned)
+                .filter(badge => badge.owned && badge.price_coins > 0) // Only show purchasable badges in inventory
                 .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
                 .map((badge, index) => (
                 <Card 
@@ -289,7 +292,7 @@ export const BadgeStore = () => {
                     "group relative overflow-hidden transition-all duration-300 hover-scale cursor-pointer",
                     "bg-gradient-to-br from-card via-card to-muted/20 border border-border/50",
                     "hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30",
-                    badge.user_badge?.is_active && "ring-2 ring-primary bg-gradient-to-br from-primary/10 via-card to-accent/10 shadow-xl shadow-primary/25"
+                    "ring-1 ring-primary/20 bg-gradient-to-br from-primary/5 via-card to-accent/5 shadow-lg shadow-primary/10"
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -301,11 +304,9 @@ export const BadgeStore = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <BadgeIcon badge={badge} className="w-10 h-10 relative z-10" />
                       </div>
-                      {badge.user_badge?.is_active && (
-                        <div className="p-1 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg animate-pulse">
-                          <Crown className="w-4 h-4 text-primary-foreground" />
-                        </div>
-                      )}
+                      <div className="p-1 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg">
+                        <Check className="w-4 h-4 text-primary-foreground" />
+                      </div>
                     </div>
                     <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors duration-300">
                       {badge.name}
@@ -330,32 +331,13 @@ export const BadgeStore = () => {
                         {badge.rarity}
                       </Badge>
                       <div className="text-xs text-muted-foreground text-right">
-                        <div>Purchased</div>
-                        <div className="font-medium">{new Date(badge.user_badge?.purchased_at || '').toLocaleDateString()}</div>
+                        <div>Owned Badge</div>
+                        <div className="font-medium text-primary">Available for Slot 3</div>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      {badge.user_badge?.is_active ? (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 text-primary hover:from-primary/20 hover:to-accent/20 font-medium min-h-[44px] touch-manipulation"
-                          onClick={() => handleSetActive(null)}
-                        >
-                          <Crown className="w-4 h-4 mr-2" />
-                          Equipped
-                        </Button>
-                      ) : (
-                        <Button 
-                          size="sm" 
-                          className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-primary/25 font-medium transition-all duration-300 min-h-[44px] touch-manipulation"
-                          onClick={() => handleSetActive(badge.badge_key)}
-                        >
-                          <Crown className="w-4 h-4 mr-2" />
-                          Equip
-                        </Button>
-                      )}
+                    <div className="text-center text-sm text-muted-foreground">
+                      Use Badge Manager to equip this badge
                     </div>
                   </CardContent>
                 </Card>
@@ -363,8 +345,7 @@ export const BadgeStore = () => {
             </div>
 
             {badges
-              .filter(badge => badge.owned)
-              .sort((a, b) => getRarityWeight(a.rarity) - getRarityWeight(b.rarity) || a.sort_order - b.sort_order)
+              .filter(badge => badge.owned && badge.price_coins > 0)
               .length === 0 && (
               <div className="text-center py-16">
                 <div className="relative mx-auto w-24 h-24 mb-6">
