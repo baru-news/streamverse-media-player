@@ -258,18 +258,70 @@ async function uploadToBothDoodstream(fileBuffer: ArrayBuffer, fileName: string,
 async function handleVideoUpload(update: TelegramUpdate) {
   const message = update.message!;
   const chatId = message.chat.id;
+  const userId = message.from?.id;
+  const username = message.from?.username;
 
-  // Only allow uploads from specific groups/admins
-  const allowedChatIds = [parseInt(Deno.env.get('TELEGRAM_GROUP_ID') ?? ''), parseInt(Deno.env.get('TELEGRAM_ADMIN_ID') ?? '')];
-  if (!allowedChatIds.includes(chatId)) {
-    console.warn(`Unauthorized chat ID: ${chatId}`);
-    return;
-  }
+  console.log(`Video upload attempt - Chat: ${chatId}, User: ${userId} (${username})`);
 
-  // Check if the user is an admin
-  const adminUserIds = Deno.env.get('TELEGRAM_ADMIN_IDS')?.split(',').map(id => parseInt(id.trim())) || [];
-  if (message.from && !adminUserIds.includes(message.from.id)) {
-    console.warn(`Unauthorized user ID: ${message.from.id}`);
+  // Check authorization using database functions
+  let isAuthorized = false;
+  let uploadSource = '';
+
+  try {
+    // Check if user is Telegram admin
+    if (userId) {
+      const { data: isAdmin } = await supabase.rpc('is_telegram_admin', { 
+        telegram_user_id_param: userId 
+      });
+      
+      if (isAdmin) {
+        isAuthorized = true;
+        uploadSource = 'telegram_admin';
+        console.log(`✅ Authorized: User ${userId} is Telegram admin`);
+      }
+    }
+
+    // If not admin, check if chat is premium group with auto-upload enabled
+    if (!isAuthorized) {
+      const { data: isPremiumGroup } = await supabase.rpc('is_premium_group_with_autoupload', { 
+        chat_id_param: chatId 
+      });
+      
+      if (isPremiumGroup) {
+        isAuthorized = true;
+        uploadSource = 'premium_group';
+        console.log(`✅ Authorized: Chat ${chatId} is premium group with auto-upload`);
+      }
+    }
+
+    if (!isAuthorized) {
+      console.warn(`❌ Unauthorized upload attempt - Chat: ${chatId}, User: ${userId}`);
+      
+      await sendTelegramMessage(chatId, 
+        `❌ Upload tidak diizinkan!\n\n` +
+        `🔒 Hanya admin atau grup premium yang dapat mengupload video.\n` +
+        `💬 Hubungi administrator untuk info lebih lanjut.`,
+        message.message_id
+      );
+      
+      // Log unauthorized attempt
+      await supabase.from('upload_logs').insert({
+        user_id: null, // No user_id since not authorized
+        filename: 'unauthorized_attempt',
+        success: false,
+        upload_type: 'telegram_unauthorized',
+        error_message: `Unauthorized upload from chat ${chatId}, user ${userId}`,
+        ip_address: 'telegram_bot'
+      });
+      
+      return;
+    }
+  } catch (authError) {
+    console.error('Authorization check failed:', authError);
+    await sendTelegramMessage(chatId, 
+      `❌ Gagal memeriksa authorization: ${authError.message}`,
+      message.message_id
+    );
     return;
   }
 
@@ -285,8 +337,32 @@ async function handleVideoUpload(update: TelegramUpdate) {
     const fileName = telegramFile.file_name || `video_${telegramFile.file_unique_id}`;
     const videoTitle = message.text || fileName;
 
+    console.log(`📁 Processing file: ${fileName} (${telegramFile.file_size} bytes) from ${uploadSource}`);
+
+    // Save telegram upload metadata for tracking
+    const { data: telegramUpload, error: telegramError } = await supabase
+      .from('telegram_uploads')
+      .insert({
+        telegram_user_id: userId!,
+        telegram_chat_id: chatId,
+        telegram_message_id: message.message_id,
+        telegram_file_id: telegramFile.file_id,
+        telegram_file_unique_id: telegramFile.file_unique_id,
+        original_filename: fileName,
+        mime_type: telegramFile.mime_type,
+        file_size: telegramFile.file_size,
+        upload_status: 'processing'
+      })
+      .select()
+      .single();
+
+    if (telegramError) {
+      console.error('Error saving telegram upload metadata:', telegramError);
+      // Continue with upload even if metadata save fails
+    }
+
     // Upload to both Doodstream accounts
-    console.log('Uploading to both Doodstream accounts...');
+    console.log('🚀 Uploading to both Doodstream accounts...');
     const uploadResult = await uploadToBothDoodstream(fileBuffer, fileName, videoTitle);
 
     // Prepare upload status and file codes
@@ -303,13 +379,13 @@ async function handleVideoUpload(update: TelegramUpdate) {
       .from('videos')
       .insert({
         title: videoTitle,
-        description: `Uploaded from Telegram by ${update.message.from?.username || 'Unknown'}`,
+        description: `Uploaded from Telegram ${uploadSource} by ${username || 'Unknown'}`,
         file_code: uploadResult.results.regular?.file_code || null,
         regular_file_code: uploadResult.results.regular?.file_code || null,
         premium_file_code: uploadResult.results.premium?.file_code || null,
         doodstream_file_code: uploadResult.results.regular?.file_code || uploadResult.results.premium?.file_code,
         file_size: telegramFile.file_size,
-        status: 'active',
+        status: hasErrors ? 'partial' : 'active',
         upload_date: new Date().toISOString(),
         provider: 'doodstream',
         upload_status: uploadStatus,
@@ -319,6 +395,31 @@ async function handleVideoUpload(update: TelegramUpdate) {
       .single();
 
     if (dbError) throw dbError;
+
+    // Update telegram upload record with video reference and final status
+    if (telegramUpload) {
+      await supabase
+        .from('telegram_uploads')
+        .update({
+          video_id: videoData.id,
+          doodstream_file_code: videoData.doodstream_file_code,
+          upload_status: hasErrors ? 'partial_success' : 'completed',
+          processed_at: new Date().toISOString(),
+          error_message: hasErrors ? JSON.stringify(uploadResult.errors) : null
+        })
+        .eq('id', telegramUpload.id);
+    }
+
+    // Log successful upload for monitoring
+    await supabase.from('upload_logs').insert({
+      user_id: null, // Telegram uploads don't have direct user mapping
+      filename: fileName,
+      success: !hasErrors,
+      upload_type: `telegram_${uploadSource}`,
+      error_message: hasErrors ? `Partial upload: ${JSON.stringify(uploadResult.errors)}` : null,
+      ip_address: 'telegram_bot',
+      file_size: telegramFile.file_size
+    });
 
     // Send success/partial success message with retry buttons for failures
     let successMessage = '';
