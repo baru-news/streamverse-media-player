@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_telegram_users: {
+        Row: {
+          added_at: string
+          id: string
+          is_active: boolean
+          telegram_user_id: number
+          telegram_username: string | null
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          is_active?: boolean
+          telegram_user_id: number
+          telegram_username?: string | null
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          is_active?: boolean
+          telegram_user_id?: number
+          telegram_username?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ads: {
         Row: {
           created_at: string
@@ -253,6 +280,36 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      premium_groups: {
+        Row: {
+          added_by_admin_id: string | null
+          auto_upload_enabled: boolean
+          chat_id: number
+          chat_title: string | null
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          added_by_admin_id?: string | null
+          auto_upload_enabled?: boolean
+          chat_id: number
+          chat_title?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          added_by_admin_id?: string | null
+          auto_upload_enabled?: boolean
+          chat_id?: number
+          chat_title?: string | null
+          created_at?: string
+          id?: string
           updated_at?: string
         }
         Relationships: []
@@ -542,6 +599,71 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_uploads: {
+        Row: {
+          created_at: string
+          doodstream_file_code: string | null
+          error_message: string | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          original_filename: string | null
+          processed_at: string | null
+          telegram_chat_id: number
+          telegram_file_id: string
+          telegram_file_unique_id: string
+          telegram_message_id: number
+          telegram_user_id: number
+          updated_at: string
+          upload_status: string
+          video_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          doodstream_file_code?: string | null
+          error_message?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          processed_at?: string | null
+          telegram_chat_id: number
+          telegram_file_id: string
+          telegram_file_unique_id: string
+          telegram_message_id: number
+          telegram_user_id: number
+          updated_at?: string
+          upload_status?: string
+          video_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          doodstream_file_code?: string | null
+          error_message?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          processed_at?: string | null
+          telegram_chat_id?: number
+          telegram_file_id?: string
+          telegram_file_unique_id?: string
+          telegram_message_id?: number
+          telegram_user_id?: number
+          updated_at?: string
+          upload_status?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_uploads_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
             referencedColumns: ["id"]
           },
         ]
