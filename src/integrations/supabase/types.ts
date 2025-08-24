@@ -366,9 +366,11 @@ export type Database = {
         Row: {
           created_at: string
           end_date: string | null
+          grace_period_end: string | null
           id: string
           is_active: boolean
           payment_info: Json | null
+          plan_price: number | null
           start_date: string
           subscription_type: string
           telegram_user_id: number | null
@@ -379,9 +381,11 @@ export type Database = {
         Insert: {
           created_at?: string
           end_date?: string | null
+          grace_period_end?: string | null
           id?: string
           is_active?: boolean
           payment_info?: Json | null
+          plan_price?: number | null
           start_date?: string
           subscription_type?: string
           telegram_user_id?: number | null
@@ -392,9 +396,11 @@ export type Database = {
         Update: {
           created_at?: string
           end_date?: string | null
+          grace_period_end?: string | null
           id?: string
           is_active?: boolean
           payment_info?: Json | null
+          plan_price?: number | null
           start_date?: string
           subscription_type?: string
           telegram_user_id?: number | null
@@ -661,6 +667,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "telegram_uploads_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      upload_failures: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          error_details: Json
+          id: string
+          requires_manual_upload: boolean
+          resolved_at: string | null
+          updated_at: string
+          upload_type: string
+          video_id: string | null
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          error_details: Json
+          id?: string
+          requires_manual_upload?: boolean
+          resolved_at?: string | null
+          updated_at?: string
+          upload_type: string
+          video_id?: string | null
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          error_details?: Json
+          id?: string
+          requires_manual_upload?: boolean
+          resolved_at?: string | null
+          updated_at?: string
+          upload_type?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upload_failures_video_id_fkey"
             columns: ["video_id"]
             isOneToOne: false
             referencedRelation: "videos"
@@ -1076,13 +1126,16 @@ export type Database = {
           description_edited: boolean | null
           doodstream_file_code: string | null
           duration: number | null
+          failed_uploads: Json | null
           file_code: string
           file_size: number | null
           id: string
           original_title: string | null
+          premium_file_code: string | null
           primary_provider: Database["public"]["Enums"]["video_provider"] | null
           provider: Database["public"]["Enums"]["video_provider"]
           provider_data: Json | null
+          regular_file_code: string | null
           slug: string | null
           status: string | null
           thumbnail_url: string | null
@@ -1090,6 +1143,7 @@ export type Database = {
           title_edited: boolean | null
           updated_at: string
           upload_date: string | null
+          upload_status: Json | null
           views: number | null
         }
         Insert: {
@@ -1099,15 +1153,18 @@ export type Database = {
           description_edited?: boolean | null
           doodstream_file_code?: string | null
           duration?: number | null
+          failed_uploads?: Json | null
           file_code: string
           file_size?: number | null
           id?: string
           original_title?: string | null
+          premium_file_code?: string | null
           primary_provider?:
             | Database["public"]["Enums"]["video_provider"]
             | null
           provider?: Database["public"]["Enums"]["video_provider"]
           provider_data?: Json | null
+          regular_file_code?: string | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -1115,6 +1172,7 @@ export type Database = {
           title_edited?: boolean | null
           updated_at?: string
           upload_date?: string | null
+          upload_status?: Json | null
           views?: number | null
         }
         Update: {
@@ -1124,15 +1182,18 @@ export type Database = {
           description_edited?: boolean | null
           doodstream_file_code?: string | null
           duration?: number | null
+          failed_uploads?: Json | null
           file_code?: string
           file_size?: number | null
           id?: string
           original_title?: string | null
+          premium_file_code?: string | null
           primary_provider?:
             | Database["public"]["Enums"]["video_provider"]
             | null
           provider?: Database["public"]["Enums"]["video_provider"]
           provider_data?: Json | null
+          regular_file_code?: string | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -1140,6 +1201,7 @@ export type Database = {
           title_edited?: boolean | null
           updated_at?: string
           upload_date?: string | null
+          upload_status?: Json | null
           views?: number | null
         }
         Relationships: [
