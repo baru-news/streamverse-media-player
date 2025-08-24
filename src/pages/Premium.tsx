@@ -98,105 +98,68 @@ const Premium = () => {
     {
       id: 'streaming_3month', 
       name: '3 Bulan',
-      price: 40000,
+      price: 39000,
       originalPrice: 45000,
       duration: '90 hari',
       popular: true,
-      discount: 11
+      discount: 13
     },
     {
       id: 'streaming_6month',
       name: '6 Bulan', 
-      price: 75000,
+      price: 69000,
       originalPrice: 90000,
       duration: '180 hari',
       popular: false,
-      discount: 17
-    },
-    {
-      id: 'streaming_1year',
-      name: '1 Tahun',
-      price: 140000,
-      originalPrice: 180000, 
-      duration: '365 hari',
-      popular: false,
-      discount: 22
+      discount: 23
     }
   ];
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-4 sm:py-8">
-        <SEO 
-          title="Berlangganan Premium"
-          description="Upgrade ke Premium untuk benefit eksklusif"
-        />
-        
-        <div className="mb-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Kembali</span>
-          </Button>
-        </div>
-        
-        <div className="text-center">
-          <h1 className="text-xl sm:text-2xl font-bold mb-4">Berlangganan Premium</h1>
-          <p className="text-muted-foreground mb-6 text-sm sm:text-base">Silakan masuk untuk melihat opsi berlangganan premium.</p>
-          <Button onClick={() => navigate('/login')} size="lg" className="w-full sm:w-auto">
-            Masuk
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (telegramLoading || streamingLoading || profileLoading) {
-    return (
-      <div className="container mx-auto px-4 py-4 sm:py-8">
-        <SEO title="Loading Premium..." />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>Akses Premium</CardTitle>
+            <CardDescription>
+              Silakan login untuk mengakses halaman premium
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => navigate('/login')} className="w-full">
+              Login Sekarang
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       <SEO 
-        title="Premium Elite - Upgrade Your Experience"
-        description="Bergabunglah dengan komunitas eksklusif - Premium Telegram seumur hidup atau Streaming tanpa iklan dengan kualitas HD"
+        title="Premium Elite Subscription"
+        description="Upgrade ke premium untuk mendapatkan akses eksklusif, streaming tanpa iklan, dan benefit seumur hidup"
+        keywords="premium, elite, subscription, streaming, telegram"
       />
       
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="mb-8">
+      {/* Mobile-optimized container */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-12 max-w-7xl">
+        {/* Enhanced Header - Mobile First */}
+        <div className="text-center mb-8 lg:mb-16 animate-fade-in">
           <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)}
-            className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
+            onClick={() => navigate('/')}
+            variant="outline" 
+            size="sm"
+            className="mb-6 lg:mb-8 hover:scale-105 transition-all duration-300"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-            <span className="hidden sm:inline">Kembali</span>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Kembali ke Beranda</span>
+            <span className="sm:hidden">Kembali</span>
           </Button>
-        </div>
-        
-        {/* Elite Hero Section */}
-        <div className="text-center mb-16 animate-fade-in">
-          <div className="relative mb-8">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-3xl"></div>
-            <div className="relative inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:scale-105">
-              <Crown className="w-6 h-6 animate-pulse" />
-              <span className="font-bold text-lg">PREMIUM ELITE</span>
-              <Crown className="w-6 h-6 animate-pulse" />
-            </div>
-          </div>
           
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+          {/* Mobile-optimized title */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-gray-900 mb-4 lg:mb-8 leading-tight">
             UPGRADE TO
             <br />
             <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
@@ -204,11 +167,12 @@ const Premium = () => {
             </span>
           </h1>
           
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
             Rasakan pengalaman premium yang tak terlupakan dengan akses eksklusif dan fitur-fitur canggih
           </p>
           
-          <div className="flex items-center justify-center gap-8 mt-8 text-sm text-muted-foreground">
+          {/* Mobile-responsive status indicators */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mt-6 lg:mt-8 text-xs sm:text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span>100% Aman & Terpercaya</span>
@@ -224,57 +188,59 @@ const Premium = () => {
           </div>
         </div>
 
-        {/* Elite Status Display */}
+        {/* Elite Status Display - Mobile Optimized */}
         {(hasTelegram || isPremiumStreaming) && (
-          <div className="mb-12 animate-scale-in">
+          <div className="mb-8 lg:mb-12 animate-scale-in">
             <Card className="relative overflow-hidden border-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 backdrop-blur-sm">
               <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>
-              <CardHeader className="relative">
-                <CardTitle className="flex items-center gap-3 text-2xl font-bold text-green-700">
+              <CardHeader className="relative p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-3 text-lg sm:text-xl lg:text-2xl font-bold text-green-700">
                   <div className="p-2 bg-green-500 rounded-xl shadow-lg">
-                    <Crown className="w-6 h-6 text-white" />
+                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
                   </div>
                   Status Elite Anda
                 </CardTitle>
               </CardHeader>
-              <CardContent className="relative">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-bl-full"></div>
+              <CardContent className="relative p-4 sm:p-6">
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                  {/* Telegram Elite Card - Mobile Optimized */}
+                  <div className="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
+                    <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-bl-full"></div>
                     <div className="relative flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                          <Users className="w-6 h-6 text-white" />
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg sm:rounded-xl shadow-lg">
+                          <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-lg text-gray-800">Telegram Elite</h4>
-                          <p className="text-sm text-muted-foreground">Komunitas Eksklusif</p>
+                          <h4 className="font-bold text-base sm:text-lg text-gray-800">Telegram Elite</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Komunitas Eksklusif</p>
                         </div>
                       </div>
                       <Badge 
                         variant={hasTelegram ? "default" : "secondary"}
-                        className={hasTelegram ? "bg-green-500 hover:bg-green-600 shadow-lg" : ""}
+                        className={`text-xs sm:text-sm px-2 sm:px-3 py-1 ${hasTelegram ? "bg-green-500 hover:bg-green-600 shadow-lg" : ""}`}
                       >
                         {hasTelegram ? "🔥 AKTIF" : "Tidak Aktif"}
                       </Badge>
                     </div>
                   </div>
                   
-                  <div className="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-bl-full"></div>
+                  {/* Streaming Elite Card - Mobile Optimized */}
+                  <div className="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
+                    <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-bl-full"></div>
                     <div className="relative flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl shadow-lg">
-                          <Play className="w-6 h-6 text-white" />
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="p-2 sm:p-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg sm:rounded-xl shadow-lg">
+                          <Play className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-lg text-gray-800">Streaming Elite</h4>
-                          <p className="text-sm text-muted-foreground">Premium HD Experience</p>
+                          <h4 className="font-bold text-base sm:text-lg text-gray-800">Streaming Elite</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Premium HD Experience</p>
                         </div>
                       </div>
                       <Badge 
                         variant={isPremiumStreaming ? "default" : "secondary"}
-                        className={isPremiumStreaming ? "bg-purple-500 hover:bg-purple-600 shadow-lg" : ""}
+                        className={`text-xs sm:text-sm px-2 sm:px-3 py-1 ${isPremiumStreaming ? "bg-purple-500 hover:bg-purple-600 shadow-lg" : ""}`}
                       >
                         {isPremiumStreaming ? "🔥 AKTIF" : "Tidak Aktif"}
                       </Badge>
@@ -286,69 +252,75 @@ const Premium = () => {
           </div>
         )}
 
-        {/* Elite Subscription Tabs */}
+        {/* Elite Subscription Tabs - Mobile Optimized */}
         <div className="mb-8">
           <Tabs value={selectedPlan} onValueChange={(value) => setSelectedPlan(value as 'telegram' | 'streaming')} className="w-full">
-            <div className="flex justify-center mb-12">
-              <TabsList className="grid grid-cols-2 w-full max-w-md h-16 p-2 bg-white/50 backdrop-blur-sm border border-white/20 shadow-2xl rounded-2xl">
+            {/* Mobile-first tab navigation */}
+            <div className="flex justify-center mb-8 lg:mb-12">
+              <TabsList className="grid grid-cols-2 w-full max-w-sm sm:max-w-md h-12 sm:h-16 p-1 sm:p-2 bg-white/50 backdrop-blur-sm border border-white/20 shadow-2xl rounded-xl sm:rounded-2xl">
                 <TabsTrigger 
                   value="streaming" 
-                  className="flex items-center gap-3 h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl font-semibold hover:scale-105"
+                  className="flex items-center gap-2 sm:gap-3 h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-lg sm:rounded-xl font-semibold hover:scale-105 text-xs sm:text-sm"
                 >
-                  <Play className="w-5 h-5" />
-                  <span className="hidden sm:inline">Streaming Elite</span>
-                  <span className="sm:hidden">Stream</span>
+                  <Play className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                  <span className="hidden xs:inline">Streaming Elite</span>
+                  <span className="xs:hidden">Stream</span>
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="telegram" 
-                  className="flex items-center gap-3 h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl font-semibold hover:scale-105"
+                  value="telegram"
+                  className="flex items-center gap-2 sm:gap-3 h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-lg sm:rounded-xl font-semibold hover:scale-105 text-xs sm:text-sm"
                 >
-                  <Users className="w-5 h-5" />
-                  <span className="hidden sm:inline">Telegram Elite</span>
-                  <span className="sm:hidden">Telegram</span>
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                  <span className="hidden xs:inline">Telegram Elite</span>
+                  <span className="xs:hidden">Telegram</span>
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="streaming" className="space-y-8 animate-fade-in">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-                  Streaming Elite Plans
+            {/* Streaming Elite Tab Content */}
+            <TabsContent value="streaming" className="animate-fade-in">
+              <div className="text-center mb-8 lg:mb-12">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                  ⚡ Streaming Elite ⚡
                 </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Nikmati streaming berkualitas HD tanpa gangguan iklan
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
+                  Nikmati streaming premium tanpa batas dengan kualitas HD dan tanpa iklan
                 </p>
               </div>
               
-              <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+              {/* Mobile-optimized pricing cards */}
+              <div className="grid gap-4 sm:gap-6 lg:gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8 lg:mb-12">
                 {streamingPlans.map((plan, index) => (
                   <Card 
                     key={plan.id} 
-                    className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl border-0 ${
+                    className={`group relative overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl border-0 ${
                       plan.popular 
-                        ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white scale-110 shadow-2xl shadow-purple-500/25' 
-                        : 'bg-white/80 backdrop-blur-sm hover:bg-white hover:scale-105 shadow-xl'
+                        ? 'bg-gradient-to-br from-purple-600 via-pink-600 to-indigo-700 text-white shadow-2xl shadow-purple-500/25 ring-2 ring-purple-400/50' 
+                        : 'bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-purple-500/10'
                     }`}
                   >
+                    {/* Popular badge - Mobile responsive */}
                     {plan.popular && (
-                      <div className="absolute -top-0 -left-4 -right-4 bg-gradient-to-r from-amber-400 to-orange-500 text-black text-center py-3 text-sm font-bold shadow-lg transform -rotate-1 z-10">
-                        ⚡ MOST POPULAR ⚡
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                        <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold px-3 py-1 sm:px-4 sm:py-2 shadow-lg text-xs sm:text-sm">
+                          <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                          TERPOPULER
+                        </Badge>
                       </div>
                     )}
                     
-                    {!plan.popular && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    {/* Background effects - Responsive */}
+                    {plan.popular && (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20"></div>
+                        <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-white/10 to-transparent rounded-bl-full"></div>
+                        <div className="absolute bottom-0 left-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-tr from-white/5 to-transparent rounded-tr-full"></div>
+                      </>
                     )}
                     
-                    <CardHeader className={`relative ${plan.popular ? 'pt-12' : 'pt-8'} pb-6`}>
-                      <div className="text-center space-y-4">
-                        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${
-                          plan.popular ? 'bg-white/20' : 'bg-gradient-to-r from-purple-500 to-pink-600'
-                        } shadow-lg`}>
-                          <Play className={`w-8 h-8 text-white`} />
-                        </div>
-                        
-                        <CardTitle className={`text-2xl font-bold ${
+                    <CardHeader className={`relative text-center p-4 sm:p-6 ${plan.popular ? 'pb-6 sm:pb-8 pt-8 sm:pt-12' : ''}`}>
+                      <div className="space-y-3 sm:space-y-4">
+                        <CardTitle className={`text-lg sm:text-xl lg:text-2xl font-bold ${
                           plan.popular ? 'text-white' : 'text-gray-800'
                         }`}>
                           {plan.name}
@@ -357,25 +329,25 @@ const Premium = () => {
                         <div className="space-y-2">
                           {plan.discount > 0 && (
                             <div className="flex items-center justify-center gap-2">
-                              <span className={`text-lg line-through ${
+                              <span className={`text-sm sm:text-lg line-through ${
                                 plan.popular ? 'text-white/70' : 'text-muted-foreground'
                               }`}>
                                 Rp {plan.originalPrice?.toLocaleString('id-ID')}
                               </span>
                               <Badge 
                                 variant={plan.popular ? "secondary" : "destructive"} 
-                                className={plan.popular ? "bg-white/20 text-white border-white/30" : "bg-red-500 text-white"}
+                                className={`text-xs sm:text-sm ${plan.popular ? "bg-white/20 text-white border-white/30" : "bg-red-500 text-white"}`}
                               >
                                 HEMAT {plan.discount}%
                               </Badge>
                             </div>
                           )}
-                          <div className={`text-4xl font-black ${
+                          <div className={`text-2xl sm:text-3xl lg:text-4xl font-black ${
                             plan.popular ? 'text-white' : 'text-purple-900'
                           }`}>
                             Rp {plan.price.toLocaleString('id-ID')}
                           </div>
-                          <div className={`text-sm font-medium ${
+                          <div className={`text-xs sm:text-sm font-medium ${
                             plan.popular ? 'text-white/80' : 'text-muted-foreground'
                           }`}>
                             {plan.duration}
@@ -384,35 +356,35 @@ const Premium = () => {
                       </div>
                     </CardHeader>
                     
-                    <CardContent className="relative">
-                      <div className="space-y-4 mb-8">
-                        <div className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
+                    <CardContent className="relative p-4 sm:p-6">
+                      <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                        <div className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 ${
                           plan.popular ? 'bg-white/10' : 'bg-purple-50 group-hover:bg-purple-100'
                         }`}>
-                          <Zap className={`w-5 h-5 ${plan.popular ? 'text-yellow-300' : 'text-yellow-600'}`} />
-                          <span className={`text-sm font-medium ${
+                          <Zap className={`w-4 h-4 sm:w-5 sm:h-5 ${plan.popular ? 'text-yellow-300' : 'text-yellow-600'}`} />
+                          <span className={`text-xs sm:text-sm font-medium ${
                             plan.popular ? 'text-white' : 'text-gray-700'
                           }`}>
                             Streaming Tanpa Iklan
                           </span>
                         </div>
                         
-                        <div className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
+                        <div className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 ${
                           plan.popular ? 'bg-white/10' : 'bg-blue-50 group-hover:bg-blue-100'
                         }`}>
-                          <Star className={`w-5 h-5 ${plan.popular ? 'text-blue-300' : 'text-blue-600'}`} />
-                          <span className={`text-sm font-medium ${
+                          <Star className={`w-4 h-4 sm:w-5 sm:h-5 ${plan.popular ? 'text-blue-300' : 'text-blue-600'}`} />
+                          <span className={`text-xs sm:text-sm font-medium ${
                             plan.popular ? 'text-white' : 'text-gray-700'
                           }`}>
                             Kualitas HD Premium
                           </span>
                         </div>
                         
-                        <div className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
+                        <div className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 ${
                           plan.popular ? 'bg-white/10' : 'bg-green-50 group-hover:bg-green-100'
                         }`}>
-                          <Clock className={`w-5 h-5 ${plan.popular ? 'text-green-300' : 'text-green-600'}`} />
-                          <span className={`text-sm font-medium ${
+                          <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${plan.popular ? 'text-green-300' : 'text-green-600'}`} />
+                          <span className={`text-xs sm:text-sm font-medium ${
                             plan.popular ? 'text-white' : 'text-gray-700'
                           }`}>
                             Loading Super Cepat
@@ -420,11 +392,11 @@ const Premium = () => {
                         </div>
                         
                         {plan.discount > 0 && (
-                          <div className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
+                          <div className={`flex items-center gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 ${
                             plan.popular ? 'bg-white/10' : 'bg-red-50 group-hover:bg-red-100'
                           }`}>
-                            <Gift className={`w-5 h-5 ${plan.popular ? 'text-red-300' : 'text-red-600'}`} />
-                            <span className={`text-sm font-bold ${
+                            <Gift className={`w-4 h-4 sm:w-5 sm:h-5 ${plan.popular ? 'text-red-300' : 'text-red-600'}`} />
+                            <span className={`text-xs sm:text-sm font-bold ${
                               plan.popular ? 'text-white' : 'text-red-600'
                             }`}>
                               HEMAT {plan.discount}% 🎉
@@ -434,42 +406,15 @@ const Premium = () => {
                       </div>
                       
                       {!isPremiumStreaming ? (
-                        telegramLinked ? (
-                          <TrakteerPaymentForm 
-                            telegramUsername={telegramUsername}
-                            amount={plan.price}
-                            subscriptionType={plan.id}
-                          />
-                        ) : (
-                          <div className="space-y-4">
-                            <Alert className={`border-0 ${
-                              plan.popular ? 'bg-white/20 text-white' : 'bg-amber-50 border-amber-200'
-                            }`}>
-                              <MessageSquare className={`h-4 w-4 ${
-                                plan.popular ? 'text-white' : 'text-amber-600'
-                              }`} />
-                              <AlertDescription className={`text-sm ${
-                                plan.popular ? 'text-white' : 'text-amber-800'
-                              }`}>
-                                Link akun Telegram dulu untuk melanjutkan pembelian
-                              </AlertDescription>
-                            </Alert>
-                            <Button 
-                              disabled 
-                              className={`w-full h-12 font-bold ${
-                                plan.popular 
-                                  ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' 
-                                  : 'bg-gray-100 text-gray-400'
-                              }`}
-                            >
-                              Pilih Paket Elite
-                            </Button>
-                          </div>
-                        )
+                        <TrakteerPaymentForm 
+                          telegramUsername={telegramUsername}
+                          amount={plan.price}
+                          subscriptionType={plan.id}
+                        />
                       ) : (
                         <Alert className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-400/30">
-                          <Check className="h-5 w-5 text-green-600" />
-                          <AlertDescription className="text-green-800 font-semibold">
+                          <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                          <AlertDescription className="text-green-800 font-semibold text-xs sm:text-sm">
                             ✨ Streaming Elite Aktif ✨
                           </AlertDescription>
                         </Alert>
@@ -479,118 +424,127 @@ const Premium = () => {
                 ))}
               </div>
               
-              {/* Elite Badge Preview for Streaming */}
-              <div className="mt-12">
+              {/* Elite Badge Preview for Streaming - Mobile Optimized */}
+              <div className="mt-8 lg:mt-12">
                 <BadgePreview subscriptionType="streaming" />
               </div>
               
-              {/* Elite Features Showcase */}
-              <Card className="mt-12 border-0 bg-gradient-to-br from-purple-600/10 via-pink-600/10 to-indigo-600/10 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              {/* Elite Features Showcase - Mobile Optimized */}
+              <Card className="mt-8 lg:mt-12 border-0 bg-gradient-to-br from-purple-600/10 via-pink-600/10 to-indigo-600/10 backdrop-blur-sm">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-center text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     ✨ Elite Features ✨
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-3 gap-8 text-center">
-                    <div className="group space-y-4 p-6 rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-500 hover:scale-105 hover:shadow-xl">
-                      <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-yellow-500/25 transition-shadow duration-500">
-                        <Zap className="w-8 h-8 text-white" />
+                <CardContent className="p-4 sm:p-6">
+                  <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3 text-center">
+                    <div className="group space-y-3 sm:space-y-4 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-500 hover:scale-105 hover:shadow-xl">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-yellow-500/25 transition-shadow duration-500">
+                        <Zap className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
                       </div>
-                      <h4 className="font-bold text-xl text-gray-800">Zero Ads</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">Streaming tanpa gangguan iklan sama sekali</p>
+                      <h4 className="font-bold text-base sm:text-lg lg:text-xl text-gray-800">Zero Ads</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                        Streaming tanpa gangguan iklan apapun untuk pengalaman menonton yang maksimal
+                      </p>
                     </div>
                     
-                    <div className="group space-y-4 p-6 rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-500 hover:scale-105 hover:shadow-xl">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-blue-500/25 transition-shadow duration-500">
-                        <Star className="w-8 h-8 text-white" />
+                    <div className="group space-y-3 sm:space-y-4 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-500 hover:scale-105 hover:shadow-xl">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-purple-500/25 transition-shadow duration-500">
+                        <Star className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
                       </div>
-                      <h4 className="font-bold text-xl text-gray-800">Ultra HD</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">Kualitas video kristal jernih dengan resolusi maksimal</p>
+                      <h4 className="font-bold text-base sm:text-lg lg:text-xl text-gray-800">HD Quality</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                        Kualitas video HD premium dengan loading super cepat untuk kepuasan maksimal
+                      </p>
                     </div>
                     
-                    <div className="group space-y-4 p-6 rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-500 hover:scale-105 hover:shadow-xl">
-                      <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-green-500/25 transition-shadow duration-500">
-                        <Clock className="w-8 h-8 text-white" />
+                    <div className="group space-y-3 sm:space-y-4 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-500 hover:scale-105 hover:shadow-xl sm:col-span-2 lg:col-span-1">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-green-400 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-teal-500/25 transition-shadow duration-500">
+                        <Crown className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
                       </div>
-                      <h4 className="font-bold text-xl text-gray-800">Lightning Fast</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">Loading super cepat tanpa buffering</p>
+                      <h4 className="font-bold text-base sm:text-lg lg:text-xl text-gray-800">Elite Status</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                        Badge premium eksklusif yang menunjukkan status elite Anda di komunitas
+                      </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="telegram" className="space-y-8 animate-fade-in">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-                  Telegram Elite Lifetime
+            {/* Telegram Elite Tab Content */}
+            <TabsContent value="telegram" className="animate-fade-in">
+              <div className="text-center mb-8 lg:mb-12">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+                  🚀 Telegram Elite 🚀
                 </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
                   Bergabung dengan komunitas eksklusif dan dapatkan akses selamanya
                 </p>
               </div>
               
+              {/* Mobile-optimized Telegram Elite card */}
               <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white shadow-2xl shadow-blue-500/25">
-                {/* Elite background effects */}
+                {/* Elite background effects - Mobile responsive */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20"></div>
-                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-white/10 to-transparent rounded-bl-full"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-white/5 to-transparent rounded-tr-full"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-gradient-to-bl from-white/10 to-transparent rounded-bl-full"></div>
+                <div className="absolute bottom-0 left-0 w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-gradient-to-tr from-white/5 to-transparent rounded-tr-full"></div>
                 
-                {/* Lifetime Badge */}
-                <div className="absolute top-6 right-6 z-10">
-                  <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold px-4 py-2 shadow-lg">
-                    <Crown className="w-4 h-4 mr-2" />
-                    LIFETIME ACCESS
+                {/* Lifetime Badge - Mobile responsive */}
+                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
+                  <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold px-2 py-1 sm:px-3 sm:py-1 lg:px-4 lg:py-2 shadow-lg text-xs sm:text-sm">
+                    <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">LIFETIME ACCESS</span>
+                    <span className="sm:hidden">LIFETIME</span>
                   </Badge>
                 </div>
                 
-                <CardHeader className="relative pb-8 pt-12">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl shadow-lg">
-                      <Users className="w-10 h-10 text-white" />
+                <CardHeader className="relative p-4 sm:p-6 lg:p-8 pb-6 sm:pb-8 pt-8 sm:pt-10 lg:pt-12">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div className="p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg">
+                      <Users className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 text-white" />
                     </div>
-                    <div>
-                      <CardTitle className="text-3xl font-bold text-white">{telegramPlan.name}</CardTitle>
-                      <CardDescription className="text-blue-100 text-lg">
+                    <div className="text-center sm:text-left">
+                      <CardTitle className="text-2xl sm:text-2xl lg:text-3xl font-bold text-white">{telegramPlan.name}</CardTitle>
+                      <CardDescription className="text-blue-100 text-sm sm:text-base lg:text-lg">
                         Komunitas eksklusif elite members selamanya
                       </CardDescription>
                     </div>
                   </div>
                   
-                  <div className="text-center py-8 space-y-2">
-                    <div className="text-6xl font-black text-white mb-4">
+                  <div className="text-center py-6 sm:py-8 space-y-2">
+                    <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-3 sm:mb-4">
                       Rp {telegramPlan.price.toLocaleString('id-ID')}
                     </div>
-                    <div className="text-xl text-blue-100 font-semibold">{telegramPlan.duration}</div>
-                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <div className="text-lg sm:text-xl text-blue-100 font-semibold">{telegramPlan.duration}</div>
+                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1 sm:px-4 sm:py-2 rounded-full">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-sm">One-time payment • No recurring fees</span>
+                      <span className="text-xs sm:text-sm">One-time payment • No recurring fees</span>
                     </div>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="relative">
-                  <div className="space-y-6 mb-10">
+                <CardContent className="relative p-4 sm:p-6 lg:p-8">
+                  <div className="space-y-4 sm:space-y-6 mb-8 sm:mb-10">
                     {telegramPlan.features.map((feature, index) => (
-                      <div key={index} className="flex items-start gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
-                        <div className="p-2 bg-green-500 rounded-lg shadow-lg">
-                          <Check className="w-4 h-4 text-white" />
+                      <div key={index} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl hover:bg-white/20 transition-all duration-300">
+                        <div className="p-1.5 sm:p-2 bg-green-500 rounded-md sm:rounded-lg shadow-lg flex-shrink-0">
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                         </div>
-                        <span className="text-white font-medium leading-relaxed">{feature}</span>
+                        <span className="text-white font-medium leading-relaxed text-sm sm:text-base">{feature}</span>
                       </div>
                     ))}
                   </div>
                   
                   {!hasTelegram ? (
                     telegramLinked ? (
-                      <div className="space-y-6">
-                        <div className="text-center space-y-2 mb-6">
-                          <div className="inline-flex items-center gap-2 bg-green-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-green-400/30">
-                            <Check className="w-4 h-4 text-green-400" />
-                            <span className="text-green-300 font-medium text-sm">Telegram Berhasil Terhubung</span>
+                      <div className="space-y-4 sm:space-y-6">
+                        <div className="text-center space-y-2 mb-4 sm:mb-6">
+                          <div className="inline-flex items-center gap-2 bg-green-500/20 backdrop-blur-sm px-3 py-1 sm:px-4 sm:py-2 rounded-full border border-green-400/30">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                            <span className="text-green-300 font-medium text-xs sm:text-sm">Telegram Berhasil Terhubung</span>
                           </div>
-                          <div className="text-white/90 text-lg font-semibold">
+                          <div className="text-white/90 text-base sm:text-lg font-semibold">
                             🚀 Siap untuk bergabung dengan elite members?
                           </div>
                         </div>
@@ -601,34 +555,34 @@ const Premium = () => {
                         />
                       </div>
                     ) : (
-                      <div className="space-y-6">
-                        {/* Step-by-step verification header */}
-                        <div className="text-center space-y-4 mb-8">
-                          <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm px-6 py-3 rounded-full border border-amber-400/30">
-                            <MessageSquare className="w-5 h-5 text-amber-300" />
-                            <span className="text-amber-200 font-bold text-lg">STEP 1: Verifikasi Telegram</span>
+                      <div className="space-y-4 sm:space-y-6">
+                        {/* Step-by-step verification header - Mobile optimized */}
+                        <div className="text-center space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                          <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3 rounded-full border border-amber-400/30">
+                            <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
+                            <span className="text-amber-200 font-bold text-sm sm:text-base lg:text-lg">STEP 1: Verifikasi Telegram</span>
                           </div>
-                          <p className="text-white/80 text-sm max-w-md mx-auto leading-relaxed">
+                          <p className="text-white/80 text-xs sm:text-sm max-w-md mx-auto leading-relaxed px-4">
                             Untuk keamanan dan akses eksklusif, Anda perlu menghubungkan akun Telegram terlebih dahulu
                           </p>
                         </div>
 
-                        {/* Enhanced verification process */}
+                        {/* Enhanced verification process - Mobile optimized */}
                         <div className="relative">
-                          {/* Glowing border effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-3xl blur-sm"></div>
-                          <div className="relative bg-white/15 backdrop-blur-md rounded-3xl p-8 border border-white/20">
+                          {/* Glowing border effect - Responsive */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-2xl sm:rounded-3xl blur-sm"></div>
+                          <div className="relative bg-white/15 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-white/20">
                             <TelegramLinkForm onSuccess={handleTelegramSuccess} />
                           </div>
                         </div>
 
-                        {/* Next step preview */}
-                        <div className="text-center space-y-3 mt-8 p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                        {/* Next step preview - Mobile optimized */}
+                        <div className="text-center space-y-2 sm:space-y-3 mt-6 sm:mt-8 p-4 sm:p-6 bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/10">
                           <div className="inline-flex items-center gap-2 text-white/60">
-                            <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                            <span className="text-sm font-medium">Selanjutnya: Pembayaran Elite</span>
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                            <span className="text-xs sm:text-sm font-medium">Selanjutnya: Pembayaran Elite</span>
                           </div>
-                          <div className="flex items-center justify-center gap-6 text-xs text-white/50">
+                          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs text-white/50">
                             <div className="flex items-center gap-1">
                               <Shield className="w-3 h-3" />
                               <span>Pembayaran Aman</span>
@@ -647,8 +601,8 @@ const Premium = () => {
                     )
                   ) : (
                     <Alert className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-400/30 text-white">
-                      <Check className="h-6 w-6 text-green-400" />
-                      <AlertDescription className="text-white font-bold text-lg">
+                      <Check className="h-5 w-5 sm:h-6 sm:w-6 text-green-400" />
+                      <AlertDescription className="text-white font-bold text-base sm:text-lg">
                         ✨ Telegram Elite sudah aktif! Selamat menjadi member elite! ✨
                       </AlertDescription>
                     </Alert>
@@ -656,23 +610,23 @@ const Premium = () => {
                 </CardContent>
               </Card>
               
-              {/* Elite Badge Preview for Telegram */}
-              <div className="mt-12">
+              {/* Elite Badge Preview for Telegram - Mobile Optimized */}
+              <div className="mt-8 lg:mt-12">
                 <BadgePreview subscriptionType="telegram" />
               </div>
             </TabsContent>
           </Tabs>
         </div>
 
-        {/* Elite Premium Request Status */}
-        <div className="mt-16">
+        {/* Elite Premium Request Status - Mobile Optimized */}
+        <div className="mt-12 lg:mt-16">
           <Card className="border-0 bg-gradient-to-r from-slate-100/50 to-gray-100/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-center text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
                 📋 Status Permintaan Premium
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <PremiumRequestStatus />
             </CardContent>
           </Card>
