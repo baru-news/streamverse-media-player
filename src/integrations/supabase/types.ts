@@ -1245,6 +1245,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_premium_group_with_autoupload: {
+        Args: { chat_id_param: number }
+        Returns: boolean
+      }
       is_telegram_admin: {
         Args: { telegram_user_id_param: number }
         Returns: boolean

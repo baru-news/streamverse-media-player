@@ -26,9 +26,27 @@ interface TelegramUpdate {
     chat: {
       id: number;
       type: string;
+      title?: string;
     };
     date: number;
     text?: string;
+    video?: {
+      file_id: string;
+      file_unique_id: string;
+      width: number;
+      height: number;
+      duration: number;
+      file_name?: string;
+      mime_type?: string;
+      file_size?: number;
+    };
+    document?: {
+      file_id: string;
+      file_unique_id: string;
+      file_name?: string;
+      mime_type?: string;
+      file_size?: number;
+    };
   };
   chat_member?: {
     chat: {
@@ -45,6 +63,285 @@ interface TelegramUpdate {
       status: string;
     };
   };
+}
+
+async function downloadTelegramFile(fileId: string): Promise<{ buffer: ArrayBuffer; fileName: string; mimeType: string; }> {
+  // Get file info from Telegram
+  const fileInfoUrl = `https://api.telegram.org/bot${telegramBotToken}/getFile?file_id=${fileId}`;
+  const fileInfoResponse = await fetch(fileInfoUrl);
+  const fileInfo = await fileInfoResponse.json();
+  
+  if (!fileInfo.ok) {
+    throw new Error(`Failed to get file info: ${fileInfo.description}`);
+  }
+  
+  // Download file from Telegram
+  const fileUrl = `https://api.telegram.org/file/bot${telegramBotToken}/${fileInfo.result.file_path}`;
+  const fileResponse = await fetch(fileUrl);
+  
+  if (!fileResponse.ok) {
+    throw new Error(`Failed to download file: ${fileResponse.statusText}`);
+  }
+  
+  const buffer = await fileResponse.arrayBuffer();
+  const fileName = fileInfo.result.file_path.split('/').pop() || 'video';
+  const mimeType = 'video/mp4'; // Default for videos
+  
+  return { buffer, fileName, mimeType };
+}
+
+async function uploadToDoodstream(fileBuffer: ArrayBuffer, fileName: string, title?: string): Promise<any> {
+  const blob = new Blob([fileBuffer]);
+  const file = new File([blob], fileName);
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('title', title || fileName);
+  
+  const response = await supabase.functions.invoke('doodstream-api', {
+    body: formData
+  });
+  
+  if (response.error) {
+    throw new Error(`Doodstream upload failed: ${response.error.message}`);
+  }
+  
+  return response.data;
+}
+
+async function handleVideoUpload(update: TelegramUpdate) {
+  const message = update.message!;
+  const telegramUserId = message.from.id;
+  const chatId = message.chat.id;
+  const messageId = message.message_id;
+  
+  // Check if user is admin
+  const { data: isAdmin } = await supabase.rpc('is_telegram_admin', {
+    telegram_user_id_param: telegramUserId
+  });
+  
+  if (!isAdmin) {
+    await sendTelegramMessage(
+      chatId,
+      `❌ Hanya admin yang dapat mengunggah video.`,
+      messageId
+    );
+    return;
+  }
+  
+  // Check if chat is premium group with auto-upload enabled
+  const { data: isPremiumGroup } = await supabase.rpc('is_premium_group_with_autoupload', {
+    chat_id_param: chatId
+  });
+  
+  if (!isPremiumGroup) {
+    await sendTelegramMessage(
+      chatId,
+      `❌ Auto-upload tidak diaktifkan untuk grup ini.`,
+      messageId
+    );
+    return;
+  }
+  
+  const fileInfo = message.video || message.document;
+  if (!fileInfo) {
+    return;
+  }
+  
+  // Check for duplicate
+  const { data: existingUpload } = await supabase
+    .from('telegram_uploads')
+    .select('id')
+    .eq('telegram_file_unique_id', fileInfo.file_unique_id)
+    .maybeSingle();
+    
+  if (existingUpload) {
+    await sendTelegramMessage(
+      chatId,
+      `⚠️ File ini sudah pernah diunggah sebelumnya.`,
+      messageId
+    );
+    return;
+  }
+  
+  // Send processing message
+  await sendTelegramMessage(
+    chatId,
+    `⏳ Sedang memproses upload video...`,
+    messageId
+  );
+  
+  try {
+    // Record upload attempt in database
+    const { data: uploadRecord, error: insertError } = await supabase
+      .from('telegram_uploads')
+      .insert({
+        telegram_file_id: fileInfo.file_id,
+        telegram_file_unique_id: fileInfo.file_unique_id,
+        telegram_message_id: messageId,
+        telegram_chat_id: chatId,
+        telegram_user_id: telegramUserId,
+        original_filename: fileInfo.file_name || 'video',
+        file_size: fileInfo.file_size || 0,
+        mime_type: fileInfo.mime_type || 'video/mp4',
+        upload_status: 'processing'
+      })
+      .select('id')
+      .single();
+      
+    if (insertError) {
+      console.error('Error inserting upload record:', insertError);
+      throw new Error('Database error');
+    }
+    
+    // Download file from Telegram
+    const { buffer, fileName } = await downloadTelegramFile(fileInfo.file_id);
+    
+    // Upload to Doodstream
+    const title = fileInfo.file_name || `Video_${Date.now()}`;
+    const doodstreamResult = await uploadToDoodstream(buffer, fileName, title);
+    
+    // Update upload record with success
+    await supabase
+      .from('telegram_uploads')
+      .update({
+        doodstream_file_code: doodstreamResult.file_code,
+        upload_status: 'completed',
+        processed_at: new Date().toISOString()
+      })
+      .eq('id', uploadRecord.id);
+      
+    // Send success message
+    await sendTelegramMessage(
+      chatId,
+      `✅ Video berhasil diunggah!\n📹 Judul: ${title}\n🔗 File Code: ${doodstreamResult.file_code}`,
+      messageId
+    );
+    
+  } catch (error) {
+    console.error('Error uploading video:', error);
+    
+    // Update upload record with error
+    await supabase
+      .from('telegram_uploads')
+      .update({
+        upload_status: 'failed',
+        error_message: error.message,
+        processed_at: new Date().toISOString()
+      })
+      .eq('telegram_file_unique_id', fileInfo.file_unique_id);
+      
+    await sendTelegramMessage(
+      chatId,
+      `❌ Gagal mengunggah video: ${error.message}`,
+      messageId
+    );
+  }
+}
+
+async function handleAddPremiumGroupCommand(update: TelegramUpdate) {
+  const message = update.message!;
+  const telegramUserId = message.from.id;
+  const chatId = message.chat.id;
+  const chatTitle = message.chat.title || 'Unknown Group';
+  
+  // Check if user is admin
+  const { data: isAdmin } = await supabase.rpc('is_telegram_admin', {
+    telegram_user_id_param: telegramUserId
+  });
+  
+  if (!isAdmin) {
+    await sendTelegramMessage(
+      chatId,
+      `❌ Hanya admin yang dapat mengelola grup premium.`,
+      message.message_id
+    );
+    return;
+  }
+  
+  // Add group to premium groups
+  const { error } = await supabase
+    .from('premium_groups')
+    .upsert({
+      chat_id: chatId,
+      chat_title: chatTitle,
+      auto_upload_enabled: true
+    });
+    
+  if (error) {
+    console.error('Error adding premium group:', error);
+    await sendTelegramMessage(
+      chatId,
+      `❌ Gagal menambahkan grup premium: ${error.message}`,
+      message.message_id
+    );
+    return;
+  }
+  
+  await sendTelegramMessage(
+    chatId,
+    `✅ Grup "${chatTitle}" berhasil ditambahkan sebagai grup premium dengan auto-upload aktif!`,
+    message.message_id
+  );
+}
+
+async function handleToggleAutoUploadCommand(update: TelegramUpdate) {
+  const message = update.message!;
+  const telegramUserId = message.from.id;
+  const chatId = message.chat.id;
+  
+  // Check if user is admin
+  const { data: isAdmin } = await supabase.rpc('is_telegram_admin', {
+    telegram_user_id_param: telegramUserId
+  });
+  
+  if (!isAdmin) {
+    await sendTelegramMessage(
+      chatId,
+      `❌ Hanya admin yang dapat mengelola auto-upload.`,
+      message.message_id
+    );
+    return;
+  }
+  
+  // Get current status
+  const { data: currentGroup } = await supabase
+    .from('premium_groups')
+    .select('auto_upload_enabled')
+    .eq('chat_id', chatId)
+    .maybeSingle();
+    
+  if (!currentGroup) {
+    await sendTelegramMessage(
+      chatId,
+      `❌ Grup ini belum terdaftar sebagai grup premium. Gunakan /add_premium_group terlebih dahulu.`,
+      message.message_id
+    );
+    return;
+  }
+  
+  // Toggle auto-upload
+  const newStatus = !currentGroup.auto_upload_enabled;
+  const { error } = await supabase
+    .from('premium_groups')
+    .update({ auto_upload_enabled: newStatus })
+    .eq('chat_id', chatId);
+    
+  if (error) {
+    console.error('Error toggling auto-upload:', error);
+    await sendTelegramMessage(
+      chatId,
+      `❌ Gagal mengubah status auto-upload: ${error.message}`,
+      message.message_id
+    );
+    return;
+  }
+  
+  await sendTelegramMessage(
+    chatId,
+    `✅ Auto-upload ${newStatus ? 'diaktifkan' : 'dinonaktifkan'} untuk grup ini.`,
+    message.message_id
+  );
 }
 
 async function sendTelegramMessage(chatId: number, text: string, replyToMessageId?: number) {
@@ -228,19 +525,32 @@ serve(async (req) => {
     }
 
     // Handle messages
-    if (update.message?.text) {
-      const text = update.message.text;
+    if (update.message) {
+      // Handle video/document uploads
+      if (update.message.video || update.message.document) {
+        await handleVideoUpload(update);
+        return new Response('OK', { headers: corsHeaders });
+      }
       
-      if (text === '/link' || text === '/link@your_bot_username') {
-        await handleLinkCommand(update);
-      } else if (text === '/premium' || text === '/premium@your_bot_username') {
-        await handlePremiumCommand(update);
-      } else if (text === '/start') {
-        await sendTelegramMessage(
-          update.message.chat.id,
-          `👋 Selamat datang!\n\nCommand yang tersedia:\n/link - Hubungkan akun Telegram dengan website\n/premium - Cek status premium Anda`,
-          update.message.message_id
-        );
+      // Handle text commands
+      if (update.message.text) {
+        const text = update.message.text;
+        
+        if (text === '/link' || text === '/link@your_bot_username') {
+          await handleLinkCommand(update);
+        } else if (text === '/premium' || text === '/premium@your_bot_username') {
+          await handlePremiumCommand(update);
+        } else if (text === '/add_premium_group' || text === '/add_premium_group@your_bot_username') {
+          await handleAddPremiumGroupCommand(update);
+        } else if (text === '/toggle_autoupload' || text === '/toggle_autoupload@your_bot_username') {
+          await handleToggleAutoUploadCommand(update);
+        } else if (text === '/start') {
+          await sendTelegramMessage(
+            update.message.chat.id,
+            `👋 Selamat datang!\n\n📋 Command yang tersedia:\n/link - Hubungkan akun Telegram dengan website\n/premium - Cek status premium Anda\n\n🛠️ Admin Commands:\n/add_premium_group - Tambahkan grup premium\n/toggle_autoupload - Toggle auto-upload\n\n📤 Auto-Upload:\nKirim video/dokumen ke grup premium untuk upload otomatis ke Doodstream`,
+            update.message.message_id
+          );
+        }
       }
     }
 
