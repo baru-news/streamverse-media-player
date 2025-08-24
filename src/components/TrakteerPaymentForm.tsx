@@ -14,6 +14,24 @@ import { toast } from '@/hooks/use-toast';
 const TRAKTEER_AMOUNT = 50000; // IDR 50,000
 const TRAKTEER_URL = "https://trakteer.id/your-username"; // Replace with actual Trakteer URL
 
+const getBenefitsForSubscription = (subscriptionType: string) => {
+  if (subscriptionType === 'telegram_lifetime' || subscriptionType.includes('telegram')) {
+    return [
+      'Exclusive premium Telegram channel access',
+      '2x Kitty Key rewards on every daily claim (permanent)',
+      'Premium Telegram Member badge display',
+      'Priority support and early access to features'
+    ];
+  } else {
+    return [
+      'Streaming tanpa iklan yang mengganggu',
+      'Kualitas video premium HD/FHD',
+      'Loading dan buffering yang lebih cepat',
+      'Premium Streaming badge display'
+    ];
+  }
+};
+
 interface TrakteerPaymentFormProps {
   telegramUsername?: string;
   amount?: number;
@@ -189,22 +207,12 @@ const TrakteerPaymentForm = ({ telegramUsername, amount = 50000, subscriptionTyp
           </div>
           
           <div className="space-y-3 text-sm text-green-700">
-            <p className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              Exclusive premium Telegram channel access
-            </p>
-            <p className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              2x Kitty Key rewards on every daily claim (permanent)
-            </p>
-            <p className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              Premium Member badge display
-            </p>
-            <p className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              Priority support and early access to features
-            </p>
+            {getBenefitsForSubscription(subscriptionType).map((benefit, index) => (
+              <p key={index} className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                {benefit}
+              </p>
+            ))}
           </div>
         </div>
 

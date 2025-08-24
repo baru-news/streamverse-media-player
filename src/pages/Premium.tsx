@@ -13,6 +13,7 @@ import SEO from '@/components/SEO';
 import TrakteerPaymentForm from '@/components/TrakteerPaymentForm';
 import PremiumRequestStatus from '@/components/PremiumRequestStatus';
 import { TelegramLinkForm } from '@/components/TelegramLinkForm';
+import BadgePreview from '@/components/BadgePreview';
 import { supabase } from '@/integrations/supabase/client';
 
 const Premium = () => {
@@ -310,6 +311,9 @@ const Premium = () => {
               )}
             </CardContent>
           </Card>
+          
+          {/* Badge Preview for Telegram */}
+          <BadgePreview subscriptionType="telegram" />
         </TabsContent>
 
         <TabsContent value="streaming" className="space-y-6">
@@ -405,6 +409,9 @@ const Premium = () => {
               </Card>
             ))}
           </div>
+          
+          {/* Badge Preview for Streaming */}
+          <BadgePreview subscriptionType="streaming" />
           
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
             <CardHeader>
