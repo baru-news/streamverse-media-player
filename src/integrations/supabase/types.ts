@@ -1245,6 +1245,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_telegram_admin: {
+        Args: { telegram_user_id_param: number }
+        Returns: boolean
+      }
       make_user_admin: {
         Args: { user_email: string }
         Returns: boolean
