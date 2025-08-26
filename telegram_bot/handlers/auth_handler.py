@@ -23,9 +23,12 @@ class AuthHandler:
         """Handle /start command"""
         try:
             user = message.from_user
+            logger.info(f"Start command from user {user.id} (@{user.username})")
             
             # Check if user already has linked account
+            logger.debug(f"Calling get_profile_by_telegram_id for user {user.id}")
             profile = await self.supabase.get_profile_by_telegram_id(user.id)
+            logger.debug(f"Profile result: {profile}")
             
             if profile:
                 # User is already linked
