@@ -42,7 +42,7 @@ def test_supabase_only():
     # Step 3: Test SupabaseManager instantiation
     try:
         logger.info("Step 3: Testing SupabaseManager instantiation...")
-        supabase = SupabaseManager()
+        supabase = SupabaseManager(config)
         logger.info("✅ SupabaseManager creation successful")
     except Exception as e:
         logger.error(f"❌ SupabaseManager creation failed: {e}")
