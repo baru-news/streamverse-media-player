@@ -56,6 +56,29 @@ class SupabaseManager:
             logger.error(f"Error making request to {endpoint}: {e}")
             return None
     
+    async def _call_rpc(self, function_name: str, params: Dict) -> Optional[Any]:
+        """Call Supabase RPC function"""
+        url = f"{self.base_url}/rest/v1/rpc/{function_name}"
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    url,
+                    headers=self.headers,
+                    json=params,
+                    timeout=aiohttp.ClientTimeout(total=30)
+                ) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"RPC function {function_name} error {response.status}: {error_text}")
+                        return None
+                        
+        except Exception as e:
+            logger.error(f"Error calling RPC function {function_name}: {e}")
+            return None
+    
     async def call_edge_function(self, function_name: str, payload: Dict) -> Optional[Dict]:
         """Call Supabase Edge Function"""
         url = f"{self.base_url}/functions/v1/{function_name}"
@@ -103,28 +126,36 @@ class SupabaseManager:
     async def is_telegram_admin(self, telegram_user_id: int) -> bool:
         """Check if Telegram user is an admin"""
         try:
-            payload = {'telegram_user_id': telegram_user_id}
-            result = await self.call_edge_function('telegram-webhook', {
-                'action': 'check_admin',
-                'data': payload
+            result = await self._call_rpc('is_telegram_admin', {
+                'telegram_user_id_param': telegram_user_id
             })
-            return result and result.get('is_admin', False)
+            return result if result is not None else False
         except Exception as e:
             logger.error(f"Error checking admin status: {e}")
             return False
     
     async def is_premium_user(self, user_id: str) -> bool:
         """Check if user has premium subscription"""
-        endpoint = f"premium_subscriptions?user_id=eq.{user_id}&is_active=eq.true&select=id"
-        result = await self._make_request('GET', endpoint)
-        return result and len(result) > 0
+        try:
+            result = await self._call_rpc('check_user_premium_status', {
+                'user_id_param': user_id
+            })
+            return result if result is not None else False
+        except Exception as e:
+            logger.error(f"Error checking premium status: {e}")
+            return False
     
     # Premium Groups Management
     async def is_premium_group_with_autoupload(self, chat_id: int) -> bool:
         """Check if chat is premium group with auto-upload enabled"""
-        endpoint = f"premium_groups?chat_id=eq.{chat_id}&auto_upload_enabled=eq.true&select=id"
-        result = await self._make_request('GET', endpoint)
-        return result and len(result) > 0
+        try:
+            result = await self._call_rpc('is_premium_group_with_autoupload', {
+                'chat_id_param': chat_id
+            })
+            return result if result is not None else False
+        except Exception as e:
+            logger.error(f"Error checking premium group status: {e}")
+            return False
     
     async def add_premium_group(self, chat_id: int, chat_title: str, admin_id: str) -> bool:
         """Add premium group for auto-upload"""
