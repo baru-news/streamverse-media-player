@@ -42,7 +42,7 @@ def test_supabase_only():
     # Step 3: Test SupabaseManager instantiation
     try:
         logger.info("Step 3: Testing SupabaseManager instantiation...")
-        supabase = SupabaseManager(config)
+        supabase = SupabaseManager()
         logger.info("✅ SupabaseManager creation successful")
     except Exception as e:
         logger.error(f"❌ SupabaseManager creation failed: {e}")
@@ -54,8 +54,8 @@ def test_supabase_only():
     try:
         logger.info("Step 4: Testing SupabaseManager method...")
         # Test a simple method that doesn't require network
-        config_test = supabase.supabase_config
-        logger.info(f"✅ SupabaseManager config access successful: {config_test['url']}")
+        url = supabase.base_url
+        logger.info(f"✅ SupabaseManager config access successful: {url}")
     except Exception as e:
         logger.error(f"❌ SupabaseManager method failed: {e}")
         import traceback
