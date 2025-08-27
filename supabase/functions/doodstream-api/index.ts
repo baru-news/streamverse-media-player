@@ -101,8 +101,81 @@ serve(async (req) => {
     }
 
     // Parse request body for other actions
-    const { action, fileCode, page = 1, perPage = 12, syncToDatabase = false } = await req.json();
-    console.log('Processing action:', action, 'with params:', { fileCode, page, perPage, syncToDatabase });
+    const { action, fileCode, page = 1, perPage = 12, syncToDatabase = false, file_data, title, filename } = await req.json();
+    console.log('Processing action:', action, 'with params:', { fileCode, page, perPage, syncToDatabase, title, filename });
+
+    // Handle dual_upload action (for user bot file uploads)
+    if (action === 'dual_upload') {
+      if (!file_data || !title || !filename) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'file_data, title, and filename are required for dual_upload' }), 
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      try {
+        // Decode base64 file data
+        const fileBytes = Uint8Array.from(atob(file_data), c => c.charCodeAt(0));
+        const file = new File([fileBytes], filename, { type: 'video/mp4' });
+
+        // Step 1: Get upload server
+        const uploadServerResponse = await fetch(`https://doodapi.co/api/upload/server?key=${apiKey}`);
+        const uploadServerData = await uploadServerResponse.json();
+        
+        if (uploadServerData.status !== 200) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Failed to get upload server' }), 
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Step 2: Upload file to Doodstream
+        const uploadUrl = uploadServerData.result;
+        const uploadFormData = new FormData();
+        uploadFormData.append('api_key', apiKey);
+        uploadFormData.append('file', file);
+        uploadFormData.append('title', title);
+
+        console.log('Uploading file to Doodstream via dual_upload:', uploadUrl, 'Size:', fileBytes.length);
+
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'POST',
+          body: uploadFormData
+        });
+
+        const uploadResult = await uploadResponse.json();
+        console.log('Doodstream dual_upload response:', uploadResult);
+
+        if (uploadResult.status === 200) {
+          return new Response(JSON.stringify({
+            success: true,
+            result: {
+              file_code: uploadResult.result?.[0]?.filecode,
+              message: uploadResult.msg
+            }
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          return new Response(JSON.stringify({
+            success: false,
+            error: uploadResult.msg || 'Upload failed'
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      } catch (error) {
+        console.error('Error in dual_upload:', error);
+        return new Response(JSON.stringify({
+          success: false,
+          error: `File upload failed: ${error.message}`
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     let apiUrl: string;
     let params = new URLSearchParams({ key: apiKey });

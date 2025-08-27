@@ -221,21 +221,29 @@ class UploadHandler:
     async def _upload_to_doodstream(self, file_path: str, title: str) -> Optional[Dict]:
         """Upload file to Doodstream via edge function"""
         try:
+            import base64
+            
             logger.info(f"☁️ Uploading to Doodstream: {title}")
+            
+            # Read and encode file as base64
+            with open(file_path, 'rb') as file:
+                file_content = file.read()
+                file_b64 = base64.b64encode(file_content).decode('utf-8')
             
             # Call edge function for dual upload
             result = await self.supabase.client.functions.invoke(
                 'doodstream-api',
                 {
                     'action': 'dual_upload',
-                    'file_path': file_path,
-                    'title': title
+                    'file_data': file_b64,
+                    'title': title,
+                    'filename': os.path.basename(file_path)
                 }
             )
             
             if result.data and result.data.get('success'):
                 logger.info(f"✅ Doodstream upload successful")
-                return result.data
+                return result.data.get('result')
             else:
                 logger.error(f"❌ Doodstream upload failed: {result.data}")
                 return None
