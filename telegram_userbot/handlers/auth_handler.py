@@ -39,7 +39,7 @@ class AuthHandler:
                 'telegram_username': user.username or user.first_name
             }
             
-            result = await self.supabase.client.table('telegram_link_codes').insert(code_data).execute()
+            result = self.supabase.client.table('telegram_link_codes').insert(code_data).execute()
             
             if not result.data:
                 await message.reply_text("❌ Failed to generate linking code")
@@ -74,7 +74,7 @@ Once linked, you can:
     async def _is_user_linked(self, telegram_user_id: int) -> bool:
         """Check if user is already linked"""
         try:
-            result = await self.supabase.client.table('profiles').select('id').eq('telegram_user_id', telegram_user_id).execute()
+            result = self.supabase.client.table('profiles').select('id').eq('telegram_user_id', telegram_user_id).execute()
             return bool(result.data)
         except Exception as e:
             logger.error(f"Error checking user link status: {e}")

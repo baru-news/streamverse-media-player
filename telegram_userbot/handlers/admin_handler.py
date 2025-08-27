@@ -171,7 +171,7 @@ Use `/sync` to manually sync Doodstream
                 'auto_upload_enabled': True
             }
             
-            result = await self.supabase.client.table('premium_groups').insert(group_data).execute()
+            result = self.supabase.client.table('premium_groups').insert(group_data).execute()
             
             if result.data:
                 await message.reply_text(f"✅ Added premium group: **{chat_title}**\nID: `{chat_id}`\nAuto upload: 🟢 Enabled")
@@ -188,18 +188,19 @@ Use `/sync` to manually sync Doodstream
             await message.reply_text("🔄 Starting manual sync with Doodstream...")
             
             # Call sync edge function
-            result = await self.supabase.client.functions.invoke(
+            result = self.supabase.client.functions.invoke(
                 'doodstream-api',
                 {
-                    'action': 'sync_videos'
+                    'action': 'syncVideos'
                 }
-            )
+            ).execute()
             
             if result.data and result.data.get('success'):
-                synced_count = result.data.get('synced_count', 0)
-                await message.reply_text(f"✅ Sync completed successfully!\n📹 Synced {synced_count} videos")
+                videos_count = len(result.data.get('result', []))
+                await message.reply_text(f"✅ Sync completed successfully!\n📹 Processed {videos_count} videos")
             else:
-                await message.reply_text(f"❌ Sync failed: {result.data.get('error', 'Unknown error')}")
+                error_msg = result.data.get('error', 'Unknown error') if result.data else 'No response'
+                await message.reply_text(f"❌ Sync failed: {error_msg}")
             
         except Exception as e:
             logger.error(f"Error in sync command: {e}")
@@ -208,7 +209,7 @@ Use `/sync` to manually sync Doodstream
     async def _get_premium_groups(self) -> List[Dict]:
         """Get premium groups from database"""
         try:
-            result = await self.supabase.client.table('premium_groups').select('*').order('created_at', desc=True).execute()
+            result = self.supabase.client.table('premium_groups').select('*').order('created_at', desc=True).execute()
             return result.data or []
         except Exception as e:
             logger.error(f"Error getting premium groups: {e}")
@@ -217,7 +218,7 @@ Use `/sync` to manually sync Doodstream
     async def _get_recent_uploads(self) -> List[Dict]:
         """Get recent uploads from database"""
         try:
-            result = await self.supabase.client.table('telegram_uploads').select('*').order('created_at', desc=True).limit(10).execute()
+            result = self.supabase.client.table('telegram_uploads').select('*').order('created_at', desc=True).limit(10).execute()
             return result.data or []
         except Exception as e:
             logger.error(f"Error getting recent uploads: {e}")

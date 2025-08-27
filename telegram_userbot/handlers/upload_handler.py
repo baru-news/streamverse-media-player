@@ -75,13 +75,13 @@ class UploadHandler:
     async def is_premium_group(self, chat_id: int) -> bool:
         """Check if chat is a premium group with auto-upload enabled"""
         try:
-            result = await self.supabase.client.functions.invoke(
+            result = self.supabase.client.functions.invoke(
                 'user-bot-webhook',
                 {
                     'action': 'check_premium_group',
                     'chat_id': chat_id
                 }
-            )
+            ).execute()
             
             if result.data and result.data.get('is_premium'):
                 return True
@@ -231,7 +231,7 @@ class UploadHandler:
                 file_b64 = base64.b64encode(file_content).decode('utf-8')
             
             # Call edge function for dual upload
-            result = await self.supabase.client.functions.invoke(
+            result = self.supabase.client.functions.invoke(
                 'doodstream-api',
                 {
                     'action': 'dual_upload',
@@ -239,7 +239,7 @@ class UploadHandler:
                     'title': title,
                     'filename': os.path.basename(file_path)
                 }
-            )
+            ).execute()
             
             if result.data and result.data.get('success'):
                 logger.info(f"✅ Doodstream upload successful")
