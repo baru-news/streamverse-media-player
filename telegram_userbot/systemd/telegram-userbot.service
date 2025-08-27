@@ -1,28 +1,28 @@
 [Unit]
-Description=Telegram Video Upload Bot
+Description=Telegram User Bot - Auto Upload System
 After=network.target
 Wants=network.target
 
 [Service]
 Type=simple
-User=telegram-bot
-Group=telegram-bot
-WorkingDirectory=/opt/telegram-bot/telegram_bot
-Environment=PATH=/opt/telegram-bot/venv/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=/opt/telegram-bot/venv/bin/python main.py
+User=telegram-userbot
+Group=telegram-userbot
+WorkingDirectory=/opt/telegram-userbot
+Environment=PATH=/opt/telegram-userbot/venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/opt/telegram-userbot/venv/bin/python main.py
 Restart=always
 RestartSec=10
 KillMode=process
 TimeoutStopSec=30
 
 # Environment variables
-EnvironmentFile=-/opt/telegram-bot/.env
+EnvironmentFile=-/opt/telegram-userbot/.env
 
 # Security settings
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/telegram-bot
+ReadWritePaths=/opt/telegram-userbot
 PrivateTmp=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
@@ -31,7 +31,7 @@ ProtectControlGroups=true
 # Logging
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=telegram-bot
+SyslogIdentifier=telegram-userbot
 
 # Resource limits
 LimitNOFILE=65536
