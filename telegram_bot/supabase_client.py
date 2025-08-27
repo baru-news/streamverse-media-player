@@ -109,11 +109,21 @@ class SupabaseManager:
         result = await self._make_request('GET', endpoint)
         return result[0] if result and len(result) > 0 else None
     
-    # Compatibility alias for legacy code
+    # Compatibility aliases for legacy code
     async def get_user_profile_by_telegram_id(self, telegram_user_id: int) -> Optional[Dict]:
         """Legacy method name - redirects to get_profile_by_telegram_id"""
         logger.warning("get_user_profile_by_telegram_id is deprecated, use get_profile_by_telegram_id")
         return await self.get_profile_by_telegram_id(telegram_user_id)
+    
+    async def create_link_code(self, telegram_user_id: int, telegram_username: str) -> Optional[str]:
+        """Legacy method name - redirects to create_telegram_link_code"""
+        logger.warning("create_link_code is deprecated, use create_telegram_link_code")
+        return await self.create_telegram_link_code(telegram_user_id, telegram_username)
+    
+    async def is_user_admin(self, telegram_user_id: int) -> bool:
+        """Legacy method name - redirects to is_telegram_admin"""
+        logger.warning("is_user_admin is deprecated, use is_telegram_admin")
+        return await self.is_telegram_admin(telegram_user_id)
     
     async def update_profile_telegram_data(self, user_id: str, telegram_user_id: int, 
                                          telegram_username: str, telegram_chat_id: int) -> bool:
