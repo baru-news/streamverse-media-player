@@ -1,41 +1,44 @@
 [Unit]
-Description=Telegram User Bot - Auto Upload System
-After=network.target
-Wants=network.target
+Description=Telegram User Bot - Production Service
+After=network.target network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-User=telegram-userbot
-Group=telegram-userbot
-WorkingDirectory=/opt/telegram-userbot
-Environment=PATH=/opt/telegram-userbot/venv/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=/opt/telegram-userbot/venv/bin/python main.py
+User=%i
+Group=%i
+WorkingDirectory=%h/telegram_userbot
+ExecStart=%h/telegram_userbot/run_userbot.sh
 Restart=always
 RestartSec=10
-KillMode=process
+KillMode=mixed
+TimeoutStartSec=60
 TimeoutStopSec=30
 
-# Environment variables
-EnvironmentFile=-/opt/telegram-userbot/.env
+# Environment isolation
+Environment=PATH=%h/telegram_userbot/.venv/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=-%h/telegram_userbot/.env
 
 # Security settings
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/telegram-userbot
+ReadWritePaths=%h/telegram_userbot
 PrivateTmp=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
 
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+MemoryMax=512M
+
 # Logging
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=telegram-userbot
-
-# Resource limits
-LimitNOFILE=65536
-LimitNPROC=4096
 
 [Install]
 WantedBy=multi-user.target
