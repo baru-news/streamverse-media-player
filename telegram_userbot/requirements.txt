@@ -1,29 +1,22 @@
-# Telegram User Bot Requirements - Ubuntu 22.04 Optimized
-# Pinned minor versions for stability
-
-# Core Telegram client
+# --- Telegram client ---
 pyrogram==2.0.106
 tgcrypto==1.2.5
 
-# Supabase client (optional)
-supabase==2.5.*
-
-# Data validation and serialization
-pydantic==2.9.*
-pydantic-core==2.23.*
-
-# HTTP and async support
+# --- HTTP / Async ---
 httpx==0.27.*
 aiofiles==23.2.*
+uvloop==0.19.*          # aktif otomatis di Linux; aman di 22.04
 
-# Performance and utilities
-uvloop==0.19.*
+# --- Env & typing ---
 python-dotenv==1.0.*
 typing_extensions==4.12.*
 
-# JSON serialization
-orjson==3.10.*
+# --- Supabase (opsional, aktif jika kamu isi env) ---
+supabase==2.5.*
+pydantic==2.9.*
+pydantic-core==2.23.*
 
-# Logging
+# --- Logging & JSON speedup ---
 python-json-logger==2.0.*
 loguru==0.7.*
+orjson==3.10.*
