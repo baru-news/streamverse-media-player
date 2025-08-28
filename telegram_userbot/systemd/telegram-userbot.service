@@ -6,8 +6,8 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-User=%i
-Group=%i
+User=telegram-userbot
+Group=telegram-userbot
 WorkingDirectory=%h/telegram_userbot
 ExecStart=%h/telegram_userbot/run_userbot.sh
 Restart=always

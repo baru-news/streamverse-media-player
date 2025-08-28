@@ -151,7 +151,7 @@ Use `/sync` to manually sync Doodstream
                 return
             
             # Check if group already exists
-            existing = await self.supabase.client.table('premium_groups').select('*').eq('chat_id', chat_id).execute()
+            existing = self.supabase.client.table('premium_groups').select('*').eq('chat_id', chat_id).execute()
             
             if existing.data:
                 await message.reply_text(f"⚠️ Group {chat_id} is already in premium groups list")

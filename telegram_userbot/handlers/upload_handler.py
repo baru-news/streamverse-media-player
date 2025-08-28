@@ -150,7 +150,7 @@ class UploadHandler:
             }
             
             # Insert upload record
-            result = await self.supabase.client.table('telegram_uploads').insert(upload_data).execute()
+            result = self.supabase.client.table('telegram_uploads').insert(upload_data).execute()
             
             if not result.data:
                 logger.error("Failed to create upload record")
@@ -176,8 +176,8 @@ class UploadHandler:
             if doodstream_result:
                 # Update upload status
                 await self._update_upload_status(
-                    upload_id, 
-                    'completed', 
+                    upload_id,
+                    'completed',
                     None,
                     doodstream_result.get('file_code')
                 )
@@ -222,28 +222,33 @@ class UploadHandler:
         """Upload file to Doodstream via edge function"""
         try:
             import base64
-            
+
             logger.info(f"☁️ Uploading to Doodstream: {title}")
-            
-            # Read and encode file as base64
+
+            # Read and encode file as base64 for transport
             with open(file_path, 'rb') as file:
                 file_content = file.read()
                 file_b64 = base64.b64encode(file_content).decode('utf-8')
-            
-            # Call edge function for dual upload
+
+            # Call edge function for dual upload (regular + premium)
             result = self.supabase.client.functions.invoke(
-                'doodstream-api',
+                'doodstream-premium',
                 {
-                    'action': 'dual_upload',
-                    'file_data': file_b64,
-                    'title': title,
-                    'filename': os.path.basename(file_path)
+                    'action': 'upload_dual',
+                    'fileBuffer': file_b64,
+                    'fileName': os.path.basename(file_path),
+                    'title': title
                 }
             ).execute()
-            
+
             if result.data and result.data.get('success'):
-                logger.info(f"✅ Doodstream upload successful")
-                return result.data.get('result')
+                logger.info("✅ Doodstream upload successful")
+                data = result.data.get('results', {})
+                return {
+                    'regular_file_code': (data.get('regular') or {}).get('file_code'),
+                    'premium_file_code': (data.get('premium') or {}).get('file_code'),
+                    'file_code': (data.get('regular') or {}).get('file_code') or (data.get('premium') or {}).get('file_code')
+                }
             else:
                 logger.error(f"❌ Doodstream upload failed: {result.data}")
                 return None
@@ -266,7 +271,7 @@ class UploadHandler:
             if file_code:
                 update_data['doodstream_file_code'] = file_code
             
-            await self.supabase.client.table('telegram_uploads').update(update_data).eq('id', upload_id).execute()
+            self.supabase.client.table('telegram_uploads').update(update_data).eq('id', upload_id).execute()
             
         except Exception as e:
             logger.error(f"Error updating upload status: {e}")
@@ -275,7 +280,7 @@ class UploadHandler:
         """Create video record in database"""
         try:
             # Check if video already exists
-            existing = await self.supabase.client.table('videos').select('id').eq('file_code', doodstream_result.get('file_code')).execute()
+            existing = self.supabase.client.table('videos').select('id').eq('file_code', doodstream_result.get('file_code')).execute()
             
             if existing.data:
                 logger.info("Video already exists in database")
@@ -297,7 +302,7 @@ class UploadHandler:
                 }
             }
             
-            result = await self.supabase.client.table('videos').insert(video_data).execute()
+            result = self.supabase.client.table('videos').insert(video_data).execute()
             
             if result.data:
                 logger.info(f"✅ Created video record: {result.data[0]['id']}")
