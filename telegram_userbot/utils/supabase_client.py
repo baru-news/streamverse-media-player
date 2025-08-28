@@ -94,3 +94,12 @@ class SupabaseManager:
         except Exception as e:
             logger.error(f"Error getting user profile: {e}")
             return None
+
+    async def get_admin_telegram_accounts(self) -> list:
+        """Get all active admin Telegram accounts"""
+        try:
+            result = self.client.table('admin_telegram_users').select('*').eq('is_active', True).execute()
+            return result.data or []
+        except Exception as e:
+            logger.error(f"Error getting admin telegram accounts: {e}")
+            return []
