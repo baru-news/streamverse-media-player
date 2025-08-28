@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,23 +8,22 @@ const corsHeaders = {
 const doodstreamApiKey = Deno.env.get('DOODSTREAM_API_KEY') ?? '';
 const doodstreamPremiumApiKey = Deno.env.get('DOODSTREAM_PREMIUM_API_KEY') ?? '';
 
-async function uploadToAccount(apiKey: string, fileBuffer: ArrayBuffer, fileName: string, title?: string, accountType: string) {
+async function uploadToAccount(apiKey: string, file: File, accountType: string) {
   // Get upload server
   const serverResponse = await fetch(`https://doodapi.com/api/upload/server?key=${apiKey}`);
   const serverData = await serverResponse.json();
-  
+
   if (serverData.status !== 200) {
     throw new Error(`Failed to get upload server for ${accountType}: ${serverData.msg}`);
   }
 
   const uploadUrl = serverData.result;
-  
+
   // Create form data
   const formData = new FormData();
-  const file = new File([fileBuffer], fileName);
   formData.append('api_key', apiKey);
-  formData.append('file', file);
-  
+  formData.append('file', file, file.name);
+
   // Upload file
   const uploadResponse = await fetch(uploadUrl, {
     method: 'POST',
@@ -33,14 +31,14 @@ async function uploadToAccount(apiKey: string, fileBuffer: ArrayBuffer, fileName
   });
 
   const uploadResult = await uploadResponse.json();
-  
+
   if (uploadResult.status !== 200) {
     throw new Error(`Upload failed for ${accountType}: ${uploadResult.msg}`);
   }
 
   // Log successful upload
   console.log(`${accountType} upload successful:`, uploadResult.result);
-  
+
   return {
     file_code: uploadResult.result.filecode,
     download_url: uploadResult.result.download_url,
@@ -49,7 +47,7 @@ async function uploadToAccount(apiKey: string, fileBuffer: ArrayBuffer, fileName
   };
 }
 
-async function handleDualUpload(fileBuffer: ArrayBuffer, fileName: string, title?: string) {
+async function handleDualUpload(file: File, title?: string) {
   const results = {
     regular: null as any,
     premium: null as any,
@@ -59,8 +57,8 @@ async function handleDualUpload(fileBuffer: ArrayBuffer, fileName: string, title
   try {
     // Upload to both accounts simultaneously
     const [regularResult, premiumResult] = await Promise.allSettled([
-      uploadToAccount(doodstreamApiKey, fileBuffer, fileName, title, 'regular'),
-      uploadToAccount(doodstreamPremiumApiKey, fileBuffer, fileName, title, 'premium')
+      uploadToAccount(doodstreamApiKey, file, 'regular'),
+      uploadToAccount(doodstreamPremiumApiKey, file, 'premium')
     ]);
 
     if (regularResult.status === 'fulfilled') {
@@ -106,19 +104,30 @@ serve(async (req) => {
   console.log('🔄 Doodstream Premium API called');
 
   try {
-    const body = await req.json();
-    const { action, fileBuffer, fileName, title } = body;
+    if (req.headers.get('content-type')?.includes('multipart/form-data')) {
+      const form = await req.formData();
+      const action = form.get('action');
+      const title = form.get('title')?.toString();
+      const file = form.get('file') as File | null;
 
-    console.log(`📝 Action: ${action}, File: ${fileName}`);
+      console.log(`📝 Action: ${action}, File: ${file?.name}`);
 
-    if (action === 'upload_dual') {
-      return await handleDualUpload(fileBuffer, fileName, title);
+      if (action === 'upload_dual' && file) {
+        return await handleDualUpload(file, title || undefined);
+      }
+
+      return new Response(JSON.stringify({ error: 'Invalid action or file' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } else {
+      const body = await req.json();
+      const { action } = body;
+      return new Response(JSON.stringify({ error: `Unsupported content type for action ${action}` }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
-
-    return new Response(JSON.stringify({ error: 'Invalid action' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
 
   } catch (error) {
     console.error('Doodstream Premium API error:', error);
