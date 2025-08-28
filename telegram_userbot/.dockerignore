@@ -1,0 +1,81 @@
+# Docker ignore file for Telegram Userbot
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Session files (will be mounted as volumes)
+*.session
+*.session-journal
+
+# Log files (will be mounted as volumes)
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# Backup files
+*.bak
+*.backup
+backup/
+
+# Security config (will be provided via environment)
+security/config/
+*.key
+*.pem
+*.crt
+
+# Development files
+dev/
+development/
+.dev/

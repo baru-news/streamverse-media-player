@@ -1,0 +1,54 @@
+# Systemd service file for Telegram Userbot
+# Place this file in /etc/systemd/system/telegram-userbot.service
+
+[Unit]
+Description=Telegram Userbot Service
+Documentation=https://github.com/yourusername/telegram-userbot
+After=network.target
+Wants=network.target
+
+[Service]
+Type=notify
+User=botuser
+Group=botuser
+WorkingDirectory=/opt/telegram-userbot
+ExecStart=/opt/telegram-userbot/run_userbot.sh
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=always
+RestartSec=10
+TimeoutSec=300
+TimeoutStopSec=30
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/telegram-userbot/logs /opt/telegram-userbot/data /opt/telegram-userbot/sessions
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RemoveIPC=yes
+PrivateMounts=yes
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+MemoryMax=2G
+CPUWeight=100
+
+# Environment variables
+Environment=PYTHONPATH=/opt/telegram-userbot
+Environment=PYTHONUNBUFFERED=1
+
+# Health monitoring
+WatchdogSec=60
+
+[Install]
+WantedBy=multi-user.target

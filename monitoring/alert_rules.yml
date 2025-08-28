@@ -1,0 +1,119 @@
+# Prometheus Alert Rules for Telegram Userbot
+
+groups:
+- name: telegram-userbot.rules
+  rules:
+  
+  # High-level service availability
+  - alert: TelegramUserbotDown
+    expr: up{job="telegram-userbot"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Telegram Userbot is down"
+      description: "Telegram Userbot has been down for more than 1 minute."
+
+  # System resource alerts
+  - alert: HighCPUUsage
+    expr: cpu_percent > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage detected"
+      description: "CPU usage is above 85% for more than 5 minutes: {{ $value }}%"
+
+  - alert: HighMemoryUsage
+    expr: memory_percent > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage detected"
+      description: "Memory usage is above 85% for more than 5 minutes: {{ $value }}%"
+
+  - alert: HighDiskUsage
+    expr: disk_percent > 90
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High disk usage detected"
+      description: "Disk usage is above 90% for more than 2 minutes: {{ $value }}%"
+
+  # API connectivity alerts
+  - alert: TelegramAPIDown
+    expr: telegram_api_status == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Telegram API is unreachable"
+      description: "Unable to connect to Telegram API for more than 2 minutes."
+
+  - alert: DoodstreamAPIDown
+    expr: doodstream_api_status == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Doodstream API is unreachable"
+      description: "Unable to connect to Doodstream API for more than 2 minutes."
+
+  - alert: SupabaseDown
+    expr: supabase_status == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Supabase database is unreachable"
+      description: "Unable to connect to Supabase database for more than 1 minute."
+
+  # Upload processing alerts
+  - alert: HighUploadFailureRate
+    expr: (upload_failures_total / upload_attempts_total) * 100 > 20
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High upload failure rate"
+      description: "Upload failure rate is above 20% for the last 5 minutes: {{ $value }}%"
+
+  - alert: UploadQueueBacklog
+    expr: upload_queue_size > 10
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Upload queue backlog detected"
+      description: "Upload queue has {{ $value }} pending uploads for more than 10 minutes."
+
+  # Security alerts
+  - alert: SecurityThreatDetected
+    expr: security_threat_level > 7
+    for: 0s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Security threat detected"
+      description: "High security threat level detected: {{ $value }}/10"
+
+  - alert: SuspiciousActivityDetected
+    expr: suspicious_activity_count > 5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Suspicious activity detected"
+      description: "{{ $value }} suspicious activities detected in the last minute."
+
+  # Health check alerts
+  - alert: HealthCheckFailing
+    expr: health_check_success_rate < 80
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Health check success rate low"
+      description: "Health check success rate is below 80% for the last 3 minutes: {{ $value }}%"
