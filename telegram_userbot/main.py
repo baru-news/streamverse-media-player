@@ -167,12 +167,15 @@ async def dood_file_handler(client: Client, message: types.Message):
 # Auto-upload videos/documents from premium groups
 app.on_message(filters.group & (filters.video | filters.document))(upload_handler.handle_group_upload)
 
-# Admin commands
+# Admin commands - Enhanced with new functionality
 app.on_message(filters.me & filters.command(["start"], prefixes=["/", "!", "."]))(admin_handler.handle_start)
 app.on_message(filters.me & filters.command(["status"], prefixes=["/", "!", "."]))(admin_handler.handle_status)
 app.on_message(filters.me & filters.command(["groups"], prefixes=["/", "!", "."]))(admin_handler.handle_groups)
 app.on_message(filters.me & filters.command(["addgroup"], prefixes=["/", "!", "."]))(admin_handler.handle_add_group)
 app.on_message(filters.me & filters.command(["sync"], prefixes=["/", "!", "."]))(admin_handler.handle_sync)
+app.on_message(filters.me & filters.command(["retry"], prefixes=["/", "!", "."]))(admin_handler.handle_retry_upload)
+app.on_message(filters.me & filters.command(["failures"], prefixes=["/", "!", "."]))(admin_handler.handle_failures)
+app.on_message(filters.me & filters.command(["stats"], prefixes=["/", "!", "."]))(admin_handler.handle_stats)
 
 # Account linking command for users
 app.on_message(filters.command(["link"], prefixes=["/", "!", "."]))(auth_handler.handle_link_account)
