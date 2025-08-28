@@ -101,6 +101,36 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_data: Json
+          event_type: string
+          id: string
+          recorded_at: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json
+          event_type: string
+          id?: string
+          recorded_at?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          recorded_at?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badge_store: {
         Row: {
           badge_key: string
@@ -281,6 +311,30 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      performance_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metric_data: Json
+          metric_type: string
+          recorded_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_data?: Json
+          metric_type: string
+          recorded_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_data?: Json
+          metric_type?: string
+          recorded_at?: string
         }
         Relationships: []
       }
@@ -676,34 +730,46 @@ export type Database = {
       }
       upload_failures: {
         Row: {
+          admin_action_taken: string | null
           attempt_count: number
+          callback_data: Json | null
           created_at: string
           error_details: Json
           id: string
+          notification_sent_at: string | null
           requires_manual_upload: boolean
           resolved_at: string | null
+          retry_history: Json | null
           updated_at: string
           upload_type: string
           video_id: string | null
         }
         Insert: {
+          admin_action_taken?: string | null
           attempt_count?: number
+          callback_data?: Json | null
           created_at?: string
           error_details: Json
           id?: string
+          notification_sent_at?: string | null
           requires_manual_upload?: boolean
           resolved_at?: string | null
+          retry_history?: Json | null
           updated_at?: string
           upload_type: string
           video_id?: string | null
         }
         Update: {
+          admin_action_taken?: string | null
           attempt_count?: number
+          callback_data?: Json | null
           created_at?: string
           error_details?: Json
           id?: string
+          notification_sent_at?: string | null
           requires_manual_upload?: boolean
           resolved_at?: string | null
+          retry_history?: Json | null
           updated_at?: string
           upload_type?: string
           video_id?: string | null
@@ -1294,9 +1360,17 @@ export type Database = {
         Args: { new_avatar_path: string; user_id_param: string }
         Returns: undefined
       }
+      get_bot_monitoring_data: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_upload_analytics: {
+        Args: { hours_param?: number }
+        Returns: Json
       }
       handle_daily_login: {
         Args: { user_id_param: string }

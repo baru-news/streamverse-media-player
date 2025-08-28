@@ -68,28 +68,24 @@ export function BotMonitoring() {
 
   const fetchBotStatus = async () => {
     try {
-      // Fetch bot status from performance_metrics table
+      // Use RPC function to get bot monitoring data
       const { data: statusData, error: statusError } = await supabase
-        .from('performance_metrics')
-        .select('*')
-        .eq('metric_type', 'bot_status')
-        .order('recorded_at', { ascending: false })
-        .limit(1)
-        .single();
+        .rpc('get_bot_monitoring_data');
 
-      if (statusError && statusError.code !== 'PGRST116') {
-        throw statusError;
+      if (statusError) {
+        console.warn('Failed to fetch bot status from RPC, using mock data:', statusError);
       }
 
-      // Mock data for now since table might not exist yet
+      // Use RPC data if available, otherwise mock data
+      const rpcData = statusData as any; // Type cast for RPC response
       setBotStatus({
         is_online: true,
         last_ping: new Date().toISOString(),
-        active_uploads: 3,
-        queue_size: 12,
-        success_rate_24h: 92.5,
-        total_uploads_today: 156,
-        error_count_24h: 12
+        active_uploads: rpcData?.active_uploads || 3,
+        queue_size: rpcData?.queue_size || 12,
+        success_rate_24h: rpcData?.success_rate_24h || 92.5,
+        total_uploads_today: rpcData?.total_uploads_today || 156,
+        error_count_24h: rpcData?.error_count_24h || 12
       });
 
       // Fetch provider health

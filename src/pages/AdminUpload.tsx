@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins, Megaphone, Users, Mail, Crown, Bot } from "lucide-react";
+import { ArrowLeft, List, Settings, Globe, Hash, Folder, Award, Coins, Megaphone, Users, Mail, Crown, Bot, Activity, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,8 @@ import PremiumRequestsManagement from "@/components/admin/PremiumRequestsManagem
 import { TelegramAdminManagement } from "@/components/admin/TelegramAdminManagement";
 import { SecureDoodstreamAPI } from "@/lib/supabase-doodstream";
 import { UploadFailuresManagement } from "@/components/admin/UploadFailuresManagement";
+import { BotMonitoring } from "@/components/admin/BotMonitoring";
+import { UploadAnalytics } from "@/components/admin/UploadAnalytics";
 import { useContactMessages } from "@/hooks/useContactMessages";
 
 const AdminUpload = () => {
@@ -83,10 +85,20 @@ const AdminUpload = () => {
                   <span className="hidden sm:inline">Kelola User</span>
                   <span className="sm:hidden">User</span>
                 </TabsTrigger>
-                <TabsTrigger value="telegram" className="gap-2 whitespace-nowrap px-4 py-2" id="telegram">
+                <TabsTrigger value="telegram" className="gap-2 whitespace-nowrap px-4 py-2">
                   <Bot className="w-4 h-4" />
-                  <span className="hidden sm:inline">Telegram Bot</span>
-                  <span className="sm:hidden">Bot</span>
+                  <span className="hidden sm:inline">Telegram</span>
+                  <span className="sm:hidden">TG</span>
+                </TabsTrigger>
+                <TabsTrigger value="monitoring" className="gap-2 whitespace-nowrap px-4 py-2">
+                  <Activity className="w-4 h-4" />
+                  <span className="hidden sm:inline">Bot Monitor</span>
+                  <span className="sm:hidden">Monitor</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="gap-2 whitespace-nowrap px-4 py-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="hidden sm:inline">Analytics</span>
+                  <span className="sm:hidden">Stats</span>
                 </TabsTrigger>
                 <TabsTrigger value="premium" className="gap-2 whitespace-nowrap px-4 py-2" id="premium">
                   <Crown className="w-4 h-4" />
@@ -179,6 +191,14 @@ const AdminUpload = () => {
             {/* Upload Failures Tab */}
             <TabsContent value="upload-failures">
               <UploadFailuresManagement />
+            </TabsContent>
+
+            <TabsContent value="monitoring" className="space-y-6">
+              <BotMonitoring />
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <UploadAnalytics />
             </TabsContent>
 
             {/* Videos Tab */}

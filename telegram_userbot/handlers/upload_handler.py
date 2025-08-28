@@ -10,17 +10,22 @@ import string
 import re
 import json
 import httpx
+import time
 from datetime import datetime
 from typing import Optional, Dict, Any
 from pyrogram import Client
 from pyrogram.types import Message
 from utils.supabase_client import SupabaseManager
+from utils.monitoring import PerformanceMonitor
+from utils.analytics_client import AnalyticsClient
 
 logger = logging.getLogger(__name__)
 
 class UploadHandler:
-    def __init__(self, supabase: SupabaseManager):
+    def __init__(self, supabase: SupabaseManager, performance_monitor: Optional[PerformanceMonitor] = None, analytics_client: Optional[AnalyticsClient] = None):
         self.supabase = supabase
+        self.performance_monitor = performance_monitor
+        self.analytics_client = analytics_client
         
         # Supported video formats
         self.supported_video_formats = {
