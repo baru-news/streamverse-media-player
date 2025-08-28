@@ -83,9 +83,9 @@ echo "Installing monitoring tools..."
 apt install -y \
     htop \
     iotop \
-    netstat-nat \
-    ss \
-    netcat
+    net-tools \
+    iproute2 \
+    netcat-traditional
 
 # Setup log rotation for bot logs
 echo "Configuring log rotation..."

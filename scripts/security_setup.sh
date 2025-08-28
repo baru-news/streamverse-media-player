@@ -162,8 +162,15 @@ apt install -y \
     lynis
 
 # Configure rkhunter
-rkhunter --update
-rkhunter --propupd
+rkhunter --update || echo "Warning: rkhunter update failed, continuing..."
+
+# Fix rkhunter configuration
+if [ -f /etc/rkhunter.conf ]; then
+    # Update WEB_CMD setting
+    sed -i 's|^WEB_CMD=.*|WEB_CMD=/bin/false|' /etc/rkhunter.conf || echo "WEB_CMD=/bin/false" >> /etc/rkhunter.conf
+fi
+
+rkhunter --propupd || echo "Warning: rkhunter propupd failed, continuing..."
 
 # Setup file integrity monitoring
 echo "Setting up file integrity monitoring..."

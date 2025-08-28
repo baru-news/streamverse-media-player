@@ -10,19 +10,17 @@ echo "Starting bot-specific environment configuration..."
 
 # Create comprehensive directory structure
 echo "Creating bot directory structure..."
-mkdir -p /opt/telegram-bot/{
-    config,
-    logs,
-    scripts,
-    backups,
-    tmp,
-    sessions,
-    uploads,
-    downloads,
-    data,
-    templates,
-    static
-}
+mkdir -p /opt/telegram-bot/config \
+         /opt/telegram-bot/logs \
+         /opt/telegram-bot/scripts \
+         /opt/telegram-bot/backups \
+         /opt/telegram-bot/tmp \
+         /opt/telegram-bot/sessions \
+         /opt/telegram-bot/uploads \
+         /opt/telegram-bot/downloads \
+         /opt/telegram-bot/data \
+         /opt/telegram-bot/templates \
+         /opt/telegram-bot/static
 
 # Set proper ownership
 chown -R telegram-bot:telegram-bot /opt/telegram-bot

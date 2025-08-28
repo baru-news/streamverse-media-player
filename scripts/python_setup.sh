@@ -11,9 +11,14 @@ echo "Starting Python environment configuration..."
 # Install Python 3.11 and dependencies
 echo "Installing Python 3.11..."
 apt update
-apt install -y software-properties-common
-add-apt-repository ppa:deadsnakes/ppa -y
-apt update
+apt install -y software-properties-common python3-launchpadlib
+
+# Add Python 3.11 repository with error handling
+if add-apt-repository ppa:deadsnakes/ppa -y; then
+    apt update
+else
+    echo "Warning: Could not add deadsnakes PPA, trying with existing packages..."
+fi
 
 apt install -y \
     python3.11 \
