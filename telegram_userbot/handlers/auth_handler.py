@@ -32,11 +32,12 @@ class AuthHandler:
             # Generate unique linking code
             link_code = self._generate_link_code()
             
-            # Store linking code in database
+            # Store linking code in database along with chat ID
             code_data = {
                 'code': link_code,
                 'telegram_user_id': user.id,
-                'telegram_username': user.username or user.first_name
+                'telegram_username': user.username or user.first_name,
+                'telegram_chat_id': message.chat.id,
             }
             
             result = self.supabase.client.table('telegram_link_codes').insert(code_data).execute()

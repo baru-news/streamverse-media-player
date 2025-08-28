@@ -52,21 +52,20 @@ DOWNLOAD_DIR = Path(env_str("DOWNLOAD_DIR", default=str(HERE / "downloads")))
 SESSION_DIR.mkdir(parents=True, exist_ok=True)
 DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# ---------- Supabase (opsional) ----------
-SUPABASE_URL = env_str("SUPABASE_URL", default="")
-SUPABASE_SERVICE_ROLE_KEY = env_str("SUPABASE_SERVICE_ROLE_KEY", default=os.environ.get("SUPABASE_KEY") or "")
-SUPABASE_ANON_KEY = env_str("SUPABASE_ANON_KEY", default="")  # optional
-supabase = None
-if SUPABASE_URL and (SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY):
-    try:
-        from supabase import create_client
-        supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY)
-        logger.info("✅ Supabase client initialized")
-    except Exception as e:
-        logger.exception(f"Supabase init failed: {e}")
-
 # ---------- Pyrogram ----------
 from pyrogram import Client, filters, types
+
+# Handler imports (support both package and direct execution)
+try:
+    from .handlers.upload_handler import UploadHandler
+    from .handlers.admin_handler import AdminHandler
+    from .handlers.auth_handler import AuthHandler
+    from .utils.supabase_client import SupabaseManager
+except Exception:
+    from handlers.upload_handler import UploadHandler
+    from handlers.admin_handler import AdminHandler
+    from handlers.auth_handler import AuthHandler
+    from utils.supabase_client import SupabaseManager
 
 def build_client() -> Client:
     """
@@ -93,7 +92,13 @@ def build_client() -> Client:
 
 app = build_client()
 
-# ---------- Handlers ----------
+# ---------- Initialize handlers ----------
+supabase_manager = SupabaseManager()
+upload_handler = UploadHandler(supabase_manager)
+admin_handler = AdminHandler(supabase_manager)
+auth_handler = AuthHandler(supabase_manager)
+
+# ---------- Basic commands ----------
 @app.on_message(filters.me & filters.command(["ping"], prefixes=["/", "!", "."]))
 async def ping_handler(client: Client, message: types.Message):
     await message.reply_text("pong")
@@ -156,6 +161,21 @@ async def dood_file_handler(client: Client, message: types.Message):
             else:
                 lines.append(f"- {label}: ❌ {res.get('error')}")
     await message.reply_text("\n".join(lines) or "No result")
+
+# ---------- Auto upload & admin/auth handlers ----------
+
+# Auto-upload videos/documents from premium groups
+app.on_message(filters.group & (filters.video | filters.document))(upload_handler.handle_group_upload)
+
+# Admin commands
+app.on_message(filters.me & filters.command(["start"], prefixes=["/", "!", "."]))(admin_handler.handle_start)
+app.on_message(filters.me & filters.command(["status"], prefixes=["/", "!", "."]))(admin_handler.handle_status)
+app.on_message(filters.me & filters.command(["groups"], prefixes=["/", "!", "."]))(admin_handler.handle_groups)
+app.on_message(filters.me & filters.command(["addgroup"], prefixes=["/", "!", "."]))(admin_handler.handle_add_group)
+app.on_message(filters.me & filters.command(["sync"], prefixes=["/", "!", "."]))(admin_handler.handle_sync)
+
+# Account linking command for users
+app.on_message(filters.command(["link"], prefixes=["/", "!", "."]))(auth_handler.handle_link_account)
 
 # ---------- Lifecycle ----------
 async def main():
