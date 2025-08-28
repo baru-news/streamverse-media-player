@@ -1,40 +1,46 @@
 """
-Logging setup for Telegram User Bot
+Logger Setup for Telegram Upload Bot
 """
 
 import logging
-import logging.handlers
+import sys
 import os
+from datetime import datetime
 from pathlib import Path
+import json
 
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
-    """Setup logging configuration"""
+def setup_logger(name: str = 'telegram_userbot', level: str = 'INFO', log_dir: str = 'logs') -> logging.Logger:
+    """Setup structured logging"""
     
     # Create logs directory
-    log_dir = Path("/opt/telegram-userbot/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
+    Path(log_dir).mkdir(exist_ok=True)
     
-    # Configure root logger
-    logging.basicConfig(
-        level=getattr(logging, log_level.upper(), logging.INFO),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            # Console handler
-            logging.StreamHandler(),
-            # File handler with rotation
-            logging.handlers.RotatingFileHandler(
-                log_dir / "userbot.log",
-                maxBytes=10 * 1024 * 1024,  # 10MB
-                backupCount=5
-            )
-        ]
+    # Configure logger
+    logger = logging.getLogger(name)
+    logger.setLevel(getattr(logging, level.upper()))
+    
+    # Remove existing handlers to avoid duplicates
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
     
-    # Set specific logger levels
-    logging.getLogger("pyrogram").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    
-    logger = logging.getLogger("telegram_userbot")
-    logger.info("🔧 Logging setup completed")
+    # File handler
+    log_file = Path(log_dir) / f"{name}_{datetime.now().strftime('%Y%m%d')}.log"
+    file_handler = logging.FileHandler(log_file)
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s'
+    )
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
     
     return logger
+
+# Global logger instance
+logger = setup_logger()

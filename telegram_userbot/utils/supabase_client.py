@@ -1,10 +1,14 @@
 """
-Supabase Client for Telegram User Bot
+Enhanced Supabase Client for Telegram Upload Bot
 """
 
+import asyncio
 import logging
-from typing import Optional, Dict, Any
+import json
+from datetime import datetime, timedelta
+from typing import Dict, Any, List, Optional
 from supabase import create_client, Client
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +157,6 @@ class SupabaseManager:
             stats = {}
             
             # Upload statistics (last 7 days)
-            from datetime import datetime, timedelta
             week_ago = (datetime.now() - timedelta(days=7)).isoformat()
             
             uploads_result = self.client.table('telegram_uploads').select('*').gte('created_at', week_ago).execute()

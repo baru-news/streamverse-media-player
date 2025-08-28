@@ -1,8 +1,3 @@
 """
-Telegram User Bot Utilities Package
+Utility modules for Telegram Upload Bot
 """
-
-from .supabase_client import SupabaseManager
-from .logger_setup import setup_logging
-
-__all__ = ['SupabaseManager', 'setup_logging']

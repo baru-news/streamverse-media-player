@@ -4,6 +4,7 @@ Handles admin commands and management
 """
 
 import logging
+from datetime import datetime, timedelta
 from typing import List, Dict
 from pyrogram import Client
 from pyrogram.types import Message
@@ -495,7 +496,6 @@ Use `/groups` to manage premium groups
             stats = {}
             
             # Upload statistics (last 7 days)
-            from datetime import datetime, timedelta
             week_ago = (datetime.now() - timedelta(days=7)).isoformat()
             
             uploads_result = self.supabase.client.table('telegram_uploads').select('*').gte('created_at', week_ago).execute()
