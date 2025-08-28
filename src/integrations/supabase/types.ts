@@ -1368,6 +1368,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_profile_for_comment: {
+        Args: { profile_user_id: string }
+        Returns: {
+          avatar_url: string
+          username: string
+        }[]
+      }
       get_upload_analytics: {
         Args: { hours_param?: number }
         Returns: Json
