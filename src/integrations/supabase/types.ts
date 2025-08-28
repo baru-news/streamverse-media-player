@@ -1379,6 +1379,14 @@ export type Database = {
         Args: { hours_param?: number }
         Returns: Json
       }
+      get_user_badge_display: {
+        Args: { badge_user_id: string }
+        Returns: {
+          badge_key: string
+          badge_slot: number
+          is_active: boolean
+        }[]
+      }
       handle_daily_login: {
         Args: { user_id_param: string }
         Returns: undefined
