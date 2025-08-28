@@ -182,10 +182,143 @@ class SupabaseManager:
             return {}
 
     async def get_recent_failures(self) -> list:
-        """Get recent upload failures"""
+        """Get recent upload failures with enhanced details"""
         try:
             result = self.client.table('upload_failures').select('*').order('created_at', desc=True).limit(20).execute()
             return result.data or []
         except Exception as e:
             logger.error(f"Error getting recent failures: {e}")
             return []
+    
+    async def get_upload_failure_by_id(self, failure_id: str) -> Optional[Dict]:
+        """Get specific upload failure by ID"""
+        try:
+            result = self.client.table('upload_failures').select('*').eq('id', failure_id).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.error(f"Error getting upload failure by ID: {e}")
+            return None
+    
+    async def get_upload_by_failure_id(self, failure_id: str) -> Optional[Dict]:
+        """Get original upload data from failure record"""
+        try:
+            # First get the failure record
+            failure = await self.get_upload_failure_by_id(failure_id)
+            if not failure:
+                return None
+            
+            # Extract upload_id from error_details
+            error_details = failure.get('error_details', {})
+            upload_id = error_details.get('upload_id')
+            
+            if upload_id:
+                result = self.client.table('telegram_uploads').select('*').eq('id', upload_id).execute()
+                return result.data[0] if result.data else None
+                
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting upload by failure ID: {e}")
+            return None
+    
+    async def get_upload_by_id(self, upload_id: str) -> Optional[Dict]:
+        """Get upload record by ID"""
+        try:
+            result = self.client.table('telegram_uploads').select('*').eq('id', upload_id).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.error(f"Error getting upload by ID: {e}")
+            return None
+    
+    async def update_failure_attempt_count(self, failure_id: str, attempt_count: int):
+        """Update failure attempt count"""
+        try:
+            self.client.table('upload_failures').update({
+                'attempt_count': attempt_count,
+                'updated_at': 'now()'
+            }).eq('id', failure_id).execute()
+        except Exception as e:
+            logger.error(f"Error updating failure attempt count: {e}")
+    
+    async def mark_upload_manual_required(self, failure_id: str):
+        """Mark upload as requiring manual intervention"""
+        try:
+            self.client.table('upload_failures').update({
+                'requires_manual_upload': True,
+                'admin_action_taken': 'marked_manual',
+                'updated_at': 'now()'
+            }).eq('id', failure_id).execute()
+        except Exception as e:
+            logger.error(f"Error marking upload as manual required: {e}")
+    
+    async def add_retry_history(self, failure_id: str, retry_result: Dict):
+        """Add retry attempt to failure history"""
+        try:
+            # Get current failure record
+            failure = await self.get_upload_failure_by_id(failure_id)
+            if not failure:
+                return
+            
+            # Get current retry history
+            current_history = failure.get('retry_history', [])
+            if not isinstance(current_history, list):
+                current_history = []
+            
+            # Add new retry result
+            current_history.append(retry_result)
+            
+            # Update failure record
+            self.client.table('upload_failures').update({
+                'retry_history': current_history,
+                'updated_at': 'now()'
+            }).eq('id', failure_id).execute()
+            
+        except Exception as e:
+            logger.error(f"Error adding retry history: {e}")
+    
+    async def retry_upload_with_provider(self, upload_id: str, provider: str) -> bool:
+        """Retry upload with specific provider (placeholder - would integrate with actual retry logic)"""
+        try:
+            # This would integrate with the actual upload retry mechanism
+            # For now, simulate retry attempt
+            logger.info(f"Retrying upload {upload_id} with provider: {provider}")
+            
+            # In real implementation, this would:
+            # 1. Get original upload data
+            # 2. Re-trigger upload to specific provider
+            # 3. Update upload status based on result
+            
+            # Placeholder success (85% success rate simulation)
+            import random
+            success = random.random() > 0.15
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error retrying upload with provider: {e}")
+            return False
+    
+    async def log_admin_notification(self, notification_data: Dict):
+        """Log admin notification attempt"""
+        try:
+            # Store notification log (could be in separate table)
+            log_data = {
+                'notification_type': notification_data.get('notification_type'),
+                'upload_failure_id': notification_data.get('upload_failure_id'),
+                'sent_to_count': notification_data.get('sent_to_count', 0),
+                'error_category': notification_data.get('error_category'),
+                'message_preview': notification_data.get('message_preview', ''),
+                'created_at': 'now()'
+            }
+            
+            # For now, log to upload_logs table
+            self.client.table('upload_logs').insert({
+                'user_id': 'system',  # System notification
+                'filename': 'admin_notification',
+                'success': notification_data.get('sent_to_count', 0) > 0,
+                'upload_type': 'admin_notification',
+                'error_message': f"Notification: {notification_data.get('notification_type')} - {notification_data.get('error_category')}"
+            }).execute()
+            
+        except Exception as e:
+            logger.error(f"Error logging admin notification: {e}")

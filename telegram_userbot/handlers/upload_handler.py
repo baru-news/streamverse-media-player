@@ -321,9 +321,27 @@ class UploadHandler:
                     await self._log_upload_failure(file_info, "Video record creation failed", upload_id)
                     return False
             else:
-                error_msg = doodstream_result.get('error', 'Upload failed') if doodstream_result else 'No response from Doodstream'
+                # Enhanced error handling with provider-specific categorization
+                error_context = {}
+                
+                if doodstream_result:
+                    # Parse dual upload results for categorized errors
+                    regular_result = doodstream_result.get('regular_result', {})
+                    premium_result = doodstream_result.get('premium_result', {})
+                    
+                    if not regular_result.get('success'):
+                        error_context['regular_error'] = regular_result.get('error', 'Unknown regular upload error')
+                    
+                    if not premium_result.get('success'):
+                        error_context['premium_error'] = premium_result.get('error', 'Unknown premium upload error')
+                        
+                    error_msg = doodstream_result.get('error', 'Dual upload failed')
+                else:
+                    error_msg = 'No response from Doodstream'
+                    error_context['general_error'] = error_msg
+                
                 await self._update_upload_status(upload_id, 'failed', error_message=error_msg)
-                await self._log_upload_failure(file_info, error_msg, upload_id)
+                await self._log_upload_failure(file_info, error_msg, upload_id, error_context)
                 logger.error(f"Doodstream upload failed: {error_msg}")
                 return False
                 
@@ -424,100 +442,142 @@ class UploadHandler:
         except Exception as e:
             logger.error(f"Error updating upload status: {e}")
 
-    async def _log_upload_failure(self, file_info: Dict, error: str, upload_id: str = None):
-        """Log upload failure for admin review and retry"""
+    async def _log_upload_failure(self, file_info: Dict, error_message: str, upload_id: Optional[str] = None, error_context: Optional[Dict] = None):
+        """Enhanced upload failure logging with categorized errors for Phase 3"""
         try:
+            # Parse error context for detailed categorization
+            regular_error = None
+            premium_error = None
+            
+            if error_context:
+                # Extract provider-specific errors
+                if 'regular_error' in error_context:
+                    regular_error = error_context['regular_error']
+                if 'premium_error' in error_context:
+                    premium_error = error_context['premium_error']
+            
+            # Determine error category
+            if regular_error and premium_error:
+                error_category = "both_failed"
+            elif regular_error and not premium_error:
+                error_category = "regular_failed"
+            elif premium_error and not regular_error:
+                error_category = "premium_failed"
+            else:
+                error_category = "unknown_error"
+            
+            # Enhanced failure data with detailed error context
             failure_data = {
-                'upload_type': 'telegram_auto',
+                'upload_type': 'telegram_group_upload',
                 'error_details': {
-                    'error_message': error,
+                    'error_message': error_message,
+                    'error_category': error_category,
+                    'regular_error': regular_error,
+                    'premium_error': premium_error,
                     'file_info': file_info,
                     'upload_id': upload_id,
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now().isoformat(),
+                    'context': error_context or {}
                 },
-                'requires_manual_upload': True,
-                'attempt_count': 1
+                'attempt_count': 1,
+                'requires_manual_upload': False,
+                'retry_history': [],
+                'notification_sent_at': None,
+                'admin_action_taken': None
             }
             
-            if upload_id:
-                # Link to telegram upload record
-                failure_data['video_id'] = None  # Will be set if video record exists
-                
-            await self.supabase.log_upload_failure(failure_data)
+            upload_failure_id = await self.supabase.log_upload_failure(failure_data)
             
+            if upload_failure_id:
+                logger.info(f"Upload failure logged with ID: {upload_failure_id} (Category: {error_category})")
+                
+                # Trigger real-time admin notification
+                failure_data['id'] = upload_failure_id
+                await self._trigger_admin_notification(failure_data)
+            else:
+                logger.error("Failed to log upload failure to database")
+                
         except Exception as e:
             logger.error(f"Error logging upload failure: {e}")
-
-    async def _notify_admin_of_failure(self, filename: str, error: str, context: Dict = None):
-        """Enhanced admin notification for upload failures"""
+    
+    async def _trigger_admin_notification(self, failure_data: Dict):
+        """Trigger real-time admin notification for upload failure"""
         try:
-            # Get admin accounts
-            admins = await self.supabase.get_admin_telegram_accounts()
+            # Import notification bot (lazy import to avoid circular dependency)
+            from ..utils.telegram_bot import TelegramNotificationBot
             
-            if not admins:
-                logger.warning("No admin telegram accounts found for notifications")
-                return
-            
-            # Enhanced notification with context
-            context_info = ""
-            if context:
-                context_info = f"""
-📊 **Context:**
-• Chat: {context.get('chat_title', 'Unknown')} ({context.get('chat_id', 'N/A')})
-• User: {context.get('user_id', 'N/A')}
-• Message: {context.get('message_id', 'N/A')}
-"""
-            
-            notification_text = f"""
-🚨 **Upload Failed - Auto Retry Available**
+            # Get client reference (this would be passed from main)
+            if hasattr(self, '_client'):
+                notification_bot = TelegramNotificationBot(self._client, self.supabase)
+                await notification_bot.notify_upload_failure(failure_data)
+            else:
+                logger.warning("Client not available for real-time notifications")
+                
+        except Exception as e:
+            logger.error(f"Error triggering admin notification: {e}")
 
-📁 **File:** `{filename}`
-❌ **Error:** {error[:500]}{'...' if len(error) > 500 else ''}
-🕐 **Time:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-{context_info}
-🔄 **Action:** Use `/retry {context.get('chat_id', '')} {context.get('message_id', '')}` to retry this upload
-
-Check logs for full details.
-"""
-            
-            # Log notification for admin system (placeholder for actual bot notifications)
-            logger.info(f"Admin notification queued for {len(admins)} admins: Upload failure - {filename}")
-            
-            # Store notification in database for admin dashboard
-            await self.supabase.store_admin_notification({
+    async def _notify_admin_of_failure(self, filename: str, error_message: str, context: Optional[Dict] = None):
+        """Enhanced admin failure notification with real-time support"""
+        try:
+            # Traditional notification logging
+            notification_data = {
                 'type': 'upload_failure',
                 'title': f'Upload Failed: {filename}',
-                'message': notification_text,
+                'message': error_message,
                 'context': context or {},
+                'timestamp': datetime.now().isoformat(),
                 'priority': 'high'
-            })
+            }
+            
+            await self.supabase.store_admin_notification(notification_data)
+            logger.info(f"Admin notified of upload failure: {filename}")
+            
+            # Real-time notification handled by _trigger_admin_notification
             
         except Exception as e:
-            logger.error(f"Error notifying admins of failure: {e}")
+            logger.error(f"Error notifying admin of failure: {e}")
 
     async def _notify_admin_success(self, file_info: Dict, group_name: str):
-        """Notify admins of successful uploads"""
+        """Enhanced success notification with real-time support"""
         try:
-            notification_text = f"""
-✅ **Upload Successful**
-
-📁 **File:** `{file_info['original_name']}`
-📊 **Size:** {file_info.get('file_size_mb', 0):.1f} MB
-⏱️ **Duration:** {file_info.get('duration', 0)}s
-🏠 **Group:** {group_name}
-🕐 **Time:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-"""
+            # Traditional notification logging
+            notification_data = {
+                'type': 'upload_success', 
+                'title': f'Upload Successful: {file_info["original_name"]}',
+                'message': f'Successfully uploaded from {group_name}',
+                'context': {
+                    'file_size_mb': file_info.get('file_size_mb', 0),
+                    'duration': file_info.get('duration', 0),
+                    'group_name': group_name
+                },
+                'timestamp': datetime.now().isoformat(),
+                'priority': 'low'
+            }
             
-            await self.supabase.store_admin_notification({
-                'type': 'upload_success',
-                'title': f'Upload Success: {file_info["original_name"]}',
-                'message': notification_text,
-                'context': {'file_info': file_info, 'group_name': group_name},
-                'priority': 'normal'
-            })
+            await self.supabase.store_admin_notification(notification_data)
+            logger.info(f"Admin notified of successful upload: {file_info['original_name']}")
+            
+            # Real-time success notification
+            try:
+                from ..utils.telegram_bot import TelegramNotificationBot
+                
+                if hasattr(self, '_client'):
+                    notification_bot = TelegramNotificationBot(self._client, self.supabase)
+                    success_data = {
+                        'file_info': file_info,
+                        'group_name': group_name
+                    }
+                    await notification_bot.notify_upload_success(success_data)
+                    
+            except Exception as e:
+                logger.error(f"Error sending real-time success notification: {e}")
             
         except Exception as e:
-            logger.error(f"Error notifying admins of success: {e}")
+            logger.error(f"Error notifying admin of success: {e}")
+            
+    def set_client(self, client):
+        """Set client reference for real-time notifications"""
+        self._client = client
 
     async def _create_video_record_enhanced(self, file_info: Dict, doodstream_result: Dict, message: Message, upload_id: str) -> Optional[str]:
         """Create enhanced video record in database with full metadata"""

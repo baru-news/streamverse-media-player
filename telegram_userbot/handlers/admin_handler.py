@@ -207,52 +207,153 @@ Use `/sync` to manually sync Doodstream
             await message.reply_text("❌ Error during sync")
 
     async def handle_retry_upload(self, client: Client, message: Message):
-        """Handle /retry command to retry failed uploads"""
+        """Enhanced /retry command with provider-specific retry options"""
         try:
             command_parts = message.text.split()
-            if len(command_parts) < 3:
-                await message.reply_text("❌ Usage: `/retry <chat_id> <message_id>`")
+            if len(command_parts) < 2:
+                await message.reply_text("""
+❌ **Usage:**
+• `/retry <upload_id>` - Retry by upload failure ID
+• `/retry <chat_id> <message_id>` - Retry by original message
+• `/retry <upload_id> regular` - Retry only regular upload
+• `/retry <upload_id> premium` - Retry only premium upload
+
+Use `/failures` to get upload IDs
+""")
                 return
             
-            try:
-                chat_id = int(command_parts[1])
-                message_id = int(command_parts[2])
-            except ValueError:
-                await message.reply_text("❌ Invalid chat_id or message_id. Must be numbers.")
-                return
-            
-            await message.reply_text(f"🔄 Retrying upload from chat {chat_id}, message {message_id}...")
-            
-            # Get the original message
-            try:
-                original_message = await client.get_messages(chat_id, message_id)
-                if not original_message:
-                    await message.reply_text("❌ Original message not found")
+            # Parse command arguments
+            if len(command_parts) == 2:
+                # Single argument - could be upload_id or chat_id
+                try:
+                    # Try as upload_id first (UUID format)
+                    upload_id = command_parts[1]
+                    if len(upload_id) == 36 and upload_id.count('-') == 4:  # UUID format
+                        success = await self._retry_by_upload_id(upload_id, "both")
+                        if success:
+                            await message.reply_text("✅ Retry successful!")
+                        else:
+                            await message.reply_text("❌ Retry failed. Check logs for details.")
+                        return
+                    else:
+                        await message.reply_text("❌ Invalid upload ID format. Use `/failures` to get valid IDs.")
+                        return
+                        
+                except Exception:
+                    await message.reply_text("❌ Invalid upload ID format.")
                     return
+            
+            elif len(command_parts) == 3:
+                # Could be: chat_id + message_id OR upload_id + provider
+                first_arg = command_parts[1]
+                second_arg = command_parts[2]
                 
-                # Import upload handler to retry the upload
-                from .upload_handler import UploadHandler
-                upload_handler = UploadHandler(self.supabase)
-                
-                # Process the upload again
-                success = await upload_handler.handle_group_upload(client, original_message)
-                
-                if success:
-                    await message.reply_text("✅ Retry successful!")
-                else:
-                    await message.reply_text("❌ Retry failed. Check logs for details.")
+                # Check if first arg is UUID (upload_id + provider)
+                if len(first_arg) == 36 and first_arg.count('-') == 4:
+                    upload_id = first_arg
+                    provider = second_arg.lower()
                     
-            except Exception as e:
-                await message.reply_text(f"❌ Error accessing original message: {e}")
+                    if provider not in ['regular', 'premium', 'both']:
+                        await message.reply_text("❌ Provider must be 'regular', 'premium', or 'both'")
+                        return
+                    
+                    success = await self._retry_by_upload_id(upload_id, provider)
+                    if success:
+                        await message.reply_text(f"✅ {provider.title()} retry successful!")
+                    else:
+                        await message.reply_text(f"❌ {provider.title()} retry failed. Check logs for details.")
+                    return
+                    
+                else:
+                    # Legacy format: chat_id + message_id
+                    try:
+                        chat_id = int(first_arg)
+                        message_id = int(second_arg)
+                        
+                        success = await self._retry_by_message(client, chat_id, message_id)
+                        if success:
+                            await message.reply_text("✅ Retry successful!")
+                        else:
+                            await message.reply_text("❌ Retry failed. Check logs for details.")
+                        return
+                        
+                    except ValueError:
+                        await message.reply_text("❌ Invalid chat_id or message_id. Must be numbers.")
+                        return
+            
+            else:
+                await message.reply_text("❌ Too many arguments. See usage above.")
+                return
             
         except Exception as e:
             logger.error(f"Error in retry command: {e}")
             await message.reply_text("❌ Error during retry")
+    
+    async def _retry_by_upload_id(self, upload_id: str, provider: str) -> bool:
+        """Retry upload by failure ID with specific provider"""
+        try:
+            # Get upload failure data
+            failure_data = await self.supabase.get_upload_failure_by_id(upload_id)
+            if not failure_data:
+                return False
+            
+            # Get original upload data
+            upload_data = await self.supabase.get_upload_by_failure_id(upload_id)
+            if not upload_data:
+                return False
+            
+            # Increment attempt count
+            attempt_count = failure_data.get('attempt_count', 0) + 1
+            if attempt_count > 3:
+                await self.supabase.mark_upload_manual_required(upload_id)
+                return False
+            
+            # Update attempt count
+            await self.supabase.update_failure_attempt_count(upload_id, attempt_count)
+            
+            # Trigger retry with specific provider
+            success = await self.supabase.retry_upload_with_provider(upload_data.get('id'), provider)
+            
+            # Log retry result
+            retry_result = {
+                'timestamp': datetime.now().isoformat(),
+                'provider': provider,
+                'attempt': attempt_count,
+                'success': success
+            }
+            
+            await self.supabase.add_retry_history(upload_id, retry_result)
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error retrying upload by ID {upload_id}: {e}")
+            return False
+    
+    async def _retry_by_message(self, client: Client, chat_id: int, message_id: int) -> bool:
+        """Legacy retry by original message"""
+        try:
+            # Get the original message
+            original_message = await client.get_messages(chat_id, message_id)
+            if not original_message:
+                return False
+            
+            # Import upload handler to retry the upload
+            from .upload_handler import UploadHandler
+            upload_handler = UploadHandler(self.supabase)
+            upload_handler.set_client(client)  # Set client for notifications
+            
+            # Process the upload again
+            return await upload_handler.handle_group_upload(client, original_message)
+            
+        except Exception as e:
+            logger.error(f"Error retrying by message {chat_id}/{message_id}: {e}")
+            return False
 
     async def handle_failures(self, client: Client, message: Message):
-        """Handle /failures command to show recent upload failures"""
+        """Enhanced /failures command with detailed categorization"""
         try:
-            # Get recent failures
+            # Get recent failures with enhanced details
             failures = await self._get_recent_failures()
             
             if not failures:
@@ -264,16 +365,58 @@ Use `/sync` to manually sync Doodstream
             for i, failure in enumerate(failures[:10], 1):  # Show max 10
                 error_details = failure.get('error_details', {})
                 file_info = error_details.get('file_info', {})
+                error_category = error_details.get('error_category', 'unknown')
                 
-                failures_text += f"{i}. **{file_info.get('original_name', 'Unknown')}**\n"
-                failures_text += f"   Error: {error_details.get('error_message', 'Unknown')[:100]}...\n"
-                failures_text += f"   Time: {failure.get('created_at', 'Unknown')}\n"
-                failures_text += f"   Attempts: {failure.get('attempt_count', 0)}\n\n"
+                # Status icons based on category
+                if error_category == "both_failed":
+                    status_icon = "🔴"
+                    error_desc = "Both providers failed"
+                elif error_category == "regular_failed":
+                    status_icon = "🟡"
+                    error_desc = "Regular provider failed"
+                elif error_category == "premium_failed":
+                    status_icon = "🟠"
+                    error_desc = "Premium provider failed"
+                else:
+                    status_icon = "❌"
+                    error_desc = "Unknown error"
+                
+                failures_text += f"{i}. {status_icon} **{file_info.get('original_name', 'Unknown')}**\n"
+                failures_text += f"   ID: `{failure.get('id', 'N/A')[:8]}...`\n"
+                failures_text += f"   Status: {error_desc}\n"
+                failures_text += f"   Attempts: {failure.get('attempt_count', 0)}/3\n"
+                failures_text += f"   Time: {failure.get('created_at', 'Unknown')[:19]}\n"
+                
+                # Show specific errors if available
+                regular_error = error_details.get('regular_error')
+                premium_error = error_details.get('premium_error')
+                
+                if regular_error:
+                    failures_text += f"   🔴 Regular: {regular_error[:50]}...\n"
+                if premium_error:
+                    failures_text += f"   🟠 Premium: {premium_error[:50]}...\n"
+                
+                # Show retry options
+                manual_required = failure.get('requires_manual_upload', False)
+                if manual_required:
+                    failures_text += f"   ⚠️ **Manual upload required**\n"
+                elif failure.get('attempt_count', 0) < 3:
+                    failures_text += f"   🔄 Use: `/retry {failure.get('id')}`\n"
+                
+                failures_text += "\n"
             
             if len(failures) > 10:
-                failures_text += f"... and {len(failures) - 10} more failures\n"
+                failures_text += f"... and {len(failures) - 10} more failures\n\n"
             
-            failures_text += "Use `/retry <chat_id> <message_id>` to retry specific uploads"
+            failures_text += """
+**Retry Commands:**
+• `/retry <upload_id>` - Retry both providers
+• `/retry <upload_id> regular` - Retry regular only
+• `/retry <upload_id> premium` - Retry premium only
+
+**Legend:**
+🔴 Both failed | 🟡 Regular failed | 🟠 Premium failed
+"""
             
             await message.reply_text(failures_text)
             

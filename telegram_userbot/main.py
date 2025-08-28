@@ -98,6 +98,12 @@ upload_handler = UploadHandler(supabase_manager)
 admin_handler = AdminHandler(supabase_manager)
 auth_handler = AuthHandler(supabase_manager)
 
+# Import notification bot for real-time admin notifications
+try:
+    from .utils.telegram_bot import TelegramNotificationBot
+except Exception:
+    from utils.telegram_bot import TelegramNotificationBot
+
 # ---------- Basic commands ----------
 @app.on_message(filters.me & filters.command(["ping"], prefixes=["/", "!", "."]))
 async def ping_handler(client: Client, message: types.Message):
@@ -167,6 +173,24 @@ async def dood_file_handler(client: Client, message: types.Message):
 # Auto-upload videos/documents from premium groups
 app.on_message(filters.group & (filters.video | filters.document))(upload_handler.handle_group_upload)
 
+# Initialize notification bot for real-time admin notifications
+notification_bot = None
+
+# Callback query handler for inline keyboard interactions
+@app.on_callback_query()
+async def handle_callback_query(client: Client, callback_query):
+    """Handle inline keyboard callback queries"""
+    try:
+        global notification_bot
+        if not notification_bot:
+            notification_bot = TelegramNotificationBot(client, supabase_manager)
+        
+        await notification_bot.handle_callback_query(callback_query)
+        
+    except Exception as e:
+        logger.error(f"Error handling callback query: {e}")
+        await callback_query.answer("❌ Error processing request", show_alert=True)
+
 # Admin commands - Enhanced with new functionality
 app.on_message(filters.me & filters.command(["start"], prefixes=["/", "!", "."]))(admin_handler.handle_start)
 app.on_message(filters.me & filters.command(["status"], prefixes=["/", "!", "."]))(admin_handler.handle_status)
@@ -194,8 +218,32 @@ async def main():
     try:
         logger.info("🚀 Starting Telegram User Bot...")
         await app.start()
-        logger.info("✅ Userbot started")
+        
+        # Set client reference for upload handler notifications
+        upload_handler.set_client(app)
+        
+        # Initialize notification bot
+        global notification_bot
+        notification_bot = TelegramNotificationBot(app, supabase_manager)
+        
+        # Start periodic cleanup task for expired callbacks
+        async def cleanup_task():
+            while True:
+                try:
+                    await notification_bot.cleanup_expired_callbacks()
+                    await asyncio.sleep(3600)  # Clean up every hour
+                except Exception as e:
+                    logger.error(f"Error in cleanup task: {e}")
+                    await asyncio.sleep(300)  # Retry in 5 minutes on error
+        
+        # Start cleanup task in background
+        cleanup_task_handle = asyncio.create_task(cleanup_task())
+        
+        logger.info("✅ Userbot started with real-time admin notifications")
         await stop_event.wait()
+        
+        # Cancel cleanup task on shutdown
+        cleanup_task_handle.cancel()
     except Exception as e:
         logger.error(f"💥 Fatal error: {e}")
         sys.exit(1)
