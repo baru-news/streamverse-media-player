@@ -6,8 +6,11 @@ Handles file uploads from premium groups
 import os
 import asyncio
 import logging
+import json
 from pathlib import Path
 from typing import Dict, Optional
+
+import httpx
 from pyrogram import Client
 from pyrogram.types import Message
 from utils.supabase_client import SupabaseManager
@@ -166,26 +169,33 @@ class UploadHandler:
             
             # Upload to Doodstream via edge function
             doodstream_result = await self._upload_to_doodstream(file_path, file_info['name'])
-            
+
             # Clean up downloaded file
             try:
                 os.unlink(file_path)
-            except:
+            except Exception:
                 pass
-            
-            if doodstream_result:
+
+            if doodstream_result and doodstream_result.get('success'):
+                status = 'partial_success' if doodstream_result.get('hasErrors') else 'completed'
+                error_msg = (
+                    json.dumps(doodstream_result.get('errors'))
+                    if doodstream_result.get('hasErrors')
+                    else None
+                )
+
                 # Update upload status
                 await self._update_upload_status(
                     upload_id,
-                    'completed',
-                    None,
+                    status,
+                    error_msg,
                     doodstream_result.get('file_code')
                 )
-                
+
                 # Create video record if needed
                 await self._create_video_record(file_info, doodstream_result, message)
-                
-                return True
+
+                return not doodstream_result.get('hasErrors')
             else:
                 await self._update_upload_status(upload_id, 'failed', 'Doodstream upload failed')
                 return False
@@ -219,40 +229,39 @@ class UploadHandler:
             return None
 
     async def _upload_to_doodstream(self, file_path: str, title: str) -> Optional[Dict]:
-        """Upload file to Doodstream via edge function"""
+        """Upload file to Doodstream via edge function using streaming"""
         try:
-            import base64
-
             logger.info(f"☁️ Uploading to Doodstream: {title}")
 
-            # Read and encode file as base64 for transport
-            with open(file_path, 'rb') as file:
-                file_content = file.read()
-                file_b64 = base64.b64encode(file_content).decode('utf-8')
+            function_url = f"{self.supabase.config.SUPABASE_URL}/functions/v1/doodstream-premium"
+            headers = {
+                "Authorization": f"Bearer {self.supabase.config.SUPABASE_SERVICE_ROLE_KEY}",
+                "apikey": self.supabase.config.SUPABASE_SERVICE_ROLE_KEY,
+            }
 
-            # Call edge function for dual upload (regular + premium)
-            result = self.supabase.client.functions.invoke(
-                'doodstream-premium',
-                {
-                    'action': 'upload_dual',
-                    'fileBuffer': file_b64,
-                    'fileName': os.path.basename(file_path),
-                    'title': title
-                }
-            ).execute()
+            async with httpx.AsyncClient(timeout=None) as client:
+                with open(file_path, "rb") as f:
+                    files = {"file": (os.path.basename(file_path), f, "application/octet-stream")}
+                    data = {"action": "upload_dual", "title": title}
+                    response = await client.post(function_url, data=data, files=files, headers=headers)
+                    response.raise_for_status()
+                    result = response.json()
 
-            if result.data and result.data.get('success'):
+            if result.get("success"):
                 logger.info("✅ Doodstream upload successful")
-                data = result.data.get('results', {})
+                data = result.get("results", {})
                 return {
-                    'regular_file_code': (data.get('regular') or {}).get('file_code'),
-                    'premium_file_code': (data.get('premium') or {}).get('file_code'),
-                    'file_code': (data.get('regular') or {}).get('file_code') or (data.get('premium') or {}).get('file_code')
+                    "success": True,
+                    "hasErrors": result.get("hasErrors"),
+                    "errors": result.get("errors"),
+                    "regular_file_code": (data.get("regular") or {}).get("file_code"),
+                    "premium_file_code": (data.get("premium") or {}).get("file_code"),
+                    "file_code": (data.get("regular") or {}).get("file_code") or (data.get("premium") or {}).get("file_code"),
                 }
             else:
-                logger.error(f"❌ Doodstream upload failed: {result.data}")
+                logger.error(f"❌ Doodstream upload failed: {result}")
                 return None
-                
+
         except Exception as e:
             logger.error(f"Error uploading to Doodstream: {e}")
             return None
