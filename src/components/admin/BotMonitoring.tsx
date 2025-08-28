@@ -76,16 +76,25 @@ export function BotMonitoring() {
         console.warn('Failed to fetch bot status from RPC, using mock data:', statusError);
       }
 
-      // Use RPC data if available, otherwise mock data
-      const rpcData = statusData as any; // Type cast for RPC response
+      // Parse the RPC response safely
+      let parsedData: any = {};
+      if (statusData) {
+        try {
+          parsedData = typeof statusData === 'string' ? JSON.parse(statusData) : statusData;
+        } catch (parseError) {
+          console.warn('Failed to parse RPC response:', parseError);
+          parsedData = statusData;
+        }
+      }
+
       setBotStatus({
         is_online: true,
         last_ping: new Date().toISOString(),
-        active_uploads: rpcData?.active_uploads || 3,
-        queue_size: rpcData?.queue_size || 12,
-        success_rate_24h: rpcData?.success_rate_24h || 92.5,
-        total_uploads_today: rpcData?.total_uploads_today || 156,
-        error_count_24h: rpcData?.error_count_24h || 12
+        active_uploads: parsedData?.active_uploads || 3,
+        queue_size: parsedData?.queue_size || 12,
+        success_rate_24h: parsedData?.success_rate_24h || 92.5,
+        total_uploads_today: parsedData?.total_uploads_today || 156,
+        error_count_24h: parsedData?.error_count_24h || 12
       });
 
       // Fetch provider health
